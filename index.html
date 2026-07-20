@@ -937,6 +937,67 @@
       transform: rotate(-90deg);
     }
 
+    /* ===== 8. CIRCULAR PROGRESS RING STYLES ===== */
+    .progress-ring-box {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+    }
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+    .progress-ring-circle {
+      transition: stroke-dashoffset 0.8s var(--ease-epic), stroke 0.3s ease;
+    }
+    .progress-ring-text {
+      position: absolute;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== 6. FORM SHAKE & MICRO-INTERACTION STYLES ===== */
+    @keyframes formShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .form-shake {
+      animation: formShake 0.4s ease-in-out;
+      border-color: var(--red-b) !important;
+    }
+
+    /* ===== 2. SKELETON LOADING SHIMMER STYLES ===== */
+    @keyframes shimmerAnim {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton-shimmer {
+      background: linear-gradient(90deg, var(--line) 25%, var(--soft) 50%, var(--line) 75%) !important;
+      background-size: 200% 100% !important;
+      animation: shimmerAnim 1.5s infinite linear !important;
+      border-radius: 6px;
+      color: transparent !important;
+      pointer-events: none !important;
+    }
+
+    /* ===== 5. SCROLL TRIGGERED REVEAL STYLES ===== */
+    .card-entry {
+      opacity: 0;
+      transform: translate3d(0, 24px, 0);
+      transition: opacity 0.45s var(--ease-epic), transform 0.45s var(--ease-epic);
+      will-change: transform, opacity;
+    }
+    .card-entry.revealed {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
     /* ===== MULTI FILTER & REKAP CLICKABLE STYLES ===== */
     @media(max-width:1050px) {
       .grid-filter { grid-template-columns: repeat(2, 1fr) !important; }
@@ -1402,38 +1463,128 @@
       });
     }
 
-    // 4. 100% Offline Particle Burst (Confetti)
+    // 9. Haptic Feedback Helper
+    function triggerHaptic(type = 'light') {
+      if (navigator && navigator.vibrate) {
+        try {
+          if (type === 'light') navigator.vibrate(12);
+          else if (type === 'success') navigator.vibrate([15, 30, 15]);
+          else if (type === 'error') navigator.vibrate([40, 60, 40]);
+        } catch (e) {}
+      }
+    }
+
+    // 2. Skeleton Loading Shimmer Helper
+    function triggerSkeletonLoading(fieldIds = []) {
+      fieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.add('skeleton-shimmer');
+          setTimeout(() => el.classList.remove('skeleton-shimmer'), 650);
+        }
+      });
+    }
+
+    // 5. Scroll-Triggered Reveal Observer
+    const scrollRevealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          scrollRevealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    function observeCardReveals() {
+      document.querySelectorAll('#groups > .card-entry').forEach(card => {
+        scrollRevealObserver.observe(card);
+      });
+    }
+
+    // 3. Physics-Based 3D Confetti Upgrade (Gravity, Air Resistance & 3D Rotations)
     function triggerEpicBurst(x, y) {
+      triggerHaptic('success');
       if (x === undefined || y === undefined) {
         x = window.innerWidth / 2;
         y = window.innerHeight / 2;
       }
-      const colors = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#a855f7'];
-      for (let i = 0; i < 40; i++) {
+      const colors = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#a855f7', '#06b6d4', '#f97316'];
+      const shapes = ['rect', 'circle', 'star', 'ribbon'];
+      const particleCount = 45;
+
+      for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
         particle.style.position = 'fixed';
         particle.style.left = x + 'px';
         particle.style.top = y + 'px';
-        particle.style.width = (4 + Math.random() * 6) + 'px';
-        particle.style.height = particle.style.width;
-        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        particle.style.borderRadius = '50%';
         particle.style.pointerEvents = 'none';
-        particle.style.zIndex = '9999';
+        particle.style.zIndex = '99999';
+
+        if (shape === 'circle') {
+          const size = 6 + Math.random() * 8;
+          particle.style.width = size + 'px';
+          particle.style.height = size + 'px';
+          particle.style.backgroundColor = color;
+          particle.style.borderRadius = '50%';
+        } else if (shape === 'star') {
+          particle.style.width = '0';
+          particle.style.height = '0';
+          particle.style.borderLeft = '6px solid transparent';
+          particle.style.borderRight = '6px solid transparent';
+          particle.style.borderBottom = `10px solid ${color}`;
+        } else if (shape === 'ribbon') {
+          particle.style.width = (4 + Math.random() * 4) + 'px';
+          particle.style.height = (14 + Math.random() * 12) + 'px';
+          particle.style.backgroundColor = color;
+          particle.style.borderRadius = '2px';
+        } else {
+          particle.style.width = (6 + Math.random() * 6) + 'px';
+          particle.style.height = (6 + Math.random() * 6) + 'px';
+          particle.style.backgroundColor = color;
+          particle.style.borderRadius = '2px';
+        }
+
         document.body.appendChild(particle);
 
         const angle = Math.random() * Math.PI * 2;
-        const velocity = 60 + Math.random() * 120;
-        const tx = Math.cos(angle) * velocity;
-        const ty = Math.sin(angle) * velocity;
+        const speed = 70 + Math.random() * 140;
+        let vx = Math.cos(angle) * speed;
+        let vy = Math.sin(angle) * speed - 40;
+        let rx = Math.random() * 360;
+        let ry = Math.random() * 360;
+        let rz = Math.random() * 360;
+        let opacity = 1;
 
-        particle.animate([
-          { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-          { transform: `translate(${tx}px, ${ty + 50}px) scale(0)`, opacity: 0 }
-        ], {
-          duration: 600 + Math.random() * 400,
-          easing: 'cubic-bezier(0, .9, .57, 1)',
-        }).onfinish = () => particle.remove();
+        let startTime = null;
+        const duration = 900 + Math.random() * 500;
+
+        const animatePhysics = (timestamp) => {
+          if (!startTime) startTime = timestamp;
+          const elapsed = timestamp - startTime;
+          const progress = elapsed / duration;
+
+          vy += 0.35; // gravity acceleration
+          vx *= 0.98; // air resistance
+          vy *= 0.98;
+          rx += 8;
+          ry += 10;
+          rz += 6;
+          opacity = Math.max(0, 1 - progress);
+
+          particle.style.transform = `translate3d(${vx * (elapsed / 25)}px, ${vy * (elapsed / 25)}px, 0) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${opacity})`;
+          particle.style.opacity = opacity;
+
+          if (progress < 1) {
+            requestAnimationFrame(animatePhysics);
+          } else {
+            particle.remove();
+          }
+        };
+
+        requestAnimationFrame(animatePhysics);
       }
     }
 
@@ -1854,6 +2005,14 @@
     function renderGroups() {
       const filteredRecords = getFilteredRecords();
       const wrap = document.getElementById('groups');
+      
+      // 1. FLIP Animation: Record initial card rects
+      const firstRects = new Map();
+      wrap.querySelectorAll('.card-entry').forEach(c => {
+        const key = c.getAttribute('data-group-key');
+        if (key) firstRects.set(key, c.getBoundingClientRect());
+      });
+
       wrap.innerHTML = '';
 
       if (!filteredRecords.length) {
@@ -1898,7 +2057,10 @@
         const sisa = Number(last.kontrak) - Number(last.kumulatif);
         const isCollapsed = collapsedGroups.has(k);
 
-        const card = document.createElement('div'); card.className = 'card epic-card card-entry';
+        const card = document.createElement('div');
+        card.className = 'card epic-card card-entry';
+        card.setAttribute('data-group-key', k);
+
         let rows = '';
         list.forEach((r, i) => {
           const overridden = r._overridePrev === true;
@@ -1921,19 +2083,41 @@
         </td></tr>`;
         });
 
+        // 8. Circular SVG Progress Ring
+        const radius = 18;
+        const circ = 2 * Math.PI * radius;
+        const pctVal = Math.min(100, Math.max(0, Number(last.persen) || 0));
+        const offset = circ - (circ * pctVal) / 100;
+        const ringColor = pctVal >= 100 ? 'var(--green-b)' : (pctVal >= 50 ? 'var(--brand)' : 'var(--yellow-b)');
+
+        const progressRingHtml = `
+          <div class="progress-ring-box" title="Progres Kumulatif: ${fmtPercent(last.persen)}%">
+            <svg class="progress-ring" width="42" height="42" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="18" fill="none" stroke="var(--line)" stroke-width="4" />
+              <circle class="progress-ring-circle" cx="24" cy="24" r="18" fill="none"
+                stroke="${ringColor}" stroke-width="4"
+                stroke-dasharray="${circ.toFixed(2)}"
+                stroke-dashoffset="${offset.toFixed(2)}"
+                stroke-linecap="round"/>
+            </svg>
+            <span class="progress-ring-text">${Math.round(pctVal)}%</span>
+          </div>`;
+
         card.innerHTML = `
       <div class="grp-head" data-toggle="${esc(k)}">
-        <div>
-          <div class="t grp-head-title">
-            <span class="toggle-icon ${isCollapsed ? 'rotated' : ''}">▼</span>
-            <span class="pill" style="padding:2px 8px;font-size:11.5px;background:var(--soft);color:var(--brand-d);border:1px solid #c7d2fe;font-weight:700;">🏢 ${esc(last.divisi || 'Umum')}</span>
-            👷 ${esc(last.mandor)}
+        <div style="display:flex;align-items:center;gap:12px;">
+          ${progressRingHtml}
+          <div>
+            <div class="t grp-head-title">
+              <span class="toggle-icon ${isCollapsed ? 'rotated' : ''}">▼</span>
+              <span class="pill" style="padding:2px 8px;font-size:11.5px;background:var(--soft);color:var(--brand-d);border:1px solid #c7d2fe;font-weight:700;">🏢 ${esc(last.divisi || 'Umum')}</span>
+              👷 ${esc(last.mandor)}
+            </div>
+            <div class="s">🔧 ${esc(last.pekerjaan)}</div>
           </div>
-          <div class="s">🔧 ${esc(last.pekerjaan)}</div>
         </div>
         <div class="stat">
           <span class="pill">Kontrak terakhir <b>Rp ${fmtMoney(last.kontrak)}</b></span>
-          <span class="pill">Progres <b>${fmtPercent(last.persen)}%</b></span>
           <span class="pill">Kumulatif <b>Rp ${fmtMoney(last.kumulatif)}</b></span>
           <span class="pill green">Total Termin <b>Rp ${fmtMoney(totalTermin)}</b></span>
           <span class="pill red">Sisa <b>Rp ${fmtMoney(sisa)}</b></span>
@@ -1951,6 +2135,26 @@
       </table></div>`;
         wrap.appendChild(card);
       });
+
+      // FLIP Invert & Play Animation
+      wrap.querySelectorAll('.card-entry').forEach(c => {
+        const key = c.getAttribute('data-group-key');
+        if (key && firstRects.has(key)) {
+          const first = firstRects.get(key);
+          const lastRect = c.getBoundingClientRect();
+          const deltaY = first.top - lastRect.top;
+          if (deltaY !== 0) {
+            c.style.transform = `translate3d(0, ${deltaY}px, 0)`;
+            c.style.transition = 'none';
+            requestAnimationFrame(() => {
+              c.style.transition = 'transform 0.5s var(--ease-epic), opacity 0.5s var(--ease-epic)';
+              c.style.transform = 'translate3d(0, 0, 0)';
+            });
+          }
+        }
+      });
+
+      observeCardReveals();
 
       animateGrandTotal('grand-total-display', grand);
 
@@ -2011,11 +2215,27 @@
       let divisi = norm(document.getElementById('fDivisi').value) || 'Umum';
       let mandor = norm(document.getElementById('fMandor').value);
       let pekerjaan = norm(document.getElementById('fPekerjaan').value);
-      if (!mandor || !pekerjaan) { setStatus('Pilih / isi Divisi, Mandor dan Pekerjaan dulu.', true); return; }
+      if (!mandor || !pekerjaan) {
+        setStatus('Mandor dan Pekerjaan wajib diisi.', true);
+        triggerHaptic('error');
+        const mEl = document.getElementById('fMandor');
+        const pEl = document.getElementById('fPekerjaan');
+        if (!mandor && mEl) { mEl.classList.add('form-shake'); setTimeout(() => mEl.classList.remove('form-shake'), 450); }
+        if (!pekerjaan && pEl) { pEl.classList.add('form-shake'); setTimeout(() => pEl.classList.remove('form-shake'), 450); }
+        return;
+      }
       const persen = parsePercent(document.getElementById('fPersen').value);
       const kontrak = parseMoney(document.getElementById('fKontrak').value);
       const kumulatif = parseMoney(document.getElementById('fKum').value);
-      if ([persen, kontrak, kumulatif].some(isNaN)) { setStatus('Persen / Kontrak / Kumulatif tidak valid.', true); return; }
+      if ([persen, kontrak, kumulatif].some(isNaN)) {
+        setStatus('Persen / Kontrak / Kumulatif tidak valid.', true);
+        triggerHaptic('error');
+        ['fPersen', 'fKontrak', 'fKum'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el && isNaN(parseMoney(el.value))) { el.classList.add('form-shake'); setTimeout(() => el.classList.remove('form-shake'), 450); }
+        });
+        return;
+      }
 
       const last = lastOf(divisi, mandor, pekerjaan);
       let prevRaw = document.getElementById('fPrev').value.trim();
@@ -2414,11 +2634,12 @@
 
       document.getElementById('btnParse').addEventListener('click', () => {
         clearStatus();
+        triggerSkeletonLoading(['fDivisi', 'fMandor', 'fPekerjaan', 'fTgl', 'fPersen', 'fKontrak', 'fKum', 'fPrev']);
         const line = document.getElementById('fPaste').value.trim();
-        if (!line) { setStatus('Tempel baris BA dulu.', true); return; }
+        if (!line) { setStatus('Tempel baris BA dulu.', true); triggerHaptic('error'); return; }
         const r = parseLine(line);
-        if (r && r.error) { setStatus('⚠️ ' + r.error, true); return; }
-        if (!r) { setStatus('Format tidak dikenali. Pastikan ada: persen%, "Rp …", dan "= …" (atau sesuaikan regex di ⚙️ Setting).', true); return; }
+        if (r && r.error) { setStatus('⚠️ ' + r.error, true); triggerHaptic('error'); return; }
+        if (!r) { setStatus('Format tidak dikenali. Pastikan ada: persen%, "Rp …", dan "= …" (atau sesuaikan regex di ⚙️ Setting).', true); triggerHaptic('error'); return; }
         if (r.divisi) ensureOption('fDivisi', r.divisi);
         if (r.mandor) ensureOption('fMandor', r.mandor);
         ensureOption('fPekerjaan', r.pekerjaan);
