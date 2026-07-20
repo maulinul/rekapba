@@ -1101,6 +1101,65 @@
     .hdr-bar { animation: hdrBarFill 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate; }
     .hdr-badge { transform-origin: 360px 130px; animation: hdrBadgeFloat 3.2s ease-in-out infinite; }
     .hdr-check { stroke-dasharray: 50; stroke-dashoffset: 50; animation: hdrCheckDraw 2.8s ease-in-out infinite alternate; }
+
+    /* ===== WORKFLOW UPGRADES CSS ===== */
+    .card-entry.dragging {
+      opacity: 0.45;
+      transform: scale(0.98);
+      border: 2px dashed var(--brand) !important;
+    }
+    .card-entry.drag-over {
+      border-top: 4px solid var(--brand) !important;
+    }
+    .drag-handle {
+      cursor: grab;
+      user-select: none;
+      padding: 2px 6px;
+      font-size: 14px;
+      opacity: 0.65;
+      transition: opacity 0.2s;
+    }
+    .drag-handle:hover {
+      opacity: 1;
+    }
+    tr.kb-selected {
+      outline: 2px solid var(--brand-d) !important;
+      background: var(--soft) !important;
+    }
+    .dirty-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--yellow-b);
+      background: var(--yellow);
+      padding: 2px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--yellow-b);
+      animation: pulseDirty 1.5s infinite alternate;
+    }
+    @keyframes pulseDirty {
+      from { opacity: 0.7; }
+      to { opacity: 1; }
+    }
+    .timeline-item {
+      position: relative;
+      padding-left: 20px;
+      border-left: 2px solid var(--line);
+      padding-bottom: 12px;
+      font-size: 12.5px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--brand);
+    }
   </style>
 </head>
 
@@ -1234,7 +1293,10 @@
       <section class="col-right panel-right">
         <!-- FORM INPUT -->
         <div class="card epic-card" style="padding:14px;">
-          <h2 style="margin-bottom:10px;font-size:15px">➕ Input / Parse Entri BA</h2>
+          <h2 style="margin-bottom:10px;font-size:15px;display:flex;align-items:center;justify-content:space-between;">
+            <span>➕ Input / Parse Entri BA</span>
+            <span id="dirtyIndicator" class="dirty-badge" style="display:none;">● Unsaved changes</span>
+          </h2>
           <div class="grid3">
             <div>
               <label for="fDivisi">Divisi</label>
@@ -1459,6 +1521,61 @@
       <div class="modal-foot">
         <button class="btn-ghost epic-btn" id="settingsCancel" type="button">Batal</button>
         <button class="btn epic-btn" id="settingsSave" type="button">💾 Simpan Setting</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== BATCH PARSE PREVIEW MODAL ===== -->
+  <div class="overlay" id="batchOverlay">
+    <div class="modal" style="max-width:900px;width:95%" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3>⚡ Preview Batch Parse BA (<span id="batchCount">0</span> Baris Ditemukan)</h3>
+        <button class="x" id="batchClose" type="button" aria-label="Tutup">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--muted);margin-top:0;">Periksa dan sesuaikan hasil parse sebelum disimpan bersamaan ke dalam sistem.</p>
+        <div class="tblwrap" style="max-height:360px;overflow-y:auto;">
+          <table id="batchTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Divisi</th>
+                <th>Mandor</th>
+                <th>Pekerjaan</th>
+                <th>Progres (%)</th>
+                <th>Kontrak (Rp)</th>
+                <th>Kumulatif (Rp)</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="batchTbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-foot" style="justify-content:space-between;">
+        <span id="batchValidSummary" style="font-size:13px;font-weight:600;color:var(--brand-d);"></span>
+        <div>
+          <button class="btn-ghost epic-btn" id="batchCancel" type="button">Batalkan</button>
+          <button class="btn epic-btn" id="batchConfirm" type="button">✅ Simpan Semua Entri Valid</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HISTORY / AUDIT TRAIL MODAL ===== -->
+  <div class="overlay" id="historyOverlay">
+    <div class="modal" style="max-width:640px;width:95%" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3>📜 Audit Trail / Riwayat Perubahan</h3>
+        <button class="x" id="historyClose" type="button" aria-label="Tutup">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="historyTargetTitle" style="font-weight:700;font-size:14.5px;margin-bottom:12px;color:var(--brand-d);"></div>
+        <div id="historyTimeline" style="display:flex;flex-direction:column;gap:12px;max-height:400px;overflow-y:auto;padding-right:4px;"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn epic-btn" id="historyDone" type="button">Tutup</button>
       </div>
     </div>
   </div>
@@ -1723,8 +1840,9 @@
       return getTodayISO();
     }
 
-    /* ---------- UNDO STACK SYSTEM ---------- */
+    /* ---------- UNDO & REDO STACK SYSTEM ---------- */
     const undoStack = [];
+    const redoStack = [];
 
     function pushUndoState(actionMsg) {
       undoStack.push({
@@ -1733,6 +1851,7 @@
         msg: actionMsg
       });
       if (undoStack.length > 15) undoStack.shift();
+      redoStack.length = 0;
     }
 
     function doUndo() {
@@ -1740,6 +1859,11 @@
         showEpicToast('Tidak ada aksi yang bisa di-undo', 'error');
         return;
       }
+      redoStack.push({
+        records: JSON.parse(JSON.stringify(records)),
+        editingId: editingId,
+        msg: 'Redo state'
+      });
       const state = undoStack.pop();
       records = state.records;
       editingId = state.editingId;
@@ -1748,6 +1872,258 @@
       renderGroups();
       updatePrevBox();
       showEpicToast(`↩️ Undo Berhasil: ${state.msg}`);
+    }
+
+    function doRedo() {
+      if (!redoStack.length) {
+        showEpicToast('Tidak ada aksi yang bisa di-redo', 'error');
+        return;
+      }
+      undoStack.push({
+        records: JSON.parse(JSON.stringify(records)),
+        editingId: editingId,
+        msg: 'Undo state'
+      });
+      const state = redoStack.pop();
+      records = state.records;
+      editingId = state.editingId;
+      save();
+      refreshSelects();
+      renderGroups();
+      updatePrevBox();
+      showEpicToast(`↪️ Redo Berhasil`);
+    }
+
+    /* ---------- DIRTY STATE INDICATOR & BEFOREUNLOAD ---------- */
+    let isFormDirty = false;
+    function setFormDirty(dirty = true) {
+      isFormDirty = dirty;
+      const badge = document.getElementById('dirtyIndicator');
+      if (badge) badge.style.display = dirty ? 'inline-flex' : 'none';
+    }
+
+    window.addEventListener('beforeunload', (e) => {
+      if (isFormDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    /* ---------- BATCH PARSE PREVIEW MODAL LOGIC ---------- */
+    let currentBatchItems = [];
+
+    function openBatchModal(lines) {
+      currentBatchItems = [];
+      const tbody = document.getElementById('batchTbody');
+      if (!tbody) return;
+
+      lines.forEach((line) => {
+        const parsed = parseLine(line);
+        const isValid = Boolean(parsed && !parsed.error);
+
+        currentBatchItems.push({
+          id: generateId(),
+          raw: line,
+          divisi: parsed && parsed.divisi ? parsed.divisi : 'Umum',
+          mandor: parsed && parsed.mandor ? parsed.mandor : '',
+          pekerjaan: parsed && parsed.pekerjaan ? parsed.pekerjaan : line,
+          persen: parsed && !isNaN(parsed.persen) ? parsed.persen : 0,
+          kontrak: parsed && !isNaN(parsed.kontrak) ? parsed.kontrak : 0,
+          kumulatif: parsed && !isNaN(parsed.kumulatif) ? parsed.kumulatif : 0,
+          isValid: isValid,
+          error: parsed && parsed.error ? parsed.error : (isValid ? '' : 'Format tidak pas')
+        });
+      });
+
+      renderBatchTable();
+      document.getElementById('batchCount').textContent = lines.length;
+      document.getElementById('batchOverlay').classList.add('show');
+    }
+
+    function renderBatchTable() {
+      const tbody = document.getElementById('batchTbody');
+      if (!tbody) return;
+
+      let validCount = 0;
+      tbody.innerHTML = currentBatchItems.map((item, idx) => {
+        if (item.isValid) validCount++;
+        const statusBadge = item.isValid ?
+          '<span class="badge badge-ok" style="background:var(--ok-bg);color:var(--ok-ink);padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700;">✅ OK</span>' :
+          `<span class="badge badge-err" style="background:var(--err-bg);color:var(--err-ink);padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700;" title="${esc(item.error)}">⚠️ ${esc(item.error)}</span>`;
+
+        return `<tr>
+          <td>${idx + 1}</td>
+          <td><input type="text" value="${esc(item.divisi)}" onchange="updateBatchField('${item.id}', 'divisi', this.value)" style="padding:4px;font-size:12px;"></td>
+          <td><input type="text" value="${esc(item.mandor)}" onchange="updateBatchField('${item.id}', 'mandor', this.value)" style="padding:4px;font-size:12px;"></td>
+          <td><input type="text" value="${esc(item.pekerjaan)}" onchange="updateBatchField('${item.id}', 'pekerjaan', this.value)" style="padding:4px;font-size:12px;"></td>
+          <td><input type="text" value="${fmtPercent(item.persen)}" onchange="updateBatchField('${item.id}', 'persen', this.value)" style="padding:4px;font-size:12px;width:60px;">%</td>
+          <td><input type="text" value="${fmtMoney(item.kontrak)}" onchange="updateBatchField('${item.id}', 'kontrak', this.value)" style="padding:4px;font-size:12px;width:90px;"></td>
+          <td><input type="text" value="${fmtMoney(item.kumulatif)}" onchange="updateBatchField('${item.id}', 'kumulatif', this.value)" style="padding:4px;font-size:12px;width:90px;"></td>
+          <td>${statusBadge}</td>
+          <td><button class="btn-danger btn-sm epic-btn" onclick="removeBatchRow('${item.id}')" style="padding:2px 6px;">✕</button></td>
+        </tr>`;
+      }).join('');
+
+      const summaryEl = document.getElementById('batchValidSummary');
+      if (summaryEl) summaryEl.textContent = `Siap disimpan: ${validCount} dari ${currentBatchItems.length} entri`;
+    }
+
+    function updateBatchField(id, field, val) {
+      const item = currentBatchItems.find(x => x.id === id);
+      if (!item) return;
+      if (field === 'persen') item.persen = parsePercent(val);
+      else if (field === 'kontrak') item.kontrak = parseMoney(val);
+      else if (field === 'kumulatif') item.kumulatif = parseMoney(val);
+      else item[field] = norm(val);
+
+      item.isValid = Boolean(item.mandor && item.pekerjaan && !isNaN(item.persen) && !isNaN(item.kontrak) && !isNaN(item.kumulatif));
+      renderBatchTable();
+    }
+
+    function removeBatchRow(id) {
+      currentBatchItems = currentBatchItems.filter(x => x.id !== id);
+      renderBatchTable();
+    }
+
+    function closeBatchModal() {
+      document.getElementById('batchOverlay').classList.remove('show');
+    }
+
+    function confirmBatchSave() {
+      const validItems = currentBatchItems.filter(x => x.isValid);
+      if (!validItems.length) {
+        showEpicToast('Tidak ada entri valid untuk disimpan', 'error');
+        return;
+      }
+
+      pushUndoState(`Batch parse ${validItems.length} entri dipulihkan`);
+      const nowTgl = getTodayISO();
+
+      validItems.forEach(item => {
+        const last = lastOf(item.divisi, item.mandor, item.pekerjaan);
+        const prev = last ? Number(last.kumulatif) : 0;
+        const termin = item.kumulatif - prev;
+        records.push({
+          id: generateId(),
+          divisi: item.divisi || 'Umum',
+          mandor: item.mandor,
+          pekerjaan: item.pekerjaan,
+          tanggal: nowTgl,
+          persen: item.persen,
+          kontrak: item.kontrak,
+          kumulatif: item.kumulatif,
+          prev: prev,
+          termin: termin,
+          _overridePrev: false,
+          history: [{ action: 'create', timestamp: new Date().toISOString(), details: 'Entri dibuat via Batch Parse' }]
+        });
+      });
+
+      save();
+      refreshSelects();
+      renderGroups();
+      updatePrevBox();
+      closeBatchModal();
+      document.getElementById('fPaste').value = '';
+      setFormDirty(false);
+      showEpicToast(`✅ Berhasil menyimpan ${validItems.length} entri BA!`);
+    }
+
+    /* ---------- HISTORY / AUDIT TRAIL MODAL LOGIC ---------- */
+    function openHistoryModal(recordId) {
+      const r = records.find(x => x.id === recordId);
+      if (!r) return;
+      const titleEl = document.getElementById('historyTargetTitle');
+      const timelineEl = document.getElementById('historyTimeline');
+      if (!titleEl || !timelineEl) return;
+
+      titleEl.innerHTML = `[${esc(r.divisi || 'Umum')}] ${esc(r.mandor)} - ${esc(r.pekerjaan)}`;
+
+      const historyList = r.history || [
+        { action: 'create', timestamp: r.tanggal || new Date().toISOString(), details: 'Entri awal dibuat' }
+      ];
+
+      timelineEl.innerHTML = historyList.map(h => {
+        const timeStr = h.timestamp ? new Date(h.timestamp).toLocaleString('id-ID') : '-';
+        const badgeColor = h.action === 'create' ? 'var(--brand)' : 'var(--yellow-b)';
+        return `<div class="timeline-item">
+          <div style="font-weight:700;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:${badgeColor};text-transform:uppercase;font-size:11px;letter-spacing:0.5px;">${esc(h.action)}</span>
+            <span style="color:var(--muted);font-size:11px;">${esc(timeStr)}</span>
+          </div>
+          <div style="margin-top:4px;color:var(--ink);">${esc(h.details || 'Perubahan disimpan')}</div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('historyOverlay').classList.add('show');
+    }
+
+    function closeHistoryModal() {
+      document.getElementById('historyOverlay').classList.remove('show');
+    }
+
+    /* ---------- QUICK DUPLICATE & DRAG REORDER HELPERS ---------- */
+    function duplicateEntryToForm(recordId) {
+      const r = records.find(x => x.id === recordId);
+      if (!r) return;
+
+      document.getElementById('fDivisi').value = r.divisi || 'Umum';
+      document.getElementById('fMandor').value = r.mandor || '';
+      document.getElementById('fPekerjaan').value = r.pekerjaan || '';
+      document.getElementById('fTgl').value = getTodayISO();
+      document.getElementById('fKontrak').value = fmtMoney(r.kontrak);
+      document.getElementById('fKum').value = fmtMoney(r.kumulatif);
+      document.getElementById('fPrev').value = fmtMoney(r.kumulatif);
+      document.getElementById('fPersen').value = '';
+
+      cancelEditEntry();
+      refreshSelects();
+      updatePrevBox();
+      setFormDirty(true);
+      triggerParseAnimation();
+
+      const pInput = document.getElementById('fPersen');
+      if (pInput) {
+        pInput.focus();
+        pInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      showEpicToast(`📋 Duplikat entri ${r.mandor}! Masukkan % progres baru.`, 'success');
+    }
+
+    function reorderGroups(srcKey, targetKey) {
+      const srcRecords = records.filter(r => keyOf(r) === srcKey);
+      const otherRecords = records.filter(r => keyOf(r) !== srcKey);
+      const targetIdx = otherRecords.findIndex(r => keyOf(r) === targetKey);
+
+      if (targetIdx !== -1) {
+        pushUndoState('Reorder kelompok mandor dipulihkan');
+        otherRecords.splice(targetIdx, 0, ...srcRecords);
+        records = otherRecords;
+        save();
+        renderGroups();
+        showEpicToast('📌 Urutan kelompok mandor berhasil diubah!');
+      }
+    }
+
+    /* ---------- KEYBOARD TABLE ROW NAVIGATION ---------- */
+    let selectedRowIndex = -1;
+    function navigateTableRows(direction) {
+      const visibleRows = Array.from(document.querySelectorAll('#groups table tbody tr'));
+      if (!visibleRows.length) return;
+
+      visibleRows.forEach(r => r.classList.remove('kb-selected'));
+
+      if (direction === 'down') {
+        selectedRowIndex = Math.min(selectedRowIndex + 1, visibleRows.length - 1);
+      } else if (direction === 'up') {
+        selectedRowIndex = Math.max(selectedRowIndex - 1, 0);
+      }
+
+      const activeRow = visibleRows[selectedRowIndex];
+      if (activeRow) {
+        activeRow.classList.add('kb-selected');
+        activeRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }
 
     let records = load();
@@ -2365,9 +2741,33 @@
         const sisa = Number(last.kontrak) - Number(last.kumulatif);
         const isCollapsed = collapsedGroups.has(k);
 
-        const card = document.createElement('div');
-        card.className = 'card epic-card card-entry';
-        card.setAttribute('data-group-key', k);
+        card.setAttribute('draggable', 'true');
+        card.addEventListener('dragstart', (e) => {
+          card.classList.add('dragging');
+          e.dataTransfer.setData('text/plain', k);
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          wrap.querySelectorAll('.card-entry').forEach(c => c.classList.remove('drag-over'));
+        });
+        card.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          card.classList.add('drag-over');
+        });
+        card.addEventListener('dragleave', () => {
+          card.classList.remove('drag-over');
+        });
+        card.addEventListener('drop', (e) => {
+          e.preventDefault();
+          card.classList.remove('drag-over');
+          const srcKey = e.dataTransfer.getData('text/plain');
+          const targetKey = k;
+          if (srcKey && targetKey && srcKey !== targetKey) {
+            reorderGroups(srcKey, targetKey);
+          }
+        });
 
         let rows = '';
         list.forEach((r, i) => {
@@ -2385,6 +2785,8 @@
         <td><b>${fmtMoney(r.termin)}</b></td>
         <td>
           <button class="btn-soft btn-sm epic-btn" data-edit="${r.id}" title="Edit entri ini">✏️ Edit</button>
+          <button class="btn-soft btn-sm epic-btn" data-dup="${r.id}" title="Duplikat ke form (update progres baru)">📋 Duplikat</button>
+          <button class="btn-soft btn-sm epic-btn" data-hist="${r.id}" title="Lihat riwayat audit trail">📜 Audit</button>
           <button class="btn-soft btn-sm epic-btn" data-xy="${esc(fmtXY(r))}">Rp =</button>
           <button class="btn-ghost btn-sm epic-btn" data-full="${esc(fmtFull(r))}">baris</button>
           <button class="btn-danger btn-sm epic-btn" data-del="${r.id}">✕</button>
@@ -2413,7 +2815,8 @@
 
         card.innerHTML = `
       <div class="grp-head" data-toggle="${esc(k)}">
-        <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="drag-handle" title="Tarik untuk urutkan posisi kelompok">☰</span>
           ${progressRingHtml}
           <div>
             <div class="t grp-head-title">
@@ -2502,7 +2905,7 @@
       // Collapse toggle event listeners
       wrap.querySelectorAll('[data-toggle]').forEach(el => {
         el.addEventListener('click', (e) => {
-          if (e.target.closest('button[data-edit], button[data-xy], button[data-full], button[data-del]')) return;
+          if (e.target.closest('button[data-edit], button[data-dup], button[data-hist], button[data-xy], button[data-full], button[data-del]')) return;
           const key = el.getAttribute('data-toggle');
           if (collapsedGroups.has(key)) {
             collapsedGroups.delete(key);
@@ -2519,6 +2922,20 @@
           const id = b.getAttribute('data-edit');
           const r = records.find(x => x.id === id);
           if (r) startEditEntry(r);
+        };
+      });
+      wrap.querySelectorAll('[data-dup]').forEach(b => {
+        b.onclick = (e) => {
+          e.stopPropagation();
+          const id = b.getAttribute('data-dup');
+          duplicateEntryToForm(id);
+        };
+      });
+      wrap.querySelectorAll('[data-hist]').forEach(b => {
+        b.onclick = (e) => {
+          e.stopPropagation();
+          const id = b.getAttribute('data-hist');
+          openHistoryModal(id);
         };
       });
       wrap.querySelectorAll('[data-xy]').forEach(b => b.onclick = (e) => { e.stopPropagation(); copyText(b.getAttribute('data-xy')); });
@@ -2959,19 +3376,26 @@
         mandorEl.addEventListener('change', updateJobDatalist);
       }
 
-      ['fPersen', 'fPekerjaan', 'fKontrak', 'fKum', 'fPrev'].forEach(id => {
+      ['fDivisi', 'fMandor', 'fPekerjaan', 'fPersen', 'fKontrak', 'fKum', 'fPrev', 'fTgl', 'fPaste'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-          el.addEventListener('input', () => { updatePrevBox(); checkRealtimeValidation(); });
-          el.addEventListener('change', () => { updatePrevBox(); checkRealtimeValidation(); });
+          el.addEventListener('input', () => { updatePrevBox(); checkRealtimeValidation(); setFormDirty(true); });
+          el.addEventListener('change', () => { updatePrevBox(); checkRealtimeValidation(); setFormDirty(true); });
         }
       });
 
       document.getElementById('btnParse').addEventListener('click', () => {
         clearStatus();
-        triggerSkeletonLoading(['fDivisi', 'fMandor', 'fPekerjaan', 'fTgl', 'fPersen', 'fKontrak', 'fKum', 'fPrev']);
         const line = document.getElementById('fPaste').value.trim();
         if (!line) { setStatus('Tempel baris BA dulu.', true); triggerHaptic('error'); return; }
+
+        const lines = line.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (lines.length > 1) {
+          openBatchModal(lines);
+          return;
+        }
+
+        triggerSkeletonLoading(['fDivisi', 'fMandor', 'fPekerjaan', 'fTgl', 'fPersen', 'fKontrak', 'fKum', 'fPrev']);
         const r = parseLine(line);
         if (r && r.error) { setStatus('⚠️ ' + r.error, true); triggerHaptic('error'); return; }
         if (!r) { setStatus('Format tidak dikenali. Pastikan ada: persen%, "Rp …", dan "= …" (atau sesuaikan regex di ⚙️ Setting).', true); triggerHaptic('error'); return; }
@@ -2987,13 +3411,17 @@
         document.getElementById('fKum').value = fmtMoney(r.kumulatif);
         document.getElementById('fPrev').value = '';
         updatePrevBox();
+        setFormDirty(true);
         triggerParseAnimation();
         const noteDiv = r.divisi ? `Divisi: ${r.divisi} | ` : '';
         const noteMan = r.mandor ? `Mandor: ${r.mandor} | ` : 'Mandor: (pilih di dropdown) | ';
         setStatus(`✅ Ter-parse → ${noteDiv}${noteMan}Pekerjaan: ${r.pekerjaan} | ${fmtPercent(r.persen)}% × Rp ${fmtMoney(r.kontrak)} = Rp ${fmtMoney(r.kumulatif)}`);
       });
 
-      document.getElementById('btnSave').addEventListener('click', doSave);
+      document.getElementById('btnSave').addEventListener('click', (e) => {
+        doSave(e);
+        setFormDirty(false);
+      });
       const btnCancelEditEl = document.getElementById('btnCancelEdit');
       if (btnCancelEditEl) btnCancelEditEl.addEventListener('click', cancelEditEntry);
       document.getElementById('btnReset').addEventListener('click', () => {
@@ -3001,14 +3429,14 @@
         document.getElementById('fDivisi').value = ''; document.getElementById('fMandor').value = ''; document.getElementById('fPekerjaan').value = '';
         cancelEditEntry();
         refreshSelects();
-        document.getElementById('fTgl').value = new Date().toISOString().slice(0, 10);
-        clearStatus(); updatePrevBox();
+        document.getElementById('fTgl').value = getTodayISO();
+        clearStatus(); updatePrevBox(); setFormDirty(false);
       });
       document.getElementById('btnSample').addEventListener('click', loadSample);
 
       document.getElementById('copyPrevXY').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtXY(l)); });
       document.getElementById('copyPrevFull').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtFull(l)); });
-      document.getElementById('usePrev').addEventListener('click', () => { const l = getLastFromForm(); if (l) { document.getElementById('fPrev').value = fmtMoney(l.kumulatif); toast('Sebelumnya diisi'); } });
+      document.getElementById('usePrev').addEventListener('click', () => { const l = getLastFromForm(); if (l) { document.getElementById('fPrev').value = fmtMoney(l.kumulatif); toast('Sebelumnya diisi'); setFormDirty(true); } });
 
       document.getElementById('btnExport').addEventListener('click', doExport);
       document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
@@ -3022,15 +3450,86 @@
         }
       });
 
-      // Ctrl + Z Keyboard Shortcut for Undo
+      // BATCH MODAL BUTTONS
+      const batchCloseEl = document.getElementById('batchClose');
+      if (batchCloseEl) batchCloseEl.addEventListener('click', closeBatchModal);
+      const batchCancelEl = document.getElementById('batchCancel');
+      if (batchCancelEl) batchCancelEl.addEventListener('click', closeBatchModal);
+      const batchConfirmEl = document.getElementById('batchConfirm');
+      if (batchConfirmEl) batchConfirmEl.addEventListener('click', confirmBatchSave);
+      const batchOverlayEl = document.getElementById('batchOverlay');
+      if (batchOverlayEl) batchOverlayEl.addEventListener('click', e => { if (e.target.id === 'batchOverlay') closeBatchModal(); });
+
+      // HISTORY MODAL BUTTONS
+      const histCloseEl = document.getElementById('historyClose');
+      if (histCloseEl) histCloseEl.addEventListener('click', closeHistoryModal);
+      const histDoneEl = document.getElementById('historyDone');
+      if (histDoneEl) histDoneEl.addEventListener('click', closeHistoryModal);
+      const histOverlayEl = document.getElementById('historyOverlay');
+      if (histOverlayEl) histOverlayEl.addEventListener('click', e => { if (e.target.id === 'historyOverlay') closeHistoryModal(); });
+
+      // FULL KEYBOARD SHORTCUTS CONTROLLER
       document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-          const active = document.activeElement;
-          const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable);
-          if (!isInput && undoStack.length > 0) {
+        const active = document.activeElement;
+        const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable);
+
+        // Esc: Close any active modal or cancel edit mode
+        if (e.key === 'Escape') {
+          closeSettings();
+          closeBatchModal();
+          closeHistoryModal();
+          cancelEditEntry();
+          return;
+        }
+
+        // Ctrl + Enter: Save entry
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          doSave(e);
+          setFormDirty(false);
+          return;
+        }
+
+        // Ctrl + P: Focus Paste & Parse BA input
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p' && !e.shiftKey) {
+          e.preventDefault();
+          const pasteEl = document.getElementById('fPaste');
+          if (pasteEl) {
+            pasteEl.focus();
+            pasteEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          return;
+        }
+
+        // Ctrl + E: Export JSON
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+          e.preventDefault();
+          doExport();
+          return;
+        }
+
+        // Ctrl + Shift + Z or Ctrl + Y: Redo
+        if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+          if (!isInput) {
+            e.preventDefault();
+            doRedo();
+          }
+          return;
+        }
+
+        // Ctrl + Z: Undo
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+          if (!isInput) {
             e.preventDefault();
             doUndo();
           }
+          return;
+        }
+
+        // Arrow Up / Arrow Down: Table Row Keyboard Navigation
+        if (!isInput && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+          e.preventDefault();
+          navigateTableRows(e.key === 'ArrowDown' ? 'down' : 'up');
         }
       });
 
