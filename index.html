@@ -2374,7 +2374,7 @@
       }
       const mPct = line.match(/(\d+(?:[.,]\d+)?)\s*%/);
       const mKon = line.match(/Rp\s*([\d.,]+)/i);
-      const mKum = line.match(/=\s*([\d.,]+)\s*$/);
+      const mKum = line.match(/=\s*(?:Rp\s*)?([\d.,]+)\s*$/i);
       if (!mPct || !mKon || !mKum) return null;
       const persen = parsePercent(mPct[1]);
       const kontrak = parseMoney(mKon[1]);
@@ -2741,6 +2741,9 @@
         const sisa = Number(last.kontrak) - Number(last.kumulatif);
         const isCollapsed = collapsedGroups.has(k);
 
+        const card = document.createElement('div');
+        card.className = 'card epic-card card-entry';
+        card.setAttribute('data-group-key', k);
         card.setAttribute('draggable', 'true');
         card.addEventListener('dragstart', (e) => {
           card.classList.add('dragging');
@@ -3096,7 +3099,7 @@
       rd.onload = () => {
         try {
           const d = JSON.parse(rd.result); if (!Array.isArray(d)) throw 0;
-          records = d; save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Import berhasil: ' + d.length + ' entri');
+          records = migrateData(d); save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Import berhasil: ' + records.length + ' entri');
         } catch (e) { toast('File JSON tidak valid'); }
       };
       rd.readAsText(file);
@@ -3171,8 +3174,10 @@
     }
 
     async function pushToGist() {
-      readSettingsFromModal();
-      saveSettings();
+      if (document.getElementById('settingsOverlay')?.classList.contains('show')) {
+        readSettingsFromModal();
+        saveSettings();
+      }
       const token = settings.ghToken;
       let gistId = settings.ghGistId;
 
@@ -3247,8 +3252,10 @@
     }
 
     async function pullFromGist() {
-      readSettingsFromModal();
-      saveSettings();
+      if (document.getElementById('settingsOverlay')?.classList.contains('show')) {
+        readSettingsFromModal();
+        saveSettings();
+      }
       const token = settings.ghToken;
       const gistId = settings.ghGistId;
 
@@ -3434,9 +3441,9 @@
       });
       document.getElementById('btnSample').addEventListener('click', loadSample);
 
-      document.getElementById('copyPrevXY').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtXY(l)); });
-      document.getElementById('copyPrevFull').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtFull(l)); });
-      document.getElementById('usePrev').addEventListener('click', () => { const l = getLastFromForm(); if (l) { document.getElementById('fPrev').value = fmtMoney(l.kumulatif); toast('Sebelumnya diisi'); setFormDirty(true); } });
+      document.getElementById('copyPrevXY').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtXY(l)); else toast('Belum ada entri sebelumnya', 'error'); });
+      document.getElementById('copyPrevFull').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtFull(l)); else toast('Belum ada entri sebelumnya', 'error'); });
+      document.getElementById('usePrev').addEventListener('click', () => { const l = getLastFromForm(); if (l) { document.getElementById('fPrev').value = fmtMoney(l.kumulatif); toast('Sebelumnya diisi'); setFormDirty(true); } else toast('Belum ada entri sebelumnya', 'error'); });
 
       document.getElementById('btnExport').addEventListener('click', doExport);
       document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
