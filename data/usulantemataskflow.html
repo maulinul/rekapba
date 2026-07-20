@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Usulan Tema TaskFlow Pro</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', system-ui, sans-serif; background:#16161f; color:#e8e8f0; padding:2rem 1rem; }
+  h1 { text-align:center; font-size:1.5rem; margin-bottom:0.4rem; }
+  .sub { text-align:center; color:#9a9ab0; font-size:0.85rem; margin-bottom:2rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.2rem; max-width:1100px; margin:0 auto; }
+  .theme { border-radius:16px; padding:1.2rem; border:1px solid rgba(255,255,255,0.08); }
+  .theme h2 { font-size:1.05rem; margin-bottom:0.2rem; }
+  .theme .desc { font-size:0.78rem; opacity:0.75; margin-bottom:0.9rem; line-height:1.45; }
+  .swatches { display:flex; gap:6px; margin-bottom:0.9rem; }
+  .sw { flex:1; height:26px; border-radius:6px; position:relative; }
+  .sw span { position:absolute; bottom:-16px; left:50%; transform:translateX(-50%); font-size:0.55rem; opacity:0.6; white-space:nowrap; }
+  .mock { border-radius:12px; padding:0.8rem; margin-top:1.4rem; }
+  .mockbar { height:6px; border-radius:3px; margin-bottom:0.7rem; }
+  .card { border-radius:10px; padding:0.55rem 0.7rem; margin-bottom:0.5rem; font-size:0.75rem; display:flex; align-items:center; gap:0.5rem; }
+  .tag { font-size:0.6rem; padding:2px 7px; border-radius:20px; margin-left:auto; }
+  .btnrow { display:flex; gap:0.5rem; margin-top:0.6rem; }
+  .btn { font-size:0.7rem; padding:0.4rem 0.9rem; border-radius:8px; font-weight:600; }
+  .label { display:inline-block; font-size:0.62rem; padding:2px 8px; border-radius:20px; margin-bottom:0.5rem; font-weight:700; letter-spacing:0.05em; }
+  .note { max-width:1100px; margin:1.6rem auto 0; font-size:0.8rem; color:#9a9ab0; line-height:1.6; background:rgba(255,255,255,0.04); border-radius:12px; padding:1rem 1.2rem; }
+</style>
+</head>
+<body>
+<h1>🎨 Usulan Tema TaskFlow Pro</h1>
+<p class="sub">Setiap kotak = pratinjau mini aplikasimu dengan tema itu. Pilih yang paling "kamu"!</p>
+
+<div class="grid">
+
+  <!-- TEMA SEKARANG -->
+  <div class="theme" style="background:#0a0a12;">
+    <span class="label" style="background:rgba(176,38,255,0.25); color:#d9a6ff;">SEKARANG</span>
+    <h2>🌌 Neon Galaxy <span style="font-size:0.7rem; opacity:0.6;">(tema saat ini)</span></h2>
+    <p class="desc">Ungu neon + gelap pekat. Berkarakter kuat, futuristik, khas "cyberpunk".</p>
+    <div class="swatches">
+      <div class="sw" style="background:#0a0a12; border:1px solid #333;"><span>latar</span></div>
+      <div class="sw" style="background:#b026ff;"><span>ungu</span></div>
+      <div class="sw" style="background:#ff4d6d;"><span>coral</span></div>
+      <div class="sw" style="background:#00f5a0;"><span>hijau</span></div>
+      <div class="sw" style="background:#4facfe;"><span>biru</span></div>
+    </div>
+    <div class="mock" style="background:#101018; border:1px solid rgba(176,38,255,0.2);">
+      <div class="mockbar" style="background:linear-gradient(90deg,#b026ff,#4facfe);"></div>
+      <div class="card" style="background:rgba(176,38,255,0.08); border:1px solid rgba(176,38,255,0.25); color:#e8e8f0;">☑️ Meeting tim pagi <span class="tag" style="background:rgba(255,77,109,0.2); color:#ff8fa3;">🔥 High</span></div>
+      <div class="card" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#e8e8f0;">⬜ Bayar tagihan <span class="tag" style="background:rgba(0,245,160,0.15); color:#00f5a0;">🌿 Low</span></div>
+      <div class="btnrow">
+        <div class="btn" style="background:linear-gradient(135deg,#b026ff,#7b2ff7); color:#fff;">Tambah</div>
+        <div class="btn" style="background:rgba(255,255,255,0.06); color:#9a9ab0;">Batal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USULAN 1 -->
+  <div class="theme" style="background:#051019;">
+    <span class="label" style="background:rgba(20,224,200,0.2); color:#5ff0dc;">USULAN 1</span>
+    <h2>🌊 Deep Ocean</h2>
+    <p class="desc">Biru laut dalam + toska segar. Tenang tapi tetap modern — enak dipandang lama, cocok untuk fokus kerja.</p>
+    <div class="swatches">
+      <div class="sw" style="background:#051019; border:1px solid #1a3a4a;"><span>latar</span></div>
+      <div class="sw" style="background:#14e0c8;"><span>toska</span></div>
+      <div class="sw" style="background:#38bdf8;"><span>cyan</span></div>
+      <div class="sw" style="background:#ffd88a;"><span>pasir</span></div>
+      <div class="sw" style="background:#ff7b9c;"><span>karang</span></div>
+    </div>
+    <div class="mock" style="background:#0a1a26; border:1px solid rgba(20,224,200,0.2);">
+      <div class="mockbar" style="background:linear-gradient(90deg,#14e0c8,#38bdf8);"></div>
+      <div class="card" style="background:rgba(20,224,200,0.08); border:1px solid rgba(20,224,200,0.25); color:#dff5f2;">☑️ Meeting tim pagi <span class="tag" style="background:rgba(255,123,156,0.2); color:#ff9cb4;">🔥 High</span></div>
+      <div class="card" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#dff5f2;">⬜ Bayar tagihan <span class="tag" style="background:rgba(255,216,138,0.18); color:#ffd88a;">🌿 Low</span></div>
+      <div class="btnrow">
+        <div class="btn" style="background:linear-gradient(135deg,#14e0c8,#0891b2); color:#032; ">Tambah</div>
+        <div class="btn" style="background:rgba(255,255,255,0.06); color:#8fb5c4;">Batal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USULAN 2 -->
+  <div class="theme" style="background:#160d08;">
+    <span class="label" style="background:rgba(255,179,71,0.2); color:#ffcf8a;">USULAN 2</span>
+    <h2>🌅 Sunset Ember</h2>
+    <p class="desc">Cokelat hangat + amber & coral senja. Terasa cozy dan bersemangat — beda dari kebanyakan app yang serba biru.</p>
+    <div class="swatches">
+      <div class="sw" style="background:#160d08; border:1px solid #3a2a1a;"><span>latar</span></div>
+      <div class="sw" style="background:#ffb347;"><span>amber</span></div>
+      <div class="sw" style="background:#ff6b6b;"><span>coral</span></div>
+      <div class="sw" style="background:#ffe08a;"><span>emas</span></div>
+      <div class="sw" style="background:#95e881;"><span>daun</span></div>
+    </div>
+    <div class="mock" style="background:#211208; border:1px solid rgba(255,179,71,0.22);">
+      <div class="mockbar" style="background:linear-gradient(90deg,#ffb347,#ff6b6b);"></div>
+      <div class="card" style="background:rgba(255,179,71,0.08); border:1px solid rgba(255,179,71,0.28); color:#f5e8dc;">☑️ Meeting tim pagi <span class="tag" style="background:rgba(255,107,107,0.2); color:#ff9c9c;">🔥 High</span></div>
+      <div class="card" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#f5e8dc;">⬜ Bayar tagihan <span class="tag" style="background:rgba(149,232,129,0.16); color:#95e881;">🌿 Low</span></div>
+      <div class="btnrow">
+        <div class="btn" style="background:linear-gradient(135deg,#ffb347,#ff8c42); color:#2a1500;">Tambah</div>
+        <div class="btn" style="background:rgba(255,255,255,0.06); color:#c4a98f;">Batal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USULAN 3 -->
+  <div class="theme" style="background:#150a16;">
+    <span class="label" style="background:rgba(255,122,198,0.2); color:#ff9ed6;">USULAN 3</span>
+    <h2>🌸 Sakura Night</h2>
+    <p class="desc">Plum gelap + pink sakura & lavender. Lembut, playful, dan estetik — tampilan paling "manis" dari semua usulan.</p>
+    <div class="swatches">
+      <div class="sw" style="background:#150a16; border:1px solid #3a2040;"><span>latar</span></div>
+      <div class="sw" style="background:#ff7ac6;"><span>sakura</span></div>
+      <div class="sw" style="background:#b79cff;"><span>lavender</span></div>
+      <div class="sw" style="background:#ffd6a5;"><span>peach</span></div>
+      <div class="sw" style="background:#8de8c0;"><span>mint</span></div>
+    </div>
+    <div class="mock" style="background:#1f1021; border:1px solid rgba(255,122,198,0.22);">
+      <div class="mockbar" style="background:linear-gradient(90deg,#ff7ac6,#b79cff);"></div>
+      <div class="card" style="background:rgba(255,122,198,0.08); border:1px solid rgba(255,122,198,0.28); color:#f5e6f0;">☑️ Meeting tim pagi <span class="tag" style="background:rgba(183,156,255,0.2); color:#cdb8ff;">🔥 High</span></div>
+      <div class="card" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#f5e6f0;">⬜ Bayar tagihan <span class="tag" style="background:rgba(141,232,192,0.16); color:#8de8c0;">🌿 Low</span></div>
+      <div class="btnrow">
+        <div class="btn" style="background:linear-gradient(135deg,#ff7ac6,#d64b9e); color:#fff;">Tambah</div>
+        <div class="btn" style="background:rgba(255,255,255,0.06); color:#c49ab5;">Batal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USULAN 4 -->
+  <div class="theme" style="background:#0a120c;">
+    <span class="label" style="background:rgba(126,217,87,0.2); color:#a5e88a;">USULAN 4</span>
+    <h2>🍵 Matcha Forest</h2>
+    <p class="desc">Hijau hutan gelap + matcha & krem. Natural dan menenangkan, memberi kesan "sehat & teratur" untuk daily tracker.</p>
+    <div class="swatches">
+      <div class="sw" style="background:#0a120c; border:1px solid #1f3a26;"><span>latar</span></div>
+      <div class="sw" style="background:#7ed957;"><span>matcha</span></div>
+      <div class="sw" style="background:#f5f0dc;"><span>krem</span></div>
+      <div class="sw" style="background:#6fd3ff;"><span>langit</span></div>
+      <div class="sw" style="background:#ffb85c;"><span>madu</span></div>
+    </div>
+    <div class="mock" style="background:#101c13; border:1px solid rgba(126,217,87,0.22);">
+      <div class="mockbar" style="background:linear-gradient(90deg,#7ed957,#4caf50);"></div>
+      <div class="card" style="background:rgba(126,217,87,0.08); border:1px solid rgba(126,217,87,0.28); color:#e8f0e2;">☑️ Meeting tim pagi <span class="tag" style="background:rgba(255,184,92,0.18); color:#ffcf8a;">🔥 High</span></div>
+      <div class="card" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#e8f0e2;">⬜ Bayar tagihan <span class="tag" style="background:rgba(111,211,255,0.16); color:#6fd3ff;">🌿 Low</span></div>
+      <div class="btnrow">
+        <div class="btn" style="background:linear-gradient(135deg,#7ed957,#4caf50); color:#0a2a10;">Tambah</div>
+        <div class="btn" style="background:rgba(255,255,255,0.06); color:#9ab5a0;">Batal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USULAN 5 -->
+  <div class="theme" style="background:#0d1117;">
+    <span class="label" style="background:rgba(255,255,255,0.12); color:#c8d1dc;">USULAN 5</span>
+    <h2>⚡ Slate Minimal</h2>
+    <p class="desc">Abu kebiruan ala aplikasi profesional (GitHub/Linear) + satu aksen listrik. Paling kalem & dewasa — fokus ke isi, bukan warna.</p>
+    <div class="swatches">
+      <div class="sw" style="background:#0d1117; border:1px solid #30363d;"><span>latar</span></div>
+      <div class="sw" style="background:#58a6ff;"><span>listrik</span></div>
+      <div class="sw" style="background:#3fb950;"><span>hijau</span></div>
+      <div class="sw" style="background:#d29922;"><span>kuning</span></div>
+      <div class="sw" style="background:#f85149;"><span>merah</span></div>
+    </div>
+    <div class="mock" style="background:#161b22; border:1px solid #30363d;">
+      <div class="mockbar" style="background:linear-gradient(90deg,#58a6ff,#1f6feb);"></div>
+      <div class="card" style="background:rgba(88,166,255,0.06); border:1px solid rgba(88,166,255,0.25); color:#e6edf3;">☑️ Meeting tim pagi <span class="tag" style="background:rgba(248,81,73,0.15); color:#ff8f88;">🔥 High</span></div>
+      <div class="card" style="background:rgba(255,255,255,0.03); border:1px solid #30363d; color:#e6edf3;">⬜ Bayar tagihan <span class="tag" style="background:rgba(63,185,80,0.15); color:#56d364;">🌿 Low</span></div>
+      <div class="btnrow">
+        <div class="btn" style="background:#238636; color:#fff;">Tambah</div>
+        <div class="btn" style="background:rgba(255,255,255,0.06); color:#8b949e;">Batal</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+  💡 <strong>Catatan:</strong> Semua usulan tetap tema gelap (sesuai karakter aplikasimu sekarang) — Day Mode akan dibuatkan pasangan terangnya menyesuaikan tema terpilih. Warna prioritas (High merah-oranye, Medium kuning, Low hijau) tetap dipertahankan di semua tema supaya kamu tidak perlu belajar ulang. Kalau mau, tema bisa juga dibuat <em>bisa dipilih dari Settings</em> seperti tombol bahasa — jadi tidak harus memilih satu untuk selamanya.
+</div>
+</body>
+</html>

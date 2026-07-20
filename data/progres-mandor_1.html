@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catatan Progres Mandor</title>
+<style>
+:root{
+  --bg:#f5f6f4; --paper:#ffffff; --ink:#1f2a24; --muted:#6b7a72;
+  --line:#dfe4e0; --accent:#1d6b4f; --accent-soft:#e6f2ec;
+  --warn:#b3261e; --warn-soft:#fdecea; --amber:#8a6d00; --amber-soft:#fff7dc;
+  --mono:"Consolas","Menlo",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,sans-serif;padding:20px}
+.wrap{max-width:960px;margin:0 auto}
+h1{font-size:20px;margin:0 0 2px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+input[type=text],input[type=date],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff}
+textarea{font-family:var(--mono);font-size:13px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>div{flex:1;min-width:160px}
+button{font:inherit;border:none;border-radius:6px;padding:9px 16px;cursor:pointer}
+.btn-primary{background:var(--accent);color:#fff;font-weight:600}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-copy{background:var(--accent-soft);color:var(--accent);font-size:12px;padding:4px 10px;font-family:var(--mono)}
+.btn-del{background:transparent;color:var(--warn);font-size:12px;padding:4px 8px}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.prev-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;margin-top:12px;font-size:14px}
+.prev-box .big{font-weight:700;font-size:16px}
+.warn-box{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:10px 14px;margin-top:10px;font-size:13px}
+.amber-box{background:var(--amber-soft);color:var(--amber);border-radius:8px;padding:10px 14px;margin-top:10px;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--mono);white-space:nowrap}
+.group-head{background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px 8px 0 0;font-weight:600;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.group-head small{font-weight:400;opacity:.8}
+.group-body{border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px;background:#fff;padding:0 0 4px;margin-bottom:16px;overflow-x:auto}
+.total-row td{font-weight:700;border-top:2px solid var(--ink);border-bottom:none}
+.badge-warn{display:inline-block;background:var(--warn-soft);color:var(--warn);border-radius:4px;padding:0 6px;font-size:11px;font-weight:600}
+.copied{background:var(--accent);color:#fff !important}
+.toolbar{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+.empty{color:var(--muted);text-align:center;padding:30px;font-size:14px}
+details summary{cursor:pointer;font-size:13px;color:var(--muted);margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Catatan Progres Mandor</h1>
+  <div class="sub">Rekap termin BAHP per mandor &amp; pekerjaan — otomatis mendeteksi selisih baseline &amp; perubahan kontrak</div>
+
+  <div class="card">
+    <details open>
+      <summary>Input cepat (tempel teks dari BA)</summary>
+      <textarea id="pasteBox" rows="2" placeholder="Contoh: Tohir Pekerjaan Sekatan, Plafon Dan Repair Dinding Dapur Randusari 67,133% x Rp 47.909.204 = 32.162.886"></textarea>
+      <div class="hint">Format: <span style="font-family:var(--mono)">NamaMandor NamaPekerjaan 67,133% x Rp 47.909.204 = 32.162.886</span> — nilai "= ..." boleh dikosongkan, nanti dihitung otomatis.</div>
+      <div class="toolbar"><button class="btn-ghost" id="btnParse">Baca teks ke formulir ↓</button></div>
+    </details>
+
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>Mandor</label>
+        <select id="selMandor"></select>
+        <input type="text" id="newMandor" placeholder="…atau ketik mandor baru" style="margin-top:6px;display:none">
+      </div>
+      <div style="flex:2">
+        <label>Pekerjaan</label>
+        <select id="selJob"></select>
+        <input type="text" id="newJob" placeholder="…atau ketik pekerjaan baru" style="margin-top:6px;display:none">
+      </div>
+      <div>
+        <label>Tanggal BA</label>
+        <input type="date" id="inDate">
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label>Progres saat ini (%)</label>
+        <input type="text" id="inPct" placeholder="67,133">
+      </div>
+      <div>
+        <label>Nilai kontrak (Rp)</label>
+        <input type="text" id="inKontrak" placeholder="47.909.204">
+      </div>
+      <div>
+        <label>Nilai kumulatif (Rp) — opsional</label>
+        <input type="text" id="inKumulatif" placeholder="otomatis: % × kontrak">
+      </div>
+    </div>
+
+    <div id="prevInfo"></div>
+    <div id="warnInfo"></div>
+
+    <div class="toolbar">
+      <button class="btn-primary" id="btnSave">Simpan progres</button>
+    </div>
+  </div>
+
+  <div id="groups"></div>
+  <div class="toolbar">
+    <button class="btn-ghost" id="btnExport">Ekspor JSON</button>
+    <button class="btn-ghost" id="btnReset" style="color:var(--warn)">Hapus semua data</button>
+  </div>
+</div>
+
+<script>
+const KEY='progres-mandor:v1';
+let db={entries:[]}; // entry: {id, mandor, job, date, pct, kontrak, kumulatif}
+
+const fmt=n=>Math.round(n).toLocaleString('id-ID');
+const parseNum=s=>{ if(s==null) return NaN; s=String(s).trim().replace(/rp/i,'').trim();
+  // id format: dots thousands, comma decimal
+  s=s.replace(/\./g,'').replace(',', '.').replace(/[^0-9.\-]/g,'');
+  return parseFloat(s); };
+const pctFmt=n=>n.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:3})+'%';
+
+async function load(){
+  try{ const r=await window.storage.get(KEY); if(r&&r.value) db=JSON.parse(r.value); }catch(e){}
+  refreshSelectors(); renderGroups(); updatePrev();
+}
+async function save(){
+  try{ await window.storage.set(KEY, JSON.stringify(db)); }catch(e){ console.error(e); }
+}
+
+function mandors(){ return [...new Set(db.entries.map(e=>e.mandor))].sort(); }
+function jobsOf(m){ return [...new Set(db.entries.filter(e=>e.mandor===m).map(e=>e.job))].sort(); }
+function seriesOf(m,j){ return db.entries.filter(e=>e.mandor===m&&e.job===j)
+  .sort((a,b)=>(a.date||'').localeCompare(b.date||'')||a.id-b.id); }
+
+function refreshSelectors(keepM,keepJ){
+  const sm=document.getElementById('selMandor'), sj=document.getElementById('selJob');
+  const ms=mandors();
+  sm.innerHTML=ms.map(m=>`<option>${esc(m)}</option>`).join('')+'<option value="__new__">+ Mandor baru…</option>';
+  if(keepM&&ms.includes(keepM)) sm.value=keepM;
+  fillJobs(keepJ);
+}
+function fillJobs(keepJ){
+  const m=curMandor(), sj=document.getElementById('selJob');
+  const js=m?jobsOf(m):[];
+  sj.innerHTML=js.map(j=>`<option>${esc(j)}</option>`).join('')+'<option value="__new__">+ Pekerjaan baru…</option>';
+  if(keepJ&&js.includes(keepJ)) sj.value=keepJ;
+  document.getElementById('newJob').style.display = sj.value==='__new__'?'block':'none';
+  document.getElementById('newMandor').style.display = document.getElementById('selMandor').value==='__new__'?'block':'none';
+}
+function curMandor(){ const v=document.getElementById('selMandor').value;
+  return v==='__new__'?document.getElementById('newMandor').value.trim():v; }
+function curJob(){ const v=document.getElementById('selJob').value;
+  return v==='__new__'?document.getElementById('newJob').value.trim():v; }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function updatePrev(){
+  const m=curMandor(), j=curJob();
+  const box=document.getElementById('prevInfo'), warn=document.getElementById('warnInfo');
+  warn.innerHTML='';
+  const ser=(m&&j)?seriesOf(m,j):[];
+  if(!ser.length){ box.innerHTML = (m&&j)?'<div class="prev-box">Belum ada progres tercatat — ini termin pertama.</div>':''; return; }
+  const last=ser[ser.length-1];
+  box.innerHTML=`<div class="prev-box">Progres terakhir (${esc(last.date||'-')}): <span class="big">${pctFmt(last.pct)}</span> ×
+    Rp ${fmt(last.kontrak)} = <span class="big">Rp ${fmt(last.kumulatif)}</span>
+    &nbsp;·&nbsp; total sudah dibayar: <span class="big">Rp ${fmt(ser.reduce((s,e,i)=>s+termin(ser,i),0))}</span></div>`;
+  // live warnings vs input
+  const k=parseNum(document.getElementById('inKontrak').value);
+  const kum=currentKumulatif();
+  let w='';
+  if(!isNaN(k)&&Math.round(k)!==Math.round(last.kontrak))
+    w+=`<div class="amber-box">⚠ Nilai kontrak berubah dari Rp ${fmt(last.kontrak)} → Rp ${fmt(k)}. Pastikan baseline "pekerjaan sebelumnya" di BA memakai nilai kumulatif terakhir <b>Rp ${fmt(last.kumulatif)}</b>, bukan angka lain.</div>`;
+  if(!isNaN(kum)&&kum<last.kumulatif)
+    w+=`<div class="warn-box">⛔ Kumulatif baru (Rp ${fmt(kum)}) LEBIH KECIL dari kumulatif terakhir (Rp ${fmt(last.kumulatif)}). Termin akan negatif → indikasi kelebihan bayar seperti kasus BA 087.</div>`;
+  warn.innerHTML=w;
+}
+function currentKumulatif(){
+  const kumIn=parseNum(document.getElementById('inKumulatif').value);
+  if(!isNaN(kumIn)) return kumIn;
+  const p=parseNum(document.getElementById('inPct').value), k=parseNum(document.getElementById('inKontrak').value);
+  if(!isNaN(p)&&!isNaN(k)) return p/100*k;
+  return NaN;
+}
+function termin(ser,i){ return ser[i].kumulatif - (i>0?ser[i-1].kumulatif:0); }
+
+// ---------- parsing ----------
+function parseLine(text){
+  // pattern: <mandor> <pekerjaan...> 67,133% x Rp 47.909.204 [= 32.162.886]
+  const re=/^(\S+)\s+(.+?)\s+([\d.,]+)\s*%\s*[x×]\s*Rp?\s*\.?\s*([\d.]+)(?:\s*=\s*Rp?\s*([\d.]+))?/i;
+  const m=text.trim().match(re);
+  if(!m) return null;
+  return { mandor:m[1], job:m[2].trim(), pct:parseNum(m[3]), kontrak:parseNum(m[4]),
+           kumulatif:m[5]?parseNum(m[5]):NaN };
+}
+document.getElementById('btnParse').onclick=()=>{
+  const p=parseLine(document.getElementById('pasteBox').value);
+  if(!p){ alert('Format tidak dikenali. Contoh:\nTohir Pekerjaan Sekatan ... 67,133% x Rp 47.909.204 = 32.162.886'); return; }
+  // set mandor
+  const sm=document.getElementById('selMandor');
+  if(mandors().includes(p.mandor)){ sm.value=p.mandor; } else { sm.value='__new__'; document.getElementById('newMandor').value=p.mandor; }
+  fillJobs();
+  const sj=document.getElementById('selJob');
+  if(jobsOf(curMandor()).includes(p.job)){ sj.value=p.job; document.getElementById('newJob').style.display='none'; }
+  else { sj.value='__new__'; document.getElementById('newJob').style.display='block'; document.getElementById('newJob').value=p.job; }
+  document.getElementById('newMandor').style.display = sm.value==='__new__'?'block':'none';
+  document.getElementById('inPct').value=String(p.pct).replace('.',',');
+  document.getElementById('inKontrak').value=fmt(p.kontrak);
+  document.getElementById('inKumulatif').value=isNaN(p.kumulatif)?'':fmt(p.kumulatif);
+  updatePrev();
+};
+
+// ---------- save ----------
+document.getElementById('btnSave').onclick=async()=>{
+  const m=curMandor(), j=curJob();
+  const p=parseNum(document.getElementById('inPct').value);
+  const k=parseNum(document.getElementById('inKontrak').value);
+  let kum=currentKumulatif();
+  const d=document.getElementById('inDate').value;
+  if(!m||!j||isNaN(p)||isNaN(k)){ alert('Lengkapi mandor, pekerjaan, %, dan nilai kontrak.'); return; }
+  if(isNaN(kum)) kum=p/100*k;
+  db.entries.push({id:Date.now(), mandor:m, job:j, date:d, pct:p, kontrak:k, kumulatif:Math.round(kum)});
+  await save();
+  refreshSelectors(m,j); renderGroups(); updatePrev();
+  document.getElementById('inPct').value=''; document.getElementById('inKumulatif').value='';
+  document.getElementById('pasteBox').value='';
+};
+
+// ---------- render ----------
+function renderGroups(){
+  const host=document.getElementById('groups');
+  if(!db.entries.length){ host.innerHTML='<div class="card empty">Belum ada data. Tempel baris BA di atas atau isi formulir, lalu Simpan.</div>'; return; }
+  let html='', grand=0;
+  for(const m of mandors()){
+    for(const j of jobsOf(m)){
+      const ser=seriesOf(m,j);
+      const last=ser[ser.length-1];
+      const totalBayar=ser.reduce((s,e,i)=>s+termin(ser,i),0);
+      grand+=totalBayar;
+      const selisih=totalBayar-last.kumulatif;
+      html+=`<div class="group-head">${esc(m)} — ${esc(j)}
+        <small>kumulatif ${pctFmt(last.pct)} · Rp ${fmt(last.kumulatif)}</small></div>
+      <div class="group-body"><table><thead><tr>
+        <th>Tanggal</th><th class="num">%</th><th class="num">Kontrak</th><th class="num">Kumulatif</th><th class="num">Termin (bayar)</th><th></th></tr></thead><tbody>`;
+      ser.forEach((e,i)=>{
+        const t=termin(ser,i);
+        const kontrakChanged=i>0&&Math.round(e.kontrak)!==Math.round(ser[i-1].kontrak);
+        const copyTxt=`Rp  ${fmt(e.kontrak)} \t = \t ${fmt(e.kumulatif)}`;
+        html+=`<tr>
+          <td>${esc(e.date||'-')}${kontrakChanged?' <span class="badge-warn">kontrak berubah</span>':''}${t<0?' <span class="badge-warn">termin negatif</span>':''}</td>
+          <td class="num">${pctFmt(e.pct)}</td>
+          <td class="num">${fmt(e.kontrak)}</td>
+          <td class="num">${fmt(e.kumulatif)}</td>
+          <td class="num"${t<0?' style="color:var(--warn)"':''}>${fmt(t)}</td>
+          <td style="white-space:nowrap">
+            <button class="btn-copy" data-copy="${esc(copyTxt)}">salin Rp=</button>
+            <button class="btn-del" data-del="${e.id}">hapus</button>
+          </td></tr>`;
+      });
+      html+=`<tr class="total-row"><td colspan="4">Total dibayar (${esc(m)} — pekerjaan ini)</td>
+        <td class="num">${fmt(totalBayar)}</td><td></td></tr>`;
+      if(Math.abs(selisih)>1){
+        html+=`<tr><td colspan="6"><div class="${selisih>0?'warn-box':'amber-box'}" style="margin:6px 0">
+          ${selisih>0?'⛔ Total pembayaran MELEBIHI nilai kumulatif terakhir sebesar <b>Rp '+fmt(selisih)+'</b> — indikasi kelebihan bayar / baseline salah.':'ℹ Total pembayaran lebih kecil Rp '+fmt(-selisih)+' dari kumulatif (mis. retensi/termin belum dibayar).'}
+        </div></td></tr>`;
+      }
+      html+='</tbody></table></div>';
+    }
+  }
+  html+=`<div class="card" style="display:flex;justify-content:space-between;font-weight:700">
+    <span>Grand total seluruh pembayaran</span><span style="font-family:var(--mono)">Rp ${fmt(grand)}</span></div>`;
+  host.innerHTML=html;
+
+  host.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{
+    try{ await navigator.clipboard.writeText(b.dataset.copy); }catch(e){
+      const ta=document.createElement('textarea'); ta.value=b.dataset.copy; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+    b.classList.add('copied'); b.textContent='tersalin ✓';
+    setTimeout(()=>{b.classList.remove('copied'); b.textContent='salin Rp=';},1200);
+  });
+  host.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Hapus baris ini?')) return;
+    db.entries=db.entries.filter(e=>e.id!=b.dataset.del);
+    await save(); refreshSelectors(curMandor(),curJob()); renderGroups(); updatePrev();
+  });
+}
+
+// ---------- misc ----------
+document.getElementById('selMandor').onchange=()=>{ fillJobs(); updatePrev(); };
+document.getElementById('selJob').onchange=()=>{ 
+  document.getElementById('newJob').style.display=document.getElementById('selJob').value==='__new__'?'block':'none'; updatePrev(); };
+['newMandor','newJob','inPct','inKontrak','inKumulatif'].forEach(id=>
+  document.getElementById(id).addEventListener('input',updatePrev));
+document.getElementById('btnExport').onclick=()=>{
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='progres-mandor.json'; a.click();
+};
+document.getElementById('btnReset').onclick=async()=>{
+  if(!confirm('Yakin hapus SEMUA data progres?')) return;
+  db={entries:[]}; await save(); refreshSelectors(); renderGroups(); updatePrev();
+};
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencatat Progres Mandor (BA)</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#fff; --ink:#1f2937; --muted:#6b7280;
+    --line:#e5e7eb; --brand:#2563eb; --brand-d:#1d4ed8;
+    --yellow:#fff3a3; --yellow-b:#eab308; --red:#fca5a5; --red-b:#dc2626;
+    --green:#bbf7d0; --green-b:#16a34a; --soft:#eef2ff;
+  }
+  [data-theme="dark"]{
+    --bg:#0f172a; --card:#1e293b; --ink:#f8fafc; --muted:#94a3b8;
+    --line:#334155; --brand:#3b82f6; --brand-d:#2563eb;
+    --yellow:#422006; --yellow-b:#ca8a04; --red:#450a0a; --red-b:#ef4444;
+    --green:#052e16; --green-b:#22c55e; --soft:#1e1b4b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;transition:background-color .2s,color .2s}
+  header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  header h1{margin:0;font-size:20px}
+  header p{margin:4px 0 0;opacity:.9;font-size:13px}
+  .wrap{max-width:none;margin:0;padding:16px 24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:background-color .2s,border-color .2s}
+  .card h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:680px){.grid,.grid3{grid-template-columns:1fr}}
+  label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:var(--card);color:var(--ink);transition:background-color .2s,color .2s,border-color .2s}
+  [data-theme="dark"] input,[data-theme="dark"] select,[data-theme="dark"] textarea{background:#0f172a;color:#f8fafc;border-color:#334155}
+  [data-theme="dark"] option{background:#1e293b;color:#f8fafc}
+  textarea{resize:vertical;min-height:54px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  input:focus,select:focus,textarea:focus{outline:2px solid #bfdbfe;border-color:var(--brand)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+  .row > *{flex:1;min-width:140px}
+  button{cursor:pointer;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;transition:background-color .15s,opacity .15s}
+  .btn{background:var(--brand);color:#fff}
+  .btn:hover{background:var(--brand-d)}
+  .btn-ghost{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+  [data-theme="dark"] .btn-ghost{color:#60a5fa;border-color:#3b82f6}
+  .btn-soft{background:var(--soft);color:var(--brand-d);border:1px solid #c7d2fe}
+  [data-theme="dark"] .btn-soft{background:#1e1b4b;color:#93c5fd;border-color:#3730a3}
+  .btn-danger{background:transparent;color:var(--red-b);border:1px solid var(--red)}
+  .btn-sm{padding:5px 9px;font-size:12px}
+  .full{grid-column:1/-1}
+  .status{margin-top:10px;font-size:12.5px;padding:8px 10px;border-radius:8px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;display:none}
+  .status.err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+  [data-theme="dark"] .status{background:#064e3b;border-color:#047857;color:#a7f3d0}
+  [data-theme="dark"] .status.err{background:#7f1d1d;border-color:#b91c1c;color:#fecaca}
+  .status.show{display:block}
+  .prevbox{margin-top:12px;border:1px dashed var(--yellow-b);background:var(--yellow);border-radius:10px;padding:10px 12px;font-size:13px}
+  [data-theme="dark"] .prevbox{background:#422006;border-color:#ca8a04;color:#fef08a}
+  .prevbox .ttl{font-weight:700;margin-bottom:6px}
+  .prevbox .nums{font-family:ui-monospace,Consolas,monospace}
+  .warn{margin-top:8px;background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:8px;padding:8px 10px;font-size:12.5px}
+  [data-theme="dark"] .warn{background:#451a03;border-color:#9a3412;color:#fdba74}
+  .stat{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .pill{background:var(--soft);border:1px solid #c7d2fe;border-radius:999px;padding:6px 12px;font-size:12.5px}
+  [data-theme="dark"] .pill{border-color:#3730a3}
+  .pill b{color:var(--brand-d)}
+  [data-theme="dark"] .pill b{color:#60a5fa}
+  .pill.red{background:#fef2f2;border-color:#fecaca}.pill.red b{color:var(--red-b)}
+  [data-theme="dark"] .pill.red{background:#450a0a;border-color:#7f1d1d}.pill.red b{color:#f87171}
+  .pill.green{background:#f0fdf4;border-color:#bbf7d0}.pill.green b{color:var(--green-b)}
+  [data-theme="dark"] .pill.green{background:#052e16;border-color:#047857}.pill.green b{color:#4ade80}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:center}
+  th{background:#f9fafb;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+  [data-theme="dark"] th{background:#0f172a;color:#94a3b8}
+  td.l,th.l{text-align:left}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+  tr.hl-y td{background:var(--yellow)}
+  [data-theme="dark"] tr.hl-y td{background:#422006}
+  tr.hl-r td{background:#fee2e2}
+  [data-theme="dark"] tr.hl-r td{background:#450a0a}
+  .grp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .grp-head .t{font-weight:700}
+  .grp-head .s{font-size:12px;color:var(--muted)}
+  .grand{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .grand .v{font-size:22px;font-weight:800}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .help{font-size:12.5px;color:var(--muted)}
+  .help li{margin-bottom:4px}
+  .kbd{font-family:ui-monospace,monospace;background:#eef2ff;border:1px solid #c7d2fe;border-radius:5px;padding:1px 5px;font-size:11.5px;color:#3730a3}
+  [data-theme="dark"] .kbd{background:#312e81;color:#c7d2fe;border-color:#4338ca}
+  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+  [data-theme="dark"] #toast{background:#f8fafc;color:#0f172a}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .muted{color:var(--muted)}
+  .mono{font-family:ui-monospace,Consolas,monospace}
+
+  /* ===== LAYOUT 40/60 ===== */
+  .layout{display:grid;grid-template-columns:40fr 60fr;gap:16px;align-items:start}
+  .col-left,.col-right{min-width:0}
+  @media(min-width:901px){.col-left{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:2px}}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  /* ===== REKAP KIRI ===== */
+  .rekap h2{font-size:14px}
+  .rekap ul{list-style:none;margin:8px 0 0;padding:0}
+  .rekap li{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .rekap li:last-child{border-bottom:none}
+  .rk-label{font-size:12.5px;min-width:0}
+  .rk-t{font-weight:700;word-break:break-word}
+  .rk-s{color:var(--muted);font-size:11.5px}
+  .rk-val{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;font-weight:800;color:var(--brand-d);white-space:nowrap}
+  [data-theme="dark"] .rk-val{color:#60a5fa}
+  .rk-total{font-size:12.5px;background:var(--soft);border:1px solid #c7d2fe;border-radius:8px;padding:6px 10px;margin-bottom:4px}
+  [data-theme="dark"] .rk-total{background:#1e1b4b;border-color:#3730a3}
+  .rk-total b{color:var(--brand-d)}
+  [data-theme="dark"] .rk-total b{color:#60a5fa}
+  .rk-empty{color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>📒 Pencatat Progres Mandor (BA)</h1>
+    <p>Kelompokkan per mandor &amp; pekerjaan · akumulasi otomatis · cegah salah hitung adendum</p>
+  </div>
+  <button id="btnHeaderTheme" class="btn-soft" style="background:rgba(255,255,255,0.18); color:#fff; border:1px solid rgba(255,255,255,0.4); font-size:13px; padding:6px 14px;">🌙 Tema Gelap</button>
+</header>
+
+<div class="wrap">
+
+  <!-- GRAND TOTAL -->
+  <div class="grand">
+    <div>
+      <div style="font-size:12px;opacity:.9">GRAND TOTAL TERMIN (total uang dicairkan semua mandor)</div>
+      <div class="v" id="grandTotal">Rp 0</div>
+    </div>
+    <div style="font-size:12px;opacity:.9;text-align:right">
+      Ini angka yg masuk rekap Excel-mu<br>(bukan nilai kontrak, bukan kumulatif)
+    </div>
+  </div>
+
+  <!-- ===== LAYOUT 40/60 ===== -->
+  <div class="layout">
+
+    <!-- KOLOM KIRI 40% : REKAP INFORMATIF -->
+    <aside class="col-left">
+      <div id="rekapPanel"></div>
+    </aside>
+
+    <!-- KOLOM KANAN 60% : INPUT / PARSE + RIWAYAT -->
+    <section class="col-right">
+
+      <!-- FORM INPUT -->
+      <div class="card">
+        <h2>➕ Input / Parse Entri BA</h2>
+
+        <div class="grid">
+          <div>
+            <label>Mandor</label>
+            <select id="fMandor"></select>
+          </div>
+          <div>
+            <label>Jenis Pekerjaan</label>
+            <select id="fPekerjaan"></select>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Paste baris BA (opsional) — format: <span class="mono">Nama Pekerjaan … 67,133% x Rp 47.909.204 = 32.162.886</span></label>
+          <textarea id="fPaste" placeholder="Tohir Pekerjaan Sekatan, Plafon Dan Repair Dinding Dapur Randusari 67,133%&#9;x&#9;Rp  47.909.204 &#9;=&#9; 32.162.886"></textarea>
+          <div class="row" style="margin-top:8px">
+            <button class="btn-soft" id="btnParse" style="flex:0 0 auto">🔍 Parse Baris</button>
+            <span class="help" style="align-self:center">Parse akan mengisi mandor, pekerjaan &amp; angka di bawah.</span>
+          </div>
+        </div>
+
+        <div class="grid3" style="margin-top:12px">
+          <div><label>Tanggal</label><input type="date" id="fTgl"></div>
+          <div><label>Progres / Persen (%)</label><input type="text" id="fPersen" placeholder="67,133"></div>
+          <div><label>Nilai Kontrak (Rp)</label><input type="text" id="fKontrak" placeholder="47.909.204"></div>
+          <div><label>Nilai Kumulatif saat ini (Rp)</label><input type="text" id="fKum" placeholder="32.162.886"></div>
+          <div class="full">
+            <label>Nilai Sebelumnya (Rp) — <span class="muted">otomatis = kumulatif terakhir; EDIT hanya bila BA pakai baseline lain (biasanya setelah adendum)</span></label>
+            <input type="text" id="fPrev" placeholder="kosongkan = pakai kumulatif terakhir otomatis">
+          </div>
+        </div>
+
+        <div id="prevBox" class="prevbox" style="display:none">
+          <div class="ttl">📌 Progres Sebelumnya (entri terakhir kelompok ini) — referensi</div>
+          <div class="nums" id="prevNums"></div>
+          <div class="acts" style="margin-top:8px">
+            <button class="btn-ghost btn-sm" id="copyPrevXY">📋 Copy "Rp … = …"</button>
+            <button class="btn-ghost btn-sm" id="copyPrevFull">📋 Copy baris lengkap</button>
+            <button class="btn-soft btn-sm" id="usePrev">⬇ Pakai kumulatif ini sbg "Sebelumnya"</button>
+          </div>
+        </div>
+        <div id="adendumWarn" class="warn" style="display:none"></div>
+
+        <div id="status" class="status"></div>
+
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="btnSave">💾 Simpan Entri</button>
+          <button class="btn-ghost" id="btnReset">🧹 Reset Form</button>
+          <button class="btn-soft" id="btnSample">🎯 Isi Contoh BA Tohir (8 termin)</button>
+        </div>
+      </div>
+
+      <!-- PENGATURAN / SETTINGS -->
+      <div class="card">
+        <h2>⚙️ Opsi Pengaturan &amp; Parsing</h2>
+        <div class="grid">
+          <div>
+            <label>Tema Tampilan</label>
+            <select id="cfgTheme">
+              <option value="system">🌓 Ikuti Sistem</option>
+              <option value="light">☀️ Terang (Light Mode)</option>
+              <option value="dark">🌙 Gelap (Dark Mode)</option>
+            </select>
+          </div>
+          <div>
+            <label>Mode Parsing Teks BA</label>
+            <select id="cfgParseMode">
+              <option value="fleksibel">✨ Fleksibel (Tanpa Rp / Rp setelah = / teks ekstra)</option>
+              <option value="ketat">🔒 Ketat (Harus persis format "x Rp ... = ...")</option>
+            </select>
+          </div>
+          <div>
+            <label>Simbol Mata Uang Parsing</label>
+            <input type="text" id="cfgCurrency" placeholder="Rp">
+          </div>
+          <div>
+            <label>Pemisah Mandor Baru (jika belum terdaftar)</label>
+            <select id="cfgMandorWords">
+              <option value="1kata">1 Kata Pertama (Contoh: Tohir)</option>
+              <option value="2kata">2 Kata Pertama (Contoh: Budi Santoso)</option>
+            </select>
+          </div>
+        </div>
+        <div class="acts" style="margin-top:12px">
+          <button class="btn-soft btn-sm" id="btnSaveSettings">💾 Simpan Pengaturan</button>
+          <span class="help" style="align-self:center">Pengaturan tersimpan otomatis di browser ini.</span>
+        </div>
+      </div>
+
+      <!-- KELOMPOK / RIWAYAT -->
+      <div id="groups"></div>
+
+    </section>
+  </div>
+  <!-- ===== /LAYOUT ===== -->
+
+  <!-- DATA -->
+  <div class="card">
+    <h2>💾 Data &amp; Backup</h2>
+    <div class="acts">
+      <button class="btn-soft" id="btnExport">⬇ Export JSON</button>
+      <button class="btn-soft" id="btnImport">⬆ Import JSON</button>
+      <input type="file" id="fileImport" accept="application/json" style="display:none">
+      <button class="btn-danger" id="btnClear">🗑 Hapus Semua Data</button>
+    </div>
+    <p class="help" style="margin-top:10px">Data tersimpan otomatis di browser ini (localStorage). Export JSON untuk backup/pindah perangkat.</p>
+  </div>
+
+  <!-- BANTUAN -->
+  <div class="card">
+    <h2>❓ Cara Pakai &amp; Arti Kolom</h2>
+    <ul class="help">
+      <li><b>Mandor &amp; Pekerjaan</b>: pilih dari dropdown, atau pilih <span class="kbd">+ Tambah baru…</span>. Kalau paste baris, keduanya terisi otomatis.</li>
+      <li><b>Paste baris</b>: tempel persis format BA, klik <b>Parse Baris</b>. Persen pakai koma (67,133), uang pakai titik ribuan (47.909.204).</li>
+      <li><b>Nilai Kumulatif</b> = persen × kontrak = total pekerjaan yg sudah dilaksanakan sampai termin ini.</li>
+      <li><b>Termin</b> (kolom kuning di tabel) = Kumulatif − Sebelumnya = uang yg dicairkan di BA ini. <b>Jumlah semua termin = Grand Total</b> (angka rekap Excel-mu).</li>
+      <li><b>Nilai Sebelumnya</b>: otomatis = kumulatif entri terakhir. <b>WAJIB diedit</b> bila nilai kontrak berubah (adendum) dan BA menulis baseline berbeda. Cth BA‑5 Tohir: sebelumnya = 19.080.776 (bukan 25.548.736).</li>
+      <li><b>Copy "Rp … = …"</b>: ada di kotak Progres Sebelumnya &amp; tiap baris — tinggal tempel ke BA berikutnya.</li>
+      <li><b>Rekap kiri</b>: otomatis mengelompokkan total termin per <b>Pekerjaan</b>, per <b>Mandor</b>, dan per <b>Tempat</b>. Tempat di‑deteksi otomatis dari nama pekerjaan (pola <span class="kbd">Dapur X</span> / <span class="kbd">Gedung X</span> / <span class="kbd">Blok X</span>; kalau tidak ketemu pakai 2 kata terakhir).</li>
+      <li><b>Dropdown Pekerjaan</b> menampilkan tiap nama pekerjaan <b>tepat satu kali</b> (spasi ganda/kosong dirapikan otomatis).</li>
+      <li>Baris tabel: <span style="background:var(--yellow);padding:1px 6px;border-radius:4px">kuning</span> = ada override "sebelumnya"; <span style="background:#fee2e2;padding:1px 6px;border-radius:4px">merah</span> = termin negatif (cek ulang).</li>
+    </ul>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+const KEY='mandorProgresRecords_v1';
+const SETTINGS_KEY='mandorProgresSettings_v1';
+
+let records = load();
+let settings = loadSettings();
+
+/* ---------- storage settings & theme ---------- */
+function loadSettings(){
+  const def = { theme: 'system', mode: 'fleksibel', currency: 'Rp', mandorWords: '1kata' };
+  try{ return { ...def, ...(JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}) }; } catch(e){ return def; }
+}
+function saveSettings(showToast = true){
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  applySettings();
+  if(showToast) toast('Pengaturan tersimpan 💾');
+}
+function applySettings(){
+  applyTheme(settings.theme);
+  const selTheme = document.getElementById('cfgTheme'); if(selTheme) selTheme.value = settings.theme;
+  const selMode = document.getElementById('cfgParseMode'); if(selMode) selMode.value = settings.mode;
+  const inpCurr = document.getElementById('cfgCurrency'); if(inpCurr) inpCurr.value = settings.currency;
+  const selMW = document.getElementById('cfgMandorWords'); if(selMW) selMW.value = settings.mandorWords;
+}
+function applyTheme(themeVal){
+  let isDark = false;
+  if(themeVal === 'dark') isDark = true;
+  else if(themeVal === 'light') isDark = false;
+  else if(themeVal === 'system'){
+    isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  if(isDark){
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  const btn = document.getElementById('btnHeaderTheme');
+  if(btn) btn.textContent = isDark ? '☀️ Tema Terang' : '🌙 Tema Gelap';
+}
+
+// listener OS theme change
+if(window.matchMedia){
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{
+    if(settings.theme === 'system') applyTheme('system');
+  });
+}
+
+/* ---------- storage records ---------- */
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){ return []; } }
+function save(){ localStorage.setItem(KEY, JSON.stringify(records)); }
+
+/* ---------- util teks/angka ---------- */
+function norm(s){ return String(s==null?'':s).trim().replace(/\s+/g,' '); }   // rapikan spasi -> cegah duplikat dropdown
+function extractTempat(p){                                                   // deteksi tempat dari nama pekerjaan
+  const re=[/Dapur\s+[\w\-]+/i,/Gedung\s+[\w\-]+/i,/Blok\s+[\w\-]+/i,/Gudang\s+[\w\-]+/i,/Ruko\s+[\w\-]+/i,/Lantai\s+\d+/i,/LT\s*\d+/i];
+  for(const r of re){ const m=String(p).match(r); if(m) return m[0].replace(/\s+/g,' ').trim(); }
+  const w=String(p).trim().split(/\s+/); return w.length>=2? w.slice(-2).join(' ') : (w[0]||'-');
+}
+function parseMoney(s){
+  if(s==null) return NaN;
+  s=String(s).trim().replace(/\s/g,'').replace(/Rp/i,'');
+  if(s==='') return NaN;
+  const hasComma=s.includes(','), hasDot=s.includes('.');
+  if(hasComma && hasDot) s=s.replace(/\./g,'').replace(',','.');
+  else if(hasComma) s=s.replace(',','.');
+  else if(hasDot) s=s.replace(/\./g,'');
+  const n=parseFloat(s); return n;
+}
+function parsePercent(s){
+  if(s==null) return NaN;
+  s=String(s).trim().replace(/%/g,'').replace(/\s/g,'');
+  if(s==='') return NaN;
+  s=s.replace(',','.');
+  return parseFloat(s);
+}
+function fmtMoney(n){ n=Number(n)||0; return Math.round(n).toLocaleString('id-ID'); }
+function fmtPercent(n){ n=Number(n)||0; return n.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:3}); }
+function fmtFull(r){ return `${r.mandor} ${r.pekerjaan} ${fmtPercent(r.persen)}%\tx\tRp ${fmtMoney(r.kontrak)}\t=\t${fmtMoney(r.kumulatif)}`; }
+function fmtXY(r){ return `Rp ${fmtMoney(r.kontrak)}\t=\t${fmtMoney(r.kumulatif)}`; }
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function keyOf(r){ return r.mandor+'||'+r.pekerjaan; }
+
+/* ---------- toast & copy ---------- */
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1600); }
+function copyText(t){
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(t).then(()=>toast('Tersalin ✅')).catch(()=>fallbackCopy(t));
+  } else fallbackCopy(t);
+}
+function fallbackCopy(t){
+  const ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('Tersalin ✅'); }catch(e){ toast('Gagal menyalin'); }
+  document.body.removeChild(ta);
+}
+
+/* ---------- status ---------- */
+function setStatus(msg,isErr){ const s=document.getElementById('status'); s.textContent=msg; s.className='status show'+(isErr?' err':''); }
+function clearStatus(){ const s=document.getElementById('status'); s.className='status'; s.textContent=''; }
+
+/* ---------- dropdown ---------- */
+function uniqueMandors(){ return [...new Set(records.map(r=>r.mandor))]; }
+function uniquePekerjaan(){ return [...new Set(records.map(r=>r.pekerjaan))]; }   // Set -> nama sama muncul 1x
+function fillSelect(sel, items, keep, withEmptyLabel){
+  const cur = keep!==undefined ? keep : sel.value;
+  sel.innerHTML='';
+  const e0=document.createElement('option'); e0.value=''; e0.textContent=withEmptyLabel; sel.appendChild(e0);
+  items.forEach(it=>{ const o=document.createElement('option'); o.value=it; o.textContent=it; sel.appendChild(o); });
+  const add=document.createElement('option'); add.value='__new__'; add.textContent='+ Tambah baru…'; sel.appendChild(add);
+  if(items.includes(cur)) sel.value=cur; else sel.value='';
+}
+function refreshSelects(keepM,keepP){
+  fillSelect(document.getElementById('fMandor'), uniqueMandors(), keepM, '— pilih mandor —');
+  fillSelect(document.getElementById('fPekerjaan'), uniquePekerjaan(), keepP, '— pilih pekerjaan —');
+}
+
+/* ---------- kelompok helpers ---------- */
+function groupRecords(mandor,pekerjaan){ return records.filter(r=>r.mandor===mandor && r.pekerjaan===pekerjaan); }
+function lastOf(mandor,pekerjaan){ const g=groupRecords(mandor,pekerjaan); return g.length? g[g.length-1] : null; }
+
+/* ---------- tampilkan progres sebelumnya + warning ---------- */
+function updatePrevBox(){
+  const m=document.getElementById('fMandor').value;
+  const p=document.getElementById('fPekerjaan').value;
+  const box=document.getElementById('prevBox');
+  const warn=document.getElementById('adendumWarn');
+  warn.style.display='none';
+  if(!m||!p){ box.style.display='none'; return; }
+  const last=lastOf(m,p);
+  if(!last){ box.style.display='none'; return; }
+  box.style.display='block';
+  document.getElementById('prevNums').innerHTML =
+    `Tgl <b>${esc(last.tanggal||'-')}</b> &nbsp;|&nbsp; Progres <b>${fmtPercent(last.persen)}%</b> &nbsp;|&nbsp; `+
+    `Kontrak <b>Rp ${fmtMoney(last.kontrak)}</b> &nbsp;|&nbsp; Kumulatif <b>Rp ${fmtMoney(last.kumulatif)}</b> &nbsp;|&nbsp; `+
+    `Termin <b>Rp ${fmtMoney(last.termin)}</b>`;
+  // auto-fill sebelumnya jika masih kosong
+  const prevInput=document.getElementById('fPrev');
+  if(prevInput.value.trim()==='') prevInput.value=fmtMoney(last.kumulatif);
+  // warning adendum
+  const kNow=parseMoney(document.getElementById('fKontrak').value);
+  if(!isNaN(kNow) && Math.round(kNow)!==Math.round(last.kontrak)){
+    warn.style.display='block';
+    warn.innerHTML='⚠️ <b>Nilai kontrak berubah</b> (Rp '+fmtMoney(last.kontrak)+' → Rp '+fmtMoney(kNow)+
+      '). Kemungkinan <b>adendum</b>. Periksa field <b>"Nilai Sebelumnya"</b> — pada BA setelah adendum, baseline rupiah sering TIDAK sama dgn kumulatif terakhir (cth BA‑5 Tohir = 19.080.776).';
+  }
+}
+
+/* ---------- parse baris (menggunakan settings) ---------- */
+function parseLine(line){
+  line = String(line || '').trim();
+  if(!line) return null;
+
+  const mPct = line.match(/(\d+(?:[.,]\d+)?)\s*%/);
+  if(!mPct) return null;
+  const persen = parsePercent(mPct[1]);
+
+  const prefix = line.slice(0, mPct.index).trim();
+  const suffix = line.slice(mPct.index).trim();
+
+  let kontrak = NaN, kumulatif = NaN;
+  const curr = (settings.currency || 'Rp').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  if(settings.mode === 'ketat'){
+    const mKon = suffix.match(new RegExp('(?:' + curr + '|Rp)\\s*([\\d.,]+)', 'i'));
+    const mKum = suffix.match(/=\s*([\d.,]+)\s*$/);
+    if(!mKon || !mKum) return null;
+    kontrak = parseMoney(mKon[1]);
+    kumulatif = parseMoney(mKum[1]);
+  } else {
+    // Mode Fleksibel (default)
+    const mKon = suffix.match(new RegExp('(?:' + curr + '|Rp|x|[*])\\s*(?:(?:' + curr + '|Rp)\\s*)?([\\d.,]+)', 'i'));
+    const mKum = suffix.match(new RegExp('=\\s*(?:(?:' + curr + '|Rp)\\s*)?([\\d.,]+)', 'i'));
+    if(!mKon || !mKum) return null;
+    kontrak = parseMoney(mKon[1]);
+    kumulatif = parseMoney(mKum[1]);
+  }
+
+  if(isNaN(kontrak) || isNaN(kumulatif)) return null;
+
+  // pisahkan mandor & pekerjaan
+  let mandor='', pekerjaan='';
+  const existing=uniqueMandors().sort((a,b)=>b.length-a.length);
+  const low=prefix.toLowerCase();
+  let matched=null;
+  for(const m of existing){
+    const ml=m.toLowerCase();
+    if(low===ml || low.startsWith(ml+' ')){ matched=m; break; }
+  }
+  if(matched){
+    mandor=matched; 
+    pekerjaan=prefix.slice(matched.length).trim();
+  } else {
+    const parts=prefix.split(/\s+/);
+    if(settings.mandorWords === '2kata' && parts.length >= 2){
+      mandor = parts.slice(0, 2).join(' ');
+      pekerjaan = parts.slice(2).join(' ');
+    } else {
+      mandor = parts[0] || '';
+      pekerjaan = parts.slice(1).join(' ');
+    }
+  }
+  mandor=norm(mandor); pekerjaan=norm(pekerjaan);   // normalisasi -> dropdown tetap unik
+  return {mandor,pekerjaan,persen,kontrak,kumulatif};
+}
+
+/* ---------- REKAP KIRI ---------- */
+function cardRekap(title, list, labelFn, valFn){
+  const total=list.reduce((a,[,d])=>a+valFn(d),0);
+  const items=list.length? list.map(([k,d])=>
+    `<li><div class="rk-label">${labelFn([k,d])}</div><div class="rk-val">Rp ${fmtMoney(valFn(d))}</div></li>`).join('')
+    : `<li><span class="rk-empty">—</span></li>`;
+  return `<div class="card rekap"><h2>${title}</h2>
+     <div class="rk-total">Total termin: <b>Rp ${fmtMoney(total)}</b></div>
+     <ul>${items}</ul></div>`;
+}
+function renderRekap(){
+  const panel=document.getElementById('rekapPanel');
+  if(!panel) return;
+  if(!records.length){ panel.innerHTML='<div class="card rekap"><h2>📊 Rekap</h2><p class="rk-empty">Belum ada data. Rekap per Pekerjaan / Mandor / Tempat muncul otomatis setelah ada entri.</p></div>'; return; }
+  const byP={}, byM={}, byT={};
+  records.forEach(r=>{
+    const t=Number(r.termin)||0;
+    (byP[r.pekerjaan] ??= {termin:0,n:0,man:new Set()}); byP[r.pekerjaan].termin+=t; byP[r.pekerjaan].n++; byP[r.pekerjaan].man.add(r.mandor);
+    (byM[r.mandor]    ??= {termin:0,n:0,pek:new Set()}); byM[r.mandor].termin+=t;    byM[r.mandor].n++;    byM[r.mandor].pek.add(r.pekerjaan);
+    const tp=extractTempat(r.pekerjaan);
+    (byT[tp]          ??= {termin:0,n:0});                byT[tp].termin+=t;          byT[tp].n++;
+  });
+  const sP=Object.entries(byP).sort((a,b)=>b[1].termin-a[1].termin);
+  const sM=Object.entries(byM).sort((a,b)=>b[1].termin-a[1].termin);
+  const sT=Object.entries(byT).sort((a,b)=>b[1].termin-a[1].termin);
+  panel.innerHTML =
+    cardRekap('🔧 Rekap per Pekerjaan', sP, ([p,d])=>`<div class="rk-t">${esc(p)}</div><div class="rk-s">Mandor: ${esc([...d.man].join(', '))} · ${d.n} entri</div>`, d=>d.termin) +
+    cardRekap('👷 Rekap per Mandor', sM, ([m,d])=>`<div class="rk-t">${esc(m)}</div><div class="rk-s">${d.pek.size} pekerjaan · ${d.n} entri</div>`, d=>d.termin) +
+    cardRekap('📍 Rekap per Tempat', sT, ([t,d])=>`<div class="rk-t">${esc(t)}</div><div class="rk-s">${d.n} entri</div>`, d=>d.termin);
+}
+
+/* ---------- render kelompok ---------- */
+function renderGroups(){
+  const wrap=document.getElementById('groups');
+  wrap.innerHTML='';
+  // kelompokkan urut kemunculan
+  const order=[]; const map={};
+  records.forEach(r=>{ const k=keyOf(r); if(!map[k]){ map[k]=[]; order.push(k);} map[k].push(r); });
+
+  let grand=0;
+  order.forEach(k=>{
+    const list=map[k];
+    const last=list[list.length-1];
+    const totalTermin=list.reduce((a,r)=>a+(Number(r.termin)||0),0);
+    grand+=totalTermin;
+    const sisa=Number(last.kontrak)-Number(last.kumulatif);
+
+    const card=document.createElement('div'); card.className='card';
+    let rows='';
+    list.forEach((r,i)=>{
+      const overridden = r._overridePrev===true;
+      const neg = (Number(r.termin)||0)<0;
+      const cls = neg?'hl-r':(overridden?'hl-y':'');
+      rows+=`<tr class="${cls}">
+        <td>${i+1}</td>
+        <td class="l">${esc(r.tanggal||'-')}</td>
+        <td>${fmtPercent(r.persen)}%</td>
+        <td>${fmtMoney(r.kontrak)}</td>
+        <td>${fmtMoney(r.kumulatif)}</td>
+        <td>${fmtMoney(r.prev)}</td>
+        <td><b>${fmtMoney(r.termin)}</b></td>
+        <td>
+          <button class="btn-soft btn-sm" data-xy="${esc(fmtXY(r))}">Rp =</button>
+          <button class="btn-ghost btn-sm" data-full="${esc(fmtFull(r))}">baris</button>
+          <button class="btn-danger btn-sm" data-del="${r.id}">✕</button>
+        </td></tr>`;
+    });
+
+    card.innerHTML=`
+      <div class="grp-head">
+        <div>
+          <div class="t">👷 ${esc(last.mandor)}</div>
+          <div class="s">🔧 ${esc(last.pekerjaan)}</div>
+        </div>
+        <div class="stat">
+          <span class="pill">Kontrak terakhir <b>Rp ${fmtMoney(last.kontrak)}</b></span>
+          <span class="pill">Progres <b>${fmtPercent(last.persen)}%</b></span>
+          <span class="pill">Kumulatif <b>Rp ${fmtMoney(last.kumulatif)}</b></span>
+          <span class="pill green">Total Termin <b>Rp ${fmtMoney(totalTermin)}</b></span>
+          <span class="pill red">Sisa <b>Rp ${fmtMoney(sisa)}</b></span>
+        </div>
+      </div>
+      <div class="tblwrap"><table>
+        <thead><tr>
+          <th>#</th><th class="l">Tanggal</th><th>Progres</th><th>Kontrak</th>
+          <th>Kumulatif</th><th>Sebelumnya</th><th>Termin</th><th>Aksi</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+    wrap.appendChild(card);
+  });
+
+  document.getElementById('grandTotal').textContent='Rp '+fmtMoney(grand);
+
+  // delegate tombol tabel
+  wrap.querySelectorAll('[data-xy]').forEach(b=>b.onclick=()=>copyText(b.getAttribute('data-xy')));
+  wrap.querySelectorAll('[data-full]').forEach(b=>b.onclick=()=>copyText(b.getAttribute('data-full')));
+  wrap.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    if(confirm('Hapus entri ini?')){ records=records.filter(r=>r.id!==b.getAttribute('data-del')); save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Entri dihapus'); }
+  });
+
+  renderRekap();   // sinkronkan rekap kiri setiap kali riwayat berubah
+}
+
+/* ---------- simpan ---------- */
+function doSave(){
+  clearStatus();
+  let mandor=norm(document.getElementById('fMandor').value);
+  let pekerjaan=norm(document.getElementById('fPekerjaan').value);
+  if(!mandor||!pekerjaan){ setStatus('Pilih / isi Mandor dan Pekerjaan dulu.',true); return; }
+  const persen=parsePercent(document.getElementById('fPersen').value);
+  const kontrak=parseMoney(document.getElementById('fKontrak').value);
+  const kumulatif=parseMoney(document.getElementById('fKum').value);
+  if([persen,kontrak,kumulatif].some(isNaN)){ setStatus('Persen / Kontrak / Kumulatif tidak valid.',true); return; }
+
+  const last=lastOf(mandor,pekerjaan);
+  let prevRaw=document.getElementById('fPrev').value.trim();
+  let prev, override=false;
+  if(prevRaw===''){ prev = last? Number(last.kumulatif):0; }
+  else { prev=parseMoney(prevRaw); if(isNaN(prev)){ setStatus('"Nilai Sebelumnya" tidak valid.',true); return; } override=true; }
+
+  const termin = kumulatif - prev;
+  const rec={
+    id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    mandor, pekerjaan,
+    tanggal: document.getElementById('fTgl').value || '',
+    persen, kontrak, kumulatif, prev, termin,
+    _overridePrev: override
+  };
+  records.push(rec); save();
+  refreshSelects(mandor,pekerjaan);
+  renderGroups();
+  setStatus(`✅ Tersimpan. Termin = Rp ${fmtMoney(termin)} (Kumulatif ${fmtMoney(kumulatif)} − Sebelumnya ${fmtMoney(prev)}).`, termin<0);
+  // reset angka tapi pertahankan mandor/pekerjaan & tanggal biar input beruntun cepat
+  document.getElementById('fPersen').value='';
+  document.getElementById('fKontrak').value='';
+  document.getElementById('fKum').value='';
+  document.getElementById('fPrev').value='';
+  document.getElementById('fPaste').value='';
+  updatePrevBox();
+}
+
+/* ---------- contoh data ---------- */
+function loadSample(){
+  if(records.length && !confirm('Data saat ini akan DITIMPA contoh BA Tohir. Lanjut?')) return;
+  const M='Tohir', P='Pekerjaan Sekatan, Plafon Dan Repair Dinding Dapur Randusari';
+  const raw=[
+    ['2026-01-13',21.101,30948658,6530476,0],
+    ['2026-01-22',35.396,30948658,10954587,6530476],
+    ['2026-01-28',61.283,30948658,18966266,10954587],
+    ['2026-02-04',82.552,30948658,25548736,18966266],
+    ['2026-02-11',58.235,41439939,24132548,19080776], // override setelah adendum
+    ['2026-02-25',69.130,41439939,28647430,24132548],
+    ['2026-03-06',74.509,41439939,30876484,28647430],
+    ['2026-03-16',67.133,47909204,32162886,30876484],
+  ];
+  records = raw.map((r,i)=>({
+    id:'s'+i+Date.now().toString(36),
+    mandor:M, pekerjaan:P, tanggal:r[0], persen:r[1], kontrak:r[2], kumulatif:r[3], prev:r[4],
+    termin:r[3]-r[4], _overridePrev:(i===4)
+  }));
+  save(); refreshSelects(); renderGroups(); updatePrevBox();
+  toast('Contoh dimuat — cek Grand Total = 38.630.845');
+}
+
+/* ---------- export / import ---------- */
+function doExport(){
+  const blob=new Blob([JSON.stringify(records,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='progres-mandor-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+  URL.revokeObjectURL(a.href); toast('JSON di-export');
+}
+function doImport(file){
+  const rd=new FileReader();
+  rd.onload=()=>{ try{ const d=JSON.parse(rd.result); if(!Array.isArray(d)) throw 0;
+    records=d; save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Import berhasil: '+d.length+' entri');
+  }catch(e){ toast('File JSON tidak valid'); } };
+  rd.readAsText(file);
+}
+
+/* ---------- events ---------- */
+document.addEventListener('DOMContentLoaded',()=>{
+  applySettings();
+  refreshSelects();
+  renderGroups();
+  document.getElementById('fTgl').value=new Date().toISOString().slice(0,10);
+
+  // Toggle tema dari header
+  document.getElementById('btnHeaderTheme').addEventListener('click', ()=>{
+    const curIsDark = document.documentElement.hasAttribute('data-theme');
+    settings.theme = curIsDark ? 'light' : 'dark';
+    saveSettings(true);
+  });
+
+  // Event Simpan Pengaturan
+  document.getElementById('btnSaveSettings').addEventListener('click', ()=>{
+    settings.theme = document.getElementById('cfgTheme').value;
+    settings.mode = document.getElementById('cfgParseMode').value;
+    settings.currency = document.getElementById('cfgCurrency').value || 'Rp';
+    settings.mandorWords = document.getElementById('cfgMandorWords').value;
+    saveSettings(true);
+  });
+
+  document.getElementById('cfgTheme').addEventListener('change', (e)=>{
+    settings.theme = e.target.value;
+    applyTheme(settings.theme);
+  });
+
+  document.getElementById('fMandor').addEventListener('change',e=>{
+    if(e.target.value==='__new__'){
+      const n=prompt('Nama mandor baru:');
+      if(n&&n.trim()){ const v=norm(n); addOption(e.target,v); e.target.value=v; }   // langsung terpilih
+      else e.target.value='';
+      updatePrevBox(); return;
+    }
+    updatePrevBox();
+  });
+  document.getElementById('fPekerjaan').addEventListener('change',e=>{
+    if(e.target.value==='__new__'){
+      const n=prompt('Jenis pekerjaan baru:');
+      if(n&&n.trim()){ const v=norm(n); addOption(e.target,v); e.target.value=v; }   // langsung terpilih
+      else e.target.value='';
+      updatePrevBox(); return;
+    }
+    updatePrevBox();
+  });
+  ['fKontrak','fKum'].forEach(id=>document.getElementById(id).addEventListener('input',updatePrevBox));
+
+  document.getElementById('btnParse').addEventListener('click',()=>{
+    clearStatus();
+    const line=document.getElementById('fPaste').value.trim();
+    if(!line){ setStatus('Tempel baris BA dulu.',true); return; }
+    const r=parseLine(line);
+    if(!r){ setStatus('Format tidak dikenali. Pastikan ada persentase (%) dan angka kontrak & kumulatif.',true); return; }
+    // pastikan mandor & pekerjaan ada di select
+    ensureOption('fMandor', r.mandor);
+    ensureOption('fPekerjaan', r.pekerjaan);
+    document.getElementById('fMandor').value=r.mandor;
+    document.getElementById('fPekerjaan').value=r.pekerjaan;
+    document.getElementById('fPersen').value=fmtPercent(r.persen);
+    document.getElementById('fKontrak').value=fmtMoney(r.kontrak);
+    document.getElementById('fKum').value=fmtMoney(r.kumulatif);
+    document.getElementById('fPrev').value=''; // biar auto-fill dari progres sebelumnya
+    updatePrevBox();
+    setStatus(`✅ Ter-parse (${settings.mode === 'fleksibel' ? 'Fleksibel' : 'Ketat'}) → Mandor: ${r.mandor} | Pekerjaan: ${r.pekerjaan} | ${fmtPercent(r.persen)}% × Rp ${fmtMoney(r.kontrak)} = Rp ${fmtMoney(r.kumulatif)}`);
+  });
+
+  document.getElementById('btnSave').addEventListener('click',doSave);
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    ['fPaste','fPersen','fKontrak','fKum','fPrev'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fMandor').value=''; document.getElementById('fPekerjaan').value='';
+    document.getElementById('fTgl').value=new Date().toISOString().slice(0,10);
+    clearStatus(); updatePrevBox();
+  });
+  document.getElementById('btnSample').addEventListener('click',loadSample);
+
+  document.getElementById('copyPrevXY').addEventListener('click',()=>{ const l=getLastFromForm(); if(l) copyText(fmtXY(l)); });
+  document.getElementById('copyPrevFull').addEventListener('click',()=>{ const l=getLastFromForm(); if(l) copyText(fmtFull(l)); });
+  document.getElementById('usePrev').addEventListener('click',()=>{ const l=getLastFromForm(); if(l){ document.getElementById('fPrev').value=fmtMoney(l.kumulatif); toast('Sebelumnya diisi'); } });
+
+  document.getElementById('btnExport').addEventListener('click',doExport);
+  document.getElementById('btnImport').addEventListener('click',()=>document.getElementById('fileImport').click());
+  document.getElementById('fileImport').addEventListener('change',e=>{ if(e.target.files[0]) doImport(e.target.files[0]); e.target.value=''; });
+  document.getElementById('btnClear').addEventListener('click',()=>{ if(confirm('Hapus SEMUA data? Tidak bisa undo.')){ records=[]; save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Semua data dihapus'); } });
+});
+
+function getLastFromForm(){ const m=document.getElementById('fMandor').value,p=document.getElementById('fPekerjaan').value; return lastOf(m,p); }
+function addOption(sel,val){ if(!val) return; if([...sel.options].some(o=>o.value===val)) return; const o=document.createElement('option'); o.value=val; o.textContent=val; sel.insertBefore(o, sel.querySelector('option[value="__new__"]')); }
+function ensureOption(id,val){ const sel=document.getElementById(id); val=norm(val); if(!val) return; if(![...sel.options].some(o=>o.value===val)){ const o=document.createElement('option'); o.value=val; o.textContent=val; sel.insertBefore(o, sel.querySelector('option[value="__new__"]')); } }
+</script>
+</body>
+</html>

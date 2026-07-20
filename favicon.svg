@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+    <linearGradient id="clipGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <style>
+    @keyframes pulseRing {
+      0%, 100% { transform: scale(0.97); opacity: 0.4; }
+      50% { transform: scale(1.03); opacity: 0.9; }
+    }
+    @keyframes checkDraw {
+      0% { stroke-dashoffset: 50; opacity: 0.2; }
+      40%, 100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    @keyframes barFill {
+      0% { width: 20px; }
+      60%, 100% { width: 150px; }
+    }
+    @keyframes badgeFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(4deg); }
+    }
+    @keyframes penMove {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(6px, -6px); }
+    }
+    .pulse-bg { transform-origin: center; animation: pulseRing 3s ease-in-out infinite; }
+    .bar-anim { animation: barFill 2.5s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate; }
+    .check-anim {
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: checkDraw 2.5s ease-in-out infinite alternate;
+    }
+    .badge { transform-origin: 360px 130px; animation: badgeFloat 3.5s ease-in-out infinite; }
+    .pen { animation: penMove 2s ease-in-out infinite; }
+  </style>
+
+  <!-- Background App Icon Box -->
+  <rect x="32" y="32" width="448" height="448" rx="100" fill="url(#bgGrad)" filter="url(#shadow)" />
+  
+  <!-- Outer Glowing Pulse Ring -->
+  <rect x="44" y="44" width="424" height="424" rx="90" fill="none" stroke="#60a5fa" stroke-width="4" stroke-opacity="0.6" class="pulse-bg" />
+
+  <!-- Clipboard Base -->
+  <rect x="116" y="105" width="280" height="335" rx="24" fill="url(#clipGrad)" filter="url(#shadow)" />
+
+  <!-- Clipboard Metallic Top Clamp -->
+  <rect x="186" y="80" width="140" height="44" rx="12" fill="url(#goldGrad)" filter="url(#shadow)" />
+  <circle cx="256" cy="102" r="8" fill="#0f172a" />
+
+  <!-- Document Content & Animated Progress -->
+  <!-- Header title line -->
+  <rect x="156" y="155" width="130" height="16" rx="8" fill="#1e3a8a" />
+  
+  <!-- Animated Progress Track and Fill Bar -->
+  <rect x="156" y="190" width="200" height="14" rx="7" fill="#e2e8f0" />
+  <rect x="156" y="190" width="150" height="14" rx="7" fill="url(#accentGrad)" class="bar-anim" />
+
+  <!-- Checklist Rows with Green Badges -->
+  <g>
+    <circle cx="168" cy="240" r="11" fill="#10b981" />
+    <path d="M163 240 l4 4 l7 -7" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="192" y="234" width="150" height="12" rx="6" fill="#475569" />
+  </g>
+
+  <g>
+    <circle cx="168" cy="280" r="11" fill="#10b981" />
+    <path d="M163 280 l4 4 l7 -7" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="192" y="274" width="125" height="12" rx="6" fill="#475569" />
+  </g>
+
+  <g>
+    <circle cx="168" cy="320" r="11" fill="#3b82f6" />
+    <path d="M164 320 h8" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+    <rect x="192" y="314" width="160" height="12" rx="6" fill="#94a3b8" />
+  </g>
+
+  <!-- Summary Box -->
+  <rect x="156" y="354" width="200" height="46" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2" />
+  <text x="174" y="382" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="800" fill="#1d4ed8" letter-spacing="0.5">BA PROGRES</text>
+
+  <!-- Floating Badge (Golden Seal with Checkmark) -->
+  <g class="badge">
+    <circle cx="360" cy="130" r="38" fill="url(#goldGrad)" filter="url(#glow)" />
+    <path d="M345 130 l10 10 l18 -18" fill="none" stroke="#0f172a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="check-anim" />
+  </g>
+</svg>
