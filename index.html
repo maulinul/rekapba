@@ -1046,6 +1046,10 @@
             </div>
           </div>
           <div id="adendumWarn" class="warn" style="display:none;margin-top:6px;padding:6px 9px;"></div>
+          <div id="editNotice" class="warn" style="display:none;margin-top:8px;padding:8px 12px;background:var(--soft);border-color:#c7d2fe;color:var(--brand-d);display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <span id="editNoticeText">✏️ <b>Mode Edit Entri</b></span>
+            <button class="btn-ghost btn-sm epic-btn" id="btnCancelEdit" type="button" style="padding:3px 10px;font-size:11.5px;">✖ Batal Edit</button>
+          </div>
           <div id="status" class="status" style="margin-top:6px;padding:6px 9px;"></div>
           <div class="row" style="margin-top:10px">
             <button class="btn epic-btn" id="btnSave" type="button" style="padding:8px 14px;">💾 Simpan Entri</button>
@@ -1549,6 +1553,54 @@
     /* ---------- render kelompok ---------- */
     const collapsedGroups = new Set();
 
+    /* ---------- EDIT ENTRY STATE & HELPERS ---------- */
+    let editingId = null;
+
+    function startEditEntry(r) {
+      editingId = r.id;
+      document.getElementById('fDivisi').value = r.divisi || 'Umum';
+      document.getElementById('fMandor').value = r.mandor || '';
+      document.getElementById('fPekerjaan').value = r.pekerjaan || '';
+      document.getElementById('fTgl').value = r.tanggal || new Date().toISOString().slice(0, 10);
+      document.getElementById('fPersen').value = fmtPercent(r.persen);
+      document.getElementById('fKontrak').value = fmtMoney(r.kontrak);
+      document.getElementById('fKum').value = fmtMoney(r.kumulatif);
+      document.getElementById('fPrev').value = fmtMoney(r.prev);
+
+      const btnSave = document.getElementById('btnSave');
+      if (btnSave) {
+        btnSave.textContent = '✏️ Update Entri';
+        btnSave.style.background = '#eab308';
+        btnSave.style.color = '#000';
+      }
+
+      const notice = document.getElementById('editNotice');
+      const noticeText = document.getElementById('editNoticeText');
+      if (notice && noticeText) {
+        noticeText.innerHTML = `✏️ <b>Mode Edit Entri</b>: [${esc(r.divisi || 'Umum')}] ${esc(r.mandor)} - ${esc(r.pekerjaan)} (${esc(r.tanggal || 'No date')})`;
+        notice.style.display = 'flex';
+      }
+
+      const formCard = document.querySelector('.card.epic-card');
+      if (formCard) formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      updatePrevBox();
+      triggerParseAnimation();
+      toast(`Mode Edit aktif untuk entri ${r.mandor}`);
+    }
+
+    function cancelEditEntry() {
+      editingId = null;
+      const btnSave = document.getElementById('btnSave');
+      if (btnSave) {
+        btnSave.textContent = '💾 Simpan Entri';
+        btnSave.style.background = 'var(--brand)';
+        btnSave.style.color = '#fff';
+      }
+      const notice = document.getElementById('editNotice');
+      if (notice) notice.style.display = 'none';
+    }
+
     function renderGroups() {
       const wrap = document.getElementById('groups');
       wrap.innerHTML = '';
@@ -1585,7 +1637,8 @@
           const overridden = r._overridePrev === true;
           const neg = (Number(r.termin) || 0) < 0;
           const cls = neg ? 'hl-r' : (overridden ? 'hl-y' : '');
-          rows += `<tr class="${cls}">
+          const isEditingThis = (editingId === r.id);
+          rows += `<tr class="${cls}" style="${isEditingThis ? 'outline:2px solid var(--yellow-b);background:var(--yellow);' : ''}">
         <td>${i + 1}</td>
         <td class="l">${esc(r.tanggal || '-')}</td>
         <td>${fmtPercent(r.persen)}%</td>
@@ -1594,6 +1647,7 @@
         <td>${fmtMoney(r.prev)}</td>
         <td><b>${fmtMoney(r.termin)}</b></td>
         <td>
+          <button class="btn-soft btn-sm epic-btn" data-edit="${r.id}" title="Edit entri ini">✏️ Edit</button>
           <button class="btn-soft btn-sm epic-btn" data-xy="${esc(fmtXY(r))}">Rp =</button>
           <button class="btn-ghost btn-sm epic-btn" data-full="${esc(fmtFull(r))}">baris</button>
           <button class="btn-danger btn-sm epic-btn" data-del="${r.id}">✕</button>
@@ -1650,7 +1704,7 @@
       // Collapse toggle event listeners
       wrap.querySelectorAll('[data-toggle]').forEach(el => {
         el.addEventListener('click', (e) => {
-          if (e.target.closest('button[data-xy], button[data-full], button[data-del]')) return;
+          if (e.target.closest('button[data-edit], button[data-xy], button[data-full], button[data-del]')) return;
           const key = el.getAttribute('data-toggle');
           if (collapsedGroups.has(key)) {
             collapsedGroups.delete(key);
@@ -1661,11 +1715,24 @@
         });
       });
 
+      wrap.querySelectorAll('[data-edit]').forEach(b => {
+        b.onclick = (e) => {
+          e.stopPropagation();
+          const id = b.getAttribute('data-edit');
+          const r = records.find(x => x.id === id);
+          if (r) startEditEntry(r);
+        };
+      });
       wrap.querySelectorAll('[data-xy]').forEach(b => b.onclick = (e) => { e.stopPropagation(); copyText(b.getAttribute('data-xy')); });
       wrap.querySelectorAll('[data-full]').forEach(b => b.onclick = (e) => { e.stopPropagation(); copyText(b.getAttribute('data-full')); });
       wrap.querySelectorAll('[data-del]').forEach(b => b.onclick = (e) => {
         e.stopPropagation();
-        if (confirm('Hapus entri ini?')) { records = records.filter(r => r.id !== b.getAttribute('data-del')); save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Entri dihapus'); }
+        const delId = b.getAttribute('data-del');
+        if (confirm('Hapus entri ini?')) {
+          records = records.filter(r => r.id !== delId);
+          if (editingId === delId) cancelEditEntry();
+          save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Entri dihapus');
+        }
       });
 
       renderRekap();
@@ -1690,6 +1757,34 @@
       else { prev = parseMoney(prevRaw); if (isNaN(prev)) { setStatus('"Nilai Sebelumnya" tidak valid.', true); return; } override = true; }
 
       const termin = kumulatif - prev;
+
+      if (editingId) {
+        const idx = records.findIndex(r => r.id === editingId);
+        if (idx !== -1) {
+          records[idx] = {
+            ...records[idx],
+            divisi, mandor, pekerjaan,
+            tanggal: document.getElementById('fTgl').value || '',
+            persen, kontrak, kumulatif, prev, termin,
+            _overridePrev: override
+          };
+          save();
+          refreshSelects();
+          cancelEditEntry();
+          renderGroups();
+          setStatus(`✅ Entri berhasil diperbarui! Termin = Rp ${fmtMoney(termin)} (Kumulatif ${fmtMoney(kumulatif)} − Sebelumnya ${fmtMoney(prev)}).`, termin < 0);
+          toast(`Entri (${divisi} - ${mandor}) berhasil diperbarui!`);
+
+          document.getElementById('fPersen').value = '';
+          document.getElementById('fKontrak').value = '';
+          document.getElementById('fKum').value = '';
+          document.getElementById('fPrev').value = '';
+          document.getElementById('fPaste').value = '';
+          updatePrevBox();
+          return;
+        }
+      }
+
       const rec = {
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         divisi, mandor, pekerjaan,
@@ -2063,9 +2158,12 @@
       });
 
       document.getElementById('btnSave').addEventListener('click', doSave);
+      const btnCancelEditEl = document.getElementById('btnCancelEdit');
+      if (btnCancelEditEl) btnCancelEditEl.addEventListener('click', cancelEditEntry);
       document.getElementById('btnReset').addEventListener('click', () => {
         ['fPaste', 'fPersen', 'fKontrak', 'fKum', 'fPrev'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('fDivisi').value = ''; document.getElementById('fMandor').value = ''; document.getElementById('fPekerjaan').value = '';
+        cancelEditEntry();
         refreshSelects();
         document.getElementById('fTgl').value = new Date().toISOString().slice(0, 10);
         clearStatus(); updatePrevBox();
