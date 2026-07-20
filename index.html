@@ -1067,10 +1067,13 @@
         <button class="btn-soft epic-btn" id="btnExport" type="button">⬇ Export JSON</button>
         <button class="btn-soft epic-btn" id="btnImport" type="button">⬆ Import JSON</button>
         <input type="file" id="fileImport" accept="application/json" style="display:none">
+        <button class="btn epic-btn" id="btnPushGistMain" type="button" title="Upload data &amp; setting ke GitHub Gist">☁️ Push ke Gist</button>
+        <button class="btn-ghost epic-btn" id="btnPullGistMain" type="button" title="Download data dari GitHub Gist">☁️ Pull dari Gist</button>
         <button class="btn-danger epic-btn" id="btnClear" type="button">🗑 Hapus Semua Data</button>
       </div>
-      <p class="help" style="margin-top:10px">Data &amp; setting tersimpan otomatis di browser ini (localStorage).
-        Export JSON untuk backup/pindah perangkat.</p>
+      <div id="gistStatusBadge" style="margin-top:10px;font-size:12.5px;color:var(--muted)"></div>
+      <p class="help" style="margin-top:8px">Data &amp; setting tersimpan otomatis di browser ini (localStorage).
+        Gunakan GitHub Gist untuk sinkronisasi antar perangkat (HP/Laptop) atau Export JSON untuk backup manual.</p>
     </div>
 
     <!-- BANTUAN -->
@@ -1156,6 +1159,35 @@
               (pakai isi kotak paste)</button>
           </div>
           <div id="sRegexOut"></div>
+        </div>
+
+        <!-- GITHUB GIST SYNC SETTINGS -->
+        <div class="set-grp" style="border-top:1px dashed var(--line);padding-top:14px;margin-top:14px;">
+          <label style="font-size:13.5px;color:var(--brand);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <span>☁️ Sync GitHub Gist (Backup &amp; Sync Cloud)</span>
+          </label>
+
+          <div style="margin-bottom:12px;">
+            <label for="sGhToken">GitHub Personal Access Token (PAT)</label>
+            <div style="display:flex;gap:6px;">
+              <input type="password" id="sGhToken" placeholder="ghp_xxxxxxxxxxxx atau github_pat_..." autocomplete="off">
+              <button class="btn-soft epic-btn btn-sm" id="btnToggleTokenVis" type="button" style="flex:0 0 auto;padding:0 10px;" title="Tampilkan/Sembunyikan Token">👁️</button>
+            </div>
+            <div class="set-hint">Token disimpan aman di <b>localStorage browser lokal</b>. Butuh scope <code>gist</code> (buat di <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--brand)">GitHub Settings → Personal Access Tokens</a>).</div>
+          </div>
+
+          <div style="margin-bottom:12px;">
+            <label for="sGhGistId">GitHub Gist ID</label>
+            <input type="text" id="sGhGistId" placeholder="Kosongkan jika ingin buat Gist baru otomatis saat Push" autocomplete="off">
+            <div class="set-hint">ID Gist (contoh: <code>3a1f9b2...</code>). Kosongkan saat Push pertama kali untuk membuat Gist rahasia baru secara otomatis.</div>
+          </div>
+
+          <div class="row" style="margin-top:8px;gap:6px;">
+            <button class="btn-soft btn-sm epic-btn" id="btnTestGithub" type="button">🧪 Tes Token</button>
+            <button class="btn btn-sm epic-btn" id="btnPushGistModal" type="button">☁️ Push ke Gist</button>
+            <button class="btn-ghost btn-sm epic-btn" id="btnPullGistModal" type="button">☁️ Pull dari Gist</button>
+          </div>
+          <div id="sGhOut" style="margin-top:8px;font-size:12px;display:none;padding:8px;border-radius:8px;white-space:pre-wrap;"></div>
         </div>
 
       </div>
@@ -1288,7 +1320,8 @@
     const SKEY = 'mandorProgresSettings_v1';
     const defaultSettings = {
       theme: 'light', mandorParse: 'auto', numLocale: 'auto',
-      tempatKeywords: ['Dapur', 'Gedung', 'Blok', 'Gudang', 'Ruko', 'Lantai', 'LT'], customRegex: ''
+      tempatKeywords: ['Dapur', 'Gedung', 'Blok', 'Gudang', 'Ruko', 'Lantai', 'LT'], customRegex: '',
+      ghToken: '', ghGistId: ''
     };
     let settings = loadSettings();
     function loadSettings() { try { const o = JSON.parse(localStorage.getItem(SKEY)); const m = Object.assign({}, defaultSettings, o || {}); if (!Array.isArray(m.tempatKeywords)) m.tempatKeywords = defaultSettings.tempatKeywords.slice(); return m; } catch (e) { return Object.assign({}, defaultSettings, { tempatKeywords: defaultSettings.tempatKeywords.slice() }); } }
@@ -1741,8 +1774,11 @@
       document.getElementById('sLocale').value = settings.numLocale;
       document.getElementById('sTempat').value = (settings.tempatKeywords || []).join('\n');
       document.getElementById('sRegex').value = settings.customRegex || '';
+      document.getElementById('sGhToken').value = settings.ghToken || '';
+      document.getElementById('sGhGistId').value = settings.ghGistId || '';
       setThemeSeg(settings.theme);
-      const out = document.getElementById('sRegexOut'); out.className = ''; out.textContent = '';
+      const out = document.getElementById('sRegexOut'); if (out) { out.className = ''; out.textContent = ''; }
+      const ghOut = document.getElementById('sGhOut'); if (ghOut) { ghOut.style.display = 'none'; ghOut.textContent = ''; }
       document.getElementById('settingsOverlay').classList.add('show');
     }
     function closeSettings() { document.getElementById('settingsOverlay').classList.remove('show'); }
@@ -1752,6 +1788,8 @@
       settings.numLocale = document.getElementById('sLocale').value;
       settings.tempatKeywords = document.getElementById('sTempat').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
       settings.customRegex = document.getElementById('sRegex').value;
+      settings.ghToken = (document.getElementById('sGhToken').value || '').trim();
+      settings.ghGistId = (document.getElementById('sGhGistId').value || '').trim();
       const on = document.querySelector('#segTheme button.on');
       settings.theme = on ? on.getAttribute('data-v') : 'light';
     }
@@ -1776,10 +1814,195 @@
       out.className = 'show'; out.textContent = txt;
     }
 
+    /* ---------- GITHUB GIST SYNC FUNCTIONS ---------- */
+    async function testGithubToken(tokenOverride) {
+      const token = (tokenOverride !== undefined ? tokenOverride : settings.ghToken || '').trim();
+      if (!token) return { ok: false, message: 'Token GitHub masih kosong. Isi Token Personal Access Token (PAT) dulu.' };
+      try {
+        const res = await fetch('https://api.github.com/user', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (!res.ok) {
+          if (res.status === 401) return { ok: false, message: 'Token tidak valid / kadaluarsa (HTTP 401 Unauthorized).' };
+          return { ok: false, message: `Gagal verifikasi token (HTTP ${res.status}).` };
+        }
+        const u = await res.json();
+        return { ok: true, user: u.login, name: u.name || u.login };
+      } catch (err) {
+        return { ok: false, message: 'Gagal menghubungi API GitHub: ' + err.message };
+      }
+    }
+
+    async function pushToGist() {
+      readSettingsFromModal();
+      saveSettings();
+      const token = settings.ghToken;
+      let gistId = settings.ghGistId;
+
+      if (!token) {
+        toast('Token GitHub belum diisi di Setting ⚙️', 'error');
+        openSettings();
+        return false;
+      }
+
+      toast('Mengunggah data ke GitHub Gist...', 'success');
+
+      const payload = {
+        description: 'Backup Data & Setting Pencatat Progres Mandor (BA)',
+        public: false,
+        files: {
+          'progres-mandor.json': {
+            content: JSON.stringify(records, null, 2)
+          },
+          'progres-mandor-settings.json': {
+            content: JSON.stringify({
+              tempatKeywords: settings.tempatKeywords,
+              customRegex: settings.customRegex,
+              mandorParse: settings.mandorParse,
+              numLocale: settings.numLocale,
+              theme: settings.theme,
+              updatedAt: new Date().toISOString()
+            }, null, 2)
+          }
+        }
+      };
+
+      try {
+        let url = 'https://api.github.com/gists';
+        let method = 'POST';
+        if (gistId) {
+          url += '/' + gistId;
+          method = 'PATCH';
+        }
+
+        const res = await fetch(url, {
+          method,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errJson = await res.json().catch(() => ({}));
+          const msg = errJson.message || `HTTP ${res.status}`;
+          toast(`Gagal Push ke Gist: ${msg}`, 'error');
+          return false;
+        }
+
+        const gistData = await res.json();
+        if (!gistId && gistData.id) {
+          settings.ghGistId = gistData.id;
+          saveSettings();
+          const inputGist = document.getElementById('sGhGistId');
+          if (inputGist) inputGist.value = gistData.id;
+        }
+
+        updateGistStatusBadge();
+        toast(`✅ Data & Setting berhasil di-Push ke Gist (${(gistData.id || gistId).slice(0, 8)}...)`);
+        return true;
+      } catch (err) {
+        toast('Gagal Push: ' + err.message, 'error');
+        return false;
+      }
+    }
+
+    async function pullFromGist() {
+      readSettingsFromModal();
+      saveSettings();
+      const token = settings.ghToken;
+      const gistId = settings.ghGistId;
+
+      if (!gistId) {
+        toast('Gist ID belum diisi di Setting ⚙️', 'error');
+        openSettings();
+        return false;
+      }
+
+      toast('Mengambil data dari GitHub Gist...', 'success');
+
+      try {
+        const headers = { 'Accept': 'application/vnd.github.v3+json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
+        if (!res.ok) {
+          if (res.status === 404) toast('Gist ID tidak ditemukan di GitHub (HTTP 404).', 'error');
+          else toast(`Gagal Pull dari Gist (HTTP ${res.status}).`, 'error');
+          return false;
+        }
+
+        const gist = await res.json();
+        const files = gist.files || {};
+        const dataFile = files['progres-mandor.json'] || Object.values(files).find(f => f.filename && f.filename.endsWith('.json'));
+
+        if (!dataFile || !dataFile.content) {
+          toast('File data progres-mandor.json tidak ditemukan di Gist ini.', 'error');
+          return false;
+        }
+
+        const importedRecords = JSON.parse(dataFile.content);
+        if (!Array.isArray(importedRecords)) {
+          toast('Format data di Gist bukan array entri yang valid.', 'error');
+          return false;
+        }
+
+        if (records.length > 0 && !confirm(`Gist memuat ${importedRecords.length} entri. Timpa data lokal saat ini (${records.length} entri)?`)) {
+          return false;
+        }
+
+        records = importedRecords;
+        save();
+
+        const setFile = files['progres-mandor-settings.json'];
+        if (setFile && setFile.content) {
+          try {
+            const sData = JSON.parse(setFile.content);
+            if (sData.tempatKeywords) settings.tempatKeywords = sData.tempatKeywords;
+            if (sData.customRegex !== undefined) settings.customRegex = sData.customRegex;
+            if (sData.mandorParse) settings.mandorParse = sData.mandorParse;
+            if (sData.numLocale) settings.numLocale = sData.numLocale;
+            if (sData.theme) settings.theme = sData.theme;
+            saveSettings();
+            applyTheme();
+          } catch (e) {}
+        }
+
+        refreshSelects();
+        renderGroups();
+        updatePrevBox();
+        updateGistStatusBadge();
+        toast(`✅ Sukses! ${records.length} entri dimuat dari Gist (${gistId.slice(0, 8)}...)`);
+        return true;
+      } catch (err) {
+        toast('Gagal Pull: ' + err.message, 'error');
+        return false;
+      }
+    }
+
+    function updateGistStatusBadge() {
+      const badge = document.getElementById('gistStatusBadge');
+      if (!badge) return;
+      if (settings.ghGistId) {
+        const shortId = settings.ghGistId.slice(0, 8);
+        badge.innerHTML = `☁️ GitHub Gist: <b>Terhubung</b> (<a href="https://gist.github.com/${esc(settings.ghGistId)}" target="_blank" style="color:var(--brand);font-weight:600;">Gist #${esc(shortId)}</a>)`;
+      } else if (settings.ghToken) {
+        badge.innerHTML = '☁️ GitHub Gist: <b>Token Siap</b> (Gist ID akan dibuat otomatis saat Push)';
+      } else {
+        badge.innerHTML = '☁️ GitHub Gist: <b>Belum Dikonfigurasi</b> (Atur Token &amp; Gist di ⚙️ Setting)';
+      }
+    }
+
     /* ---------- events ---------- */
     document.addEventListener('DOMContentLoaded', () => {
       refreshSelects();
       renderGroups();
+      updateGistStatusBadge();
       document.getElementById('fTgl').value = new Date().toISOString().slice(0, 10);
 
       const divisiEl = document.getElementById('fDivisi');
@@ -1856,7 +2079,50 @@
       document.getElementById('btnExport').addEventListener('click', doExport);
       document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
       document.getElementById('fileImport').addEventListener('change', e => { if (e.target.files[0]) doImport(e.target.files[0]); e.target.value = ''; });
-      document.getElementById('btnClear').addEventListener('click', () => { if (confirm('Hapus SEMUA data? Tidak bisa undo.')) { records = []; save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Semua data dihapus'); } });
+      document.getElementById('btnClear').addEventListener('click', () => { if (confirm('Hapus SEMUA data? Tidak bisa undo.')) { records = []; save(); refreshSelects(); renderGroups(); updatePrevBox(); updateGistStatusBadge(); toast('Semua data dihapus'); } });
+
+      // GitHub Gist main buttons
+      const btnPushMain = document.getElementById('btnPushGistMain');
+      if (btnPushMain) btnPushMain.addEventListener('click', pushToGist);
+      const btnPullMain = document.getElementById('btnPullGistMain');
+      if (btnPullMain) btnPullMain.addEventListener('click', pullFromGist);
+
+      // GitHub Gist modal buttons
+      const btnPushModal = document.getElementById('btnPushGistModal');
+      if (btnPushModal) btnPushModal.addEventListener('click', pushToGist);
+      const btnPullModal = document.getElementById('btnPullGistModal');
+      if (btnPullModal) btnPullModal.addEventListener('click', pullFromGist);
+
+      const btnToggleVis = document.getElementById('btnToggleTokenVis');
+      if (btnToggleVis) {
+        btnToggleVis.addEventListener('click', () => {
+          const inp = document.getElementById('sGhToken');
+          if (inp) inp.type = inp.type === 'password' ? 'text' : 'password';
+        });
+      }
+
+      const btnTestGh = document.getElementById('btnTestGithub');
+      if (btnTestGh) {
+        btnTestGh.addEventListener('click', async () => {
+          const tokenVal = document.getElementById('sGhToken').value;
+          const out = document.getElementById('sGhOut');
+          if (!out) return;
+          out.style.display = 'block';
+          out.style.background = 'var(--soft)';
+          out.style.color = 'var(--brand-d)';
+          out.textContent = '⏳ Memeriksa token GitHub...';
+          const res = await testGithubToken(tokenVal);
+          if (res.ok) {
+            out.style.background = 'var(--ok-bg)';
+            out.style.color = 'var(--ok-ink)';
+            out.textContent = `✅ Token Valid! Terhubung sebagai: ${res.name} (@${res.user})`;
+          } else {
+            out.style.background = 'var(--err-bg)';
+            out.style.color = 'var(--err-ink)';
+            out.textContent = '❌ ' + res.message;
+          }
+        });
+      }
 
       // setting modal
       document.getElementById('btnSettings').addEventListener('click', openSettings);
@@ -1869,7 +2135,8 @@
         readSettingsFromModal();
         saveSettings();
         applyTheme();
-        renderRekap();          // kata kunci tempat mungkin berubah
+        renderRekap();
+        updateGistStatusBadge();
         closeSettings();
         toast('Setting tersimpan ✅');
       });
