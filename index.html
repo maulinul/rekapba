@@ -1023,6 +1023,51 @@
       font-weight: 700;
     }
 
+    /* ===== DARK MODE SMOOTH TRANSITION & FILTER CHIPS ===== */
+    body, div, input, select, textarea, button, table, td, th, .card, header {
+      transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 11.5px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    .filter-chip:hover {
+      transform: translateY(-1px);
+      border-color: var(--brand);
+    }
+    .filter-chip.active {
+      background: var(--brand);
+      color: #ffffff;
+      border-color: var(--brand-d);
+      font-weight: 700;
+      box-shadow: 0 2px 8px var(--glow-primary);
+    }
+
+    /* Mobile First Responsive Touch Styling */
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column !important;
+      }
+      .panel-left, .panel-right {
+        width: 100% !important;
+      }
+      .tblwrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+
     /* Animated Header & Web Icon Styles */
     .animated-header-icon {
       display: inline-flex;
@@ -1111,17 +1156,29 @@
 
   <div class="wrap">
 
-    <!-- GRAND TOTAL -->
-    <div class="grand epic-card" style="flex-direction:column;align-items:stretch;gap:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <!-- GRAND TOTAL MINI DASHBOARD -->
+    <div class="grand epic-card" style="flex-direction:column;align-items:stretch;gap:12px;padding:18px 22px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <div>
-          <div style="font-size:12px;opacity:.9">GRAND TOTAL TERMIN (total uang dicairkan semua mandor)</div>
-          <div class="v" id="grand-total-display">Rp 0</div>
+          <div style="font-size:11.5px;opacity:.9;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">💰 Grand Total Termin Dicairkan</div>
+          <div class="v" id="grand-total-display" style="font-size:30px;font-weight:900;letter-spacing:-0.5px;">Rp 0</div>
         </div>
-        <div style="font-size:12px;opacity:.9;text-align:right">
-          Ini angka yg masuk rekap Excel-mu<br>(bukan nilai kontrak, bukan kumulatif)
+        <div id="grand-dash-metrics" style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;">
+          <!-- Dynamically filled: 👷 X Mandor · 🔧 Y Pekerjaan · 📋 Z Entri -->
         </div>
       </div>
+
+      <!-- Overall Contract Progress Bar -->
+      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;">
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;font-weight:600;">
+          <span id="grand-pct-label">Progres Pencairan Uang Mandor</span>
+          <span id="grand-pct-val">0% dari Total Kontrak</span>
+        </div>
+        <div style="height:8px;background:rgba(0,0,0,0.2);border-radius:4px;overflow:hidden;">
+          <div id="grand-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg, #fde047, #10b981);transition:width 0.8s var(--ease-epic);border-radius:4px;"></div>
+        </div>
+      </div>
+
       <div id="grand-divisi-breakdown"
         style="display:flex;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.2);font-size:12.5px">
       </div>
@@ -1164,6 +1221,8 @@
           </div>
         </div>
       </div>
+      <!-- Filter Chips Bar -->
+      <div id="filterChipContainer" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:12px;"></div>
     </div>
 
     <!-- LAYOUT 40/60 -->
@@ -1247,6 +1306,7 @@
             </div>
           </div>
           <div id="adendumWarn" class="warn" style="display:none;margin-top:6px;padding:6px 9px;"></div>
+          <div id="inlineValidationWarn" class="warn" style="display:none;margin-top:6px;padding:6px 9px;background:#fffbebf0;border:1px solid #fde047;color:#854d0e;border-radius:8px;"></div>
           <div id="editNotice" class="warn" style="display:none;margin-top:8px;padding:8px 12px;background:var(--soft);border-color:#c7d2fe;color:var(--brand-d);display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
             <span id="editNoticeText">✏️ <b>Mode Edit Entri</b></span>
             <button class="btn-ghost btn-sm epic-btn" id="btnCancelEdit" type="button" style="padding:3px 10px;font-size:11.5px;">✖ Batal Edit</button>
@@ -1807,7 +1867,49 @@
       return { divisi: curDiv, mandor, pekerjaan, persen, kontrak, kumulatif };
     }
 
-    /* ---------- MULTI FILTER FUNCTIONS ---------- */
+    /* ---------- MULTI FILTER & CHIPS FUNCTIONS ---------- */
+    function renderFilterChips() {
+      const chipContainer = document.getElementById('filterChipContainer');
+      if (!chipContainer) return;
+
+      const fDiv = document.getElementById('filterDivisi') ? document.getElementById('filterDivisi').value : '';
+      const fMan = document.getElementById('filterMandor') ? document.getElementById('filterMandor').value : '';
+      const fTmp = document.getElementById('filterTempat') ? document.getElementById('filterTempat').value : '';
+
+      const divList = [...new Set(records.map(r => norm(r.divisi || 'Umum')).filter(Boolean))].sort();
+      const tmpList = [...new Set(records.map(r => extractTempat(r.pekerjaan)).filter(Boolean))].sort();
+
+      let html = '<span style="opacity:0.8;font-weight:600;display:flex;align-items:center;margin-right:4px;">Chip Filter Cepat:</span>';
+      
+      html += `<span class="filter-chip ${(!fDiv && !fMan && !fTmp) ? 'active' : ''}" onclick="resetAllFilters()">✕ Semua</span>`;
+
+      divList.forEach(d => {
+        const isAct = (fDiv === d);
+        html += `<span class="filter-chip ${isAct ? 'active' : ''}" onclick="toggleFilterChip('divisi', '${esc(d)}')">🏢 ${esc(d)}</span>`;
+      });
+
+      tmpList.forEach(t => {
+        const isAct = (fTmp === t);
+        html += `<span class="filter-chip ${isAct ? 'active' : ''}" onclick="toggleFilterChip('tempat', '${esc(t)}')">📍 ${esc(t)}</span>`;
+      });
+
+      chipContainer.innerHTML = html;
+    }
+
+    function toggleFilterChip(type, val) {
+      if (type === 'divisi') {
+        const f = document.getElementById('filterDivisi');
+        if (f) f.value = (f.value === val) ? '' : val;
+      } else if (type === 'mandor') {
+        const f = document.getElementById('filterMandor');
+        if (f) f.value = (f.value === val) ? '' : val;
+      } else if (type === 'tempat') {
+        const f = document.getElementById('filterTempat');
+        if (f) f.value = (f.value === val) ? '' : val;
+      }
+      applyFilters();
+    }
+
     function populateFilterOptions() {
       const fDiv = document.getElementById('filterDivisi');
       const fMan = document.getElementById('filterMandor');
@@ -1829,6 +1931,8 @@
       if (divList.includes(curDiv)) fDiv.value = curDiv;
       if (manList.includes(curMan)) fMan.value = curMan;
       if (tmpList.includes(curTmp)) fTmp.value = curTmp;
+
+      renderFilterChips();
     }
 
     function getFilteredRecords() {
@@ -1853,6 +1957,7 @@
       renderGroups();
       updateFilterCountBadge();
       renderRekap();
+      renderFilterChips();
     }
 
     function updateFilterCountBadge() {
@@ -1874,6 +1979,40 @@
         const tot = filtered.reduce((sum, r) => sum + (Number(r.termin) || 0), 0);
         badge.className = 'pill red';
         badge.innerHTML = `Filter Aktif: <b>${filtered.length} dari ${records.length} entri</b> (Rp ${fmtMoney(tot)})`;
+      }
+    }
+
+    function checkRealtimeValidation() {
+      const valWarn = document.getElementById('inlineValidationWarn');
+      const pInput = document.getElementById('fPersen');
+      const kInput = document.getElementById('fKum');
+      const sInput = document.getElementById('fPrev');
+      if (!valWarn || !pInput || !kInput || !sInput) return;
+
+      const pct = parsePercent(pInput.value);
+      const kum = parseMoney(kInput.value);
+      const prev = parseMoney(sInput.value);
+
+      let msgs = [];
+      if (!isNaN(pct) && pct > 100) {
+        msgs.push('⚠️ <b>Progres > 100%</b>: Pastikan adendum atau akumulasi persen BA sudah sesuai.');
+        pInput.style.borderColor = 'var(--red-b)';
+      } else {
+        pInput.style.borderColor = '';
+      }
+
+      if (!isNaN(kum) && !isNaN(prev) && kum < prev && sInput.value.trim() !== '') {
+        msgs.push('⚠️ <b>Kumulatif < Progres Sebelumnya</b>: Nilai termin akan bernilai negatif!');
+        kInput.style.borderColor = 'var(--yellow-b)';
+      } else {
+        kInput.style.borderColor = '';
+      }
+
+      if (msgs.length > 0) {
+        valWarn.innerHTML = msgs.join('<br>');
+        valWarn.style.display = 'block';
+      } else {
+        valWarn.style.display = 'none';
       }
     }
 
@@ -2014,6 +2153,23 @@
       });
 
       wrap.innerHTML = '';
+
+      if (!records.length) {
+        wrap.innerHTML = `<div class="card epic-card" style="padding:36px 20px;text-align:center;color:var(--muted);margin-top:16px;">
+          <div style="font-size:48px;margin-bottom:12px;filter:drop-shadow(0 4px 12px rgba(37,99,235,0.2));">📋</div>
+          <h3 style="font-size:18px;margin:0 0 8px 0;color:var(--ink);font-weight:700;">Belum Ada Data Progres Mandor</h3>
+          <p style="font-size:13.5px;max-width:440px;margin:0 auto 16px auto;line-height:1.5;color:var(--muted);">
+            Tempel baris teks Berita Acara (BA) di kotak input atas untuk parse otomatis, atau isi formulir secara manual.
+          </p>
+          <button class="btn epic-btn" type="button" onclick="document.getElementById('fPaste').focus();document.getElementById('fPaste').scrollIntoView({behavior:'smooth'})" style="padding:10px 20px;font-weight:600;">
+            ⚡ Mulai Input Data BA
+          </button>
+        </div>`;
+        animateGrandTotal('grand-total-display', 0);
+        const divBdEl = document.getElementById('grand-divisi-breakdown');
+        if (divBdEl) divBdEl.style.display = 'none';
+        return;
+      }
 
       if (!filteredRecords.length) {
         wrap.innerHTML = `<div class="card epic-card" style="padding:24px;text-align:center;color:var(--muted)">
@@ -2157,6 +2313,25 @@
       observeCardReveals();
 
       animateGrandTotal('grand-total-display', grand);
+
+      // Update Grand Total Mini Dashboard Metrics & Progress Bar
+      const totalContractSum = filteredRecords.reduce((sum, r) => sum + (Number(r.kontrak) || 0), 0);
+      const uniqueMandorsCount = new Set(filteredRecords.map(r => r.mandor)).size;
+      const uniquePekerjaanCount = new Set(filteredRecords.map(r => r.pekerjaan)).size;
+      const pctOfContract = totalContractSum > 0 ? Math.min(100, (grand / totalContractSum) * 100) : 0;
+
+      const metricsEl = document.getElementById('grand-dash-metrics');
+      if (metricsEl) {
+        metricsEl.innerHTML = `
+          <span class="grand-div-pill">👷 <b>${uniqueMandorsCount}</b> Mandor</span>
+          <span class="grand-div-pill">🔧 <b>${uniquePekerjaanCount}</b> Pekerjaan</span>
+          <span class="grand-div-pill">📋 <b>${filteredRecords.length}</b> Entri BA</span>`;
+      }
+
+      const barEl = document.getElementById('grand-progress-bar');
+      const valEl = document.getElementById('grand-pct-val');
+      if (barEl) barEl.style.width = pctOfContract.toFixed(1) + '%';
+      if (valEl) valEl.textContent = `${pctOfContract.toFixed(1)}% dari Total Nilai Kontrak (Rp ${fmtMoney(totalContractSum)})`;
 
       // Render Divisi Breakdown in Grand Total card
       const divBdEl = document.getElementById('grand-divisi-breakdown');
@@ -2624,11 +2799,11 @@
         mandorEl.addEventListener('change', updateJobDatalist);
       }
 
-      ['fPekerjaan', 'fKontrak', 'fKum'].forEach(id => {
+      ['fPersen', 'fPekerjaan', 'fKontrak', 'fKum', 'fPrev'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-          el.addEventListener('input', updatePrevBox);
-          el.addEventListener('change', updatePrevBox);
+          el.addEventListener('input', () => { updatePrevBox(); checkRealtimeValidation(); });
+          el.addEventListener('change', () => { updatePrevBox(); checkRealtimeValidation(); });
         }
       });
 
