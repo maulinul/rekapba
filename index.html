@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pencatat Progres Mandor (BA)</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <style>
     :root {
       --bg: #f4f6f9;
@@ -960,13 +961,88 @@
       border: 1px solid #c7d2fe;
       font-weight: 700;
     }
+
+    /* Animated Header & Web Icon Styles */
+    .animated-header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s var(--ease-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)), filter 0.3s ease;
+      will-change: transform;
+      flex-shrink: 0;
+    }
+    .animated-header-icon:hover {
+      transform: scale(1.12) rotate(4deg);
+      filter: drop-shadow(0 6px 16px rgba(59, 130, 246, 0.6));
+    }
+    @keyframes hdrPulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.98); }
+      50% { opacity: 0.95; transform: scale(1.03); }
+    }
+    @keyframes hdrBarFill {
+      0% { width: 20px; }
+      50%, 100% { width: 150px; }
+    }
+    @keyframes hdrBadgeFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(3deg); }
+    }
+    @keyframes hdrCheckDraw {
+      0% { stroke-dashoffset: 50; opacity: 0.2; }
+      40%, 100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    .hdr-pulse { transform-origin: center; animation: hdrPulse 3s ease-in-out infinite; }
+    .hdr-bar { animation: hdrBarFill 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate; }
+    .hdr-badge { transform-origin: 360px 130px; animation: hdrBadgeFloat 3.2s ease-in-out infinite; }
+    .hdr-check { stroke-dasharray: 50; stroke-dashoffset: 50; animation: hdrCheckDraw 2.8s ease-in-out infinite alternate; }
   </style>
 </head>
 
 <body>
   <header>
     <div>
-      <h1>📒 Pencatat Progres Mandor (BA)</h1>
+      <h1 style="display:flex;align-items:center;gap:12px">
+        <span class="animated-header-icon" title="Pencatat Progres Mandor App Icon">
+          <svg width="42" height="42" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));">
+            <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#hdrBgGrad)"/>
+            <rect x="44" y="44" width="424" height="424" rx="84" stroke="#60a5fa" stroke-width="6" stroke-opacity="0.7" class="hdr-pulse"/>
+            <rect x="116" y="105" width="280" height="335" rx="24" fill="#ffffff"/>
+            <rect x="186" y="80" width="140" height="44" rx="12" fill="url(#hdrGoldGrad)"/>
+            <circle cx="256" cy="102" r="8" fill="#0f172a"/>
+            <rect x="156" y="155" width="130" height="16" rx="8" fill="#1e3a8a"/>
+            <rect x="156" y="190" width="200" height="14" rx="7" fill="#e2e8f0"/>
+            <rect x="156" y="190" width="150" height="14" rx="7" fill="url(#hdrAccentGrad)" class="hdr-bar"/>
+            <circle cx="168" cy="240" r="11" fill="#10b981"/>
+            <path d="M163 240 l4 4 l7 -7" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="192" y="234" width="150" height="12" rx="6" fill="#475569"/>
+            <circle cx="168" cy="280" r="11" fill="#10b981"/>
+            <path d="M163 280 l4 4 l7 -7" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="192" y="274" width="125" height="12" rx="6" fill="#475569"/>
+            <circle cx="168" cy="320" r="11" fill="#3b82f6"/>
+            <path d="M164 320 h8" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+            <rect x="192" y="314" width="160" height="12" rx="6" fill="#94a3b8"/>
+            <g class="hdr-badge">
+              <circle cx="360" cy="130" r="38" fill="url(#hdrGoldGrad)"/>
+              <path d="M345 130 l10 10 l18 -18" stroke="#0f172a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="hdr-check"/>
+            </g>
+            <defs>
+              <linearGradient id="hdrBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1e3a8a"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+              </linearGradient>
+              <linearGradient id="hdrGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fde047"/>
+                <stop offset="100%" stop-color="#eab308"/>
+              </linearGradient>
+              <linearGradient id="hdrAccentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span>Pencatat Progres Mandor (BA)</span>
+      </h1>
       <p>Kelompokkan per mandor &amp; pekerjaan · akumulasi otomatis · cegah salah hitung adendum</p>
     </div>
     <button class="gear epic-btn" id="btnSettings" type="button" title="Setting parsing & tema">⚙️ Setting</button>
