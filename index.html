@@ -935,6 +935,31 @@
     .toggle-icon.rotated {
       transform: rotate(-90deg);
     }
+
+    /* ===== MULTI FILTER & REKAP CLICKABLE STYLES ===== */
+    @media(max-width:1050px) {
+      .grid-filter { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media(max-width:560px) {
+      .grid-filter { grid-template-columns: 1fr !important; }
+    }
+    .rekap li.rk-item-clickable {
+      cursor: pointer;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin: 2px -8px;
+      transition: background-color 0.2s ease, transform 0.15s ease;
+      user-select: none;
+    }
+    .rekap li.rk-item-clickable:hover {
+      background: var(--soft);
+      transform: translateX(4px);
+    }
+    .rekap li.rk-item-clickable.active-filter {
+      background: var(--soft);
+      border: 1px solid #c7d2fe;
+      font-weight: 700;
+    }
   </style>
 </head>
 
@@ -962,6 +987,45 @@
       </div>
       <div id="grand-divisi-breakdown"
         style="display:flex;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.2);font-size:12.5px">
+      </div>
+    </div>
+
+    <!-- MULTI FILTER CARD -->
+    <div class="card epic-card" style="padding:14px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <h2 style="margin:0;font-size:15px;display:flex;align-items:center;gap:6px">
+          <span>🔍 Multi-Filter &amp; Pencarian Data</span>
+        </h2>
+        <div id="filterCountBadge" class="pill green" style="font-size:12px;padding:4px 10px;">
+          Menampilkan semua entri
+        </div>
+      </div>
+      <div class="grid grid-filter" style="grid-template-columns: repeat(4, 1fr); gap:10px;">
+        <div>
+          <label for="filterDivisi">Divisi</label>
+          <select id="filterDivisi" style="padding:7px 9px;">
+            <option value="">Semua Divisi</option>
+          </select>
+        </div>
+        <div>
+          <label for="filterMandor">Mandor</label>
+          <select id="filterMandor" style="padding:7px 9px;">
+            <option value="">Semua Mandor</option>
+          </select>
+        </div>
+        <div>
+          <label for="filterTempat">Tempat Proyek</label>
+          <select id="filterTempat" style="padding:7px 9px;">
+            <option value="">Semua Tempat Proyek</option>
+          </select>
+        </div>
+        <div>
+          <label for="filterSearch">Cari Kata Kunci</label>
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="filterSearch" placeholder="Mandor, pekerjaan, tgl..." style="padding:7px 9px;">
+            <button class="btn-ghost epic-btn btn-sm" id="btnResetFilter" type="button" style="flex:0 0 auto;padding:0 10px;" title="Reset Filter">🧹 Reset</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1438,6 +1502,7 @@
       fillDatalist(document.getElementById('dlDivisi'), uniqueDivisi());
       fillDatalist(document.getElementById('dlMandor'), uniqueMandors(curDivisi));
       fillDatalist(document.getElementById('dlPekerjaan'), uniquePekerjaan(curMandor, curDivisi));
+      populateFilterOptions();
     }
 
     /* ---------- kelompok helpers ---------- */
@@ -1515,12 +1580,100 @@
       return { divisi: curDiv, mandor, pekerjaan, persen, kontrak, kumulatif };
     }
 
+    /* ---------- MULTI FILTER FUNCTIONS ---------- */
+    function populateFilterOptions() {
+      const fDiv = document.getElementById('filterDivisi');
+      const fMan = document.getElementById('filterMandor');
+      const fTmp = document.getElementById('filterTempat');
+      if (!fDiv || !fMan || !fTmp) return;
+
+      const curDiv = fDiv.value;
+      const curMan = fMan.value;
+      const curTmp = fTmp.value;
+
+      const divList = [...new Set(records.map(r => norm(r.divisi || 'Umum')).filter(Boolean))].sort();
+      const manList = [...new Set(records.map(r => norm(r.mandor)).filter(Boolean))].sort();
+      const tmpList = [...new Set(records.map(r => extractTempat(r.pekerjaan)).filter(Boolean))].sort();
+
+      fDiv.innerHTML = '<option value="">Semua Divisi</option>' + divList.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+      fMan.innerHTML = '<option value="">Semua Mandor</option>' + manList.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
+      fTmp.innerHTML = '<option value="">Semua Tempat Proyek</option>' + tmpList.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+
+      if (divList.includes(curDiv)) fDiv.value = curDiv;
+      if (manList.includes(curMan)) fMan.value = curMan;
+      if (tmpList.includes(curTmp)) fTmp.value = curTmp;
+    }
+
+    function getFilteredRecords() {
+      const fDiv = document.getElementById('filterDivisi') ? document.getElementById('filterDivisi').value : '';
+      const fMan = document.getElementById('filterMandor') ? document.getElementById('filterMandor').value : '';
+      const fTmp = document.getElementById('filterTempat') ? document.getElementById('filterTempat').value : '';
+      const fSearch = document.getElementById('filterSearch') ? document.getElementById('filterSearch').value.trim().toLowerCase() : '';
+
+      return records.filter(r => {
+        if (fDiv && norm(r.divisi || 'Umum') !== fDiv) return false;
+        if (fMan && norm(r.mandor) !== fMan) return false;
+        if (fTmp && extractTempat(r.pekerjaan) !== fTmp) return false;
+        if (fSearch) {
+          const haystack = (norm(r.divisi || 'Umum') + ' ' + r.mandor + ' ' + r.pekerjaan + ' ' + (r.tanggal || '') + ' ' + r.persen + ' ' + r.kontrak + ' ' + r.kumulatif).toLowerCase();
+          if (!haystack.includes(fSearch)) return false;
+        }
+        return true;
+      });
+    }
+
+    function applyFilters() {
+      renderGroups();
+      updateFilterCountBadge();
+      renderRekap();
+    }
+
+    function updateFilterCountBadge() {
+      const badge = document.getElementById('filterCountBadge');
+      if (!badge) return;
+
+      const fDiv = document.getElementById('filterDivisi') ? document.getElementById('filterDivisi').value : '';
+      const fMan = document.getElementById('filterMandor') ? document.getElementById('filterMandor').value : '';
+      const fTmp = document.getElementById('filterTempat') ? document.getElementById('filterTempat').value : '';
+      const fSearch = document.getElementById('filterSearch') ? document.getElementById('filterSearch').value.trim() : '';
+
+      const active = Boolean(fDiv || fMan || fTmp || fSearch);
+      const filtered = getFilteredRecords();
+
+      if (!active) {
+        badge.className = 'pill green';
+        badge.textContent = `Menampilkan semua (${records.length} entri)`;
+      } else {
+        const tot = filtered.reduce((sum, r) => sum + (Number(r.termin) || 0), 0);
+        badge.className = 'pill red';
+        badge.innerHTML = `Filter Aktif: <b>${filtered.length} dari ${records.length} entri</b> (Rp ${fmtMoney(tot)})`;
+      }
+    }
+
+    function resetAllFilters() {
+      if (document.getElementById('filterDivisi')) document.getElementById('filterDivisi').value = '';
+      if (document.getElementById('filterMandor')) document.getElementById('filterMandor').value = '';
+      if (document.getElementById('filterTempat')) document.getElementById('filterTempat').value = '';
+      if (document.getElementById('filterSearch')) document.getElementById('filterSearch').value = '';
+      applyFilters();
+      toast('Filter dibersihkan');
+    }
+
     /* ---------- REKAP KIRI ---------- */
-    function cardRekap(title, list, labelFn, valFn) {
+    function cardRekap(title, type, list, labelFn, valFn) {
       const total = list.reduce((a, [, d]) => a + valFn(d), 0);
-      const items = list.length ? list.map(([k, d]) =>
-        `<li><div class="rk-label">${labelFn([k, d])}</div><div class="rk-val">Rp ${fmtMoney(valFn(d))}</div></li>`).join('')
-        : `<li><span class="rk-empty">—</span></li>`;
+      const activeVal = type === 'divisi' ? (document.getElementById('filterDivisi') ? document.getElementById('filterDivisi').value : '') :
+                        type === 'mandor' ? (document.getElementById('filterMandor') ? document.getElementById('filterMandor').value : '') :
+                        type === 'tempat' ? (document.getElementById('filterTempat') ? document.getElementById('filterTempat').value : '') : '';
+
+      const items = list.length ? list.map(([k, d]) => {
+        const isAct = (activeVal && activeVal === k);
+        return `<li class="rk-item-clickable ${isAct ? 'active-filter' : ''}" data-rk-type="${type}" data-rk-val="${esc(k)}" title="Klik untuk filter ${type}: ${esc(k)}">
+          <div class="rk-label">${labelFn([k, d])}</div>
+          <div class="rk-val">Rp ${fmtMoney(valFn(d))}</div>
+        </li>`;
+      }).join('') : `<li><span class="rk-empty">—</span></li>`;
+
       return `<div class="card rekap"><h2>${title}</h2>
      <div class="rk-total">Total termin: <b>Rp ${fmtMoney(total)}</b></div>
      <ul>${items}</ul></div>`;
@@ -1529,8 +1682,10 @@
       const panel = document.getElementById('rekapPanel');
       if (!panel) return;
       if (!records.length) { panel.innerHTML = '<div class="card rekap"><h2>📊 Rekap</h2><p class="rk-empty">Belum ada data. Rekap per Divisi / Pekerjaan / Mandor / Tempat muncul otomatis setelah ada entri.</p></div>'; return; }
+      
+      const sourceRecords = getFilteredRecords();
       const byD = {}, byP = {}, byM = {}, byT = {};
-      records.forEach(r => {
+      sourceRecords.forEach(r => {
         const dName = norm(r.divisi || 'Umum');
         const t = Number(r.termin) || 0;
         (byD[dName] ??= { termin: 0, n: 0, man: new Set(), pek: new Set() }); byD[dName].termin += t; byD[dName].n++; byD[dName].man.add(r.mandor); byD[dName].pek.add(r.pekerjaan);
@@ -1544,10 +1699,29 @@
       const sM = Object.entries(byM).sort((a, b) => b[1].termin - a[1].termin);
       const sT = Object.entries(byT).sort((a, b) => b[1].termin - a[1].termin);
       panel.innerHTML =
-        cardRekap('🏢 Rekap per Divisi', sD, ([d, data]) => `<div class="rk-t">${esc(d)}</div><div class="rk-s">${data.man.size} mandor · ${data.pek.size} pekerjaan · ${data.n} entri</div>`, data => data.termin) +
-        cardRekap('🔧 Rekap per Pekerjaan', sP, ([p, d]) => `<div class="rk-t">${esc(p)}</div><div class="rk-s">Mandor: ${esc([...d.man].join(', '))} · ${d.n} entri</div>`, d => d.termin) +
-        cardRekap('👷 Rekap per Mandor', sM, ([m, d]) => `<div class="rk-t">${esc(m)}</div><div class="rk-s">${d.pek.size} pekerjaan · ${d.n} entri</div>`, d => d.termin) +
-        cardRekap('📍 Rekap per Tempat', sT, ([t, d]) => `<div class="rk-t">${esc(t)}</div><div class="rk-s">${d.n} entri</div>`, d => d.termin);
+        cardRekap('🏢 Rekap per Divisi', 'divisi', sD, ([d, data]) => `<div class="rk-t">${esc(d)}</div><div class="rk-s">${data.man.size} mandor · ${data.pek.size} pekerjaan · ${data.n} entri</div>`, data => data.termin) +
+        cardRekap('🔧 Rekap per Pekerjaan', 'pekerjaan', sP, ([p, d]) => `<div class="rk-t">${esc(p)}</div><div class="rk-s">Mandor: ${esc([...d.man].join(', '))} · ${d.n} entri</div>`, d => d.termin) +
+        cardRekap('👷 Rekap per Mandor', 'mandor', sM, ([m, d]) => `<div class="rk-t">${esc(m)}</div><div class="rk-s">${d.pek.size} pekerjaan · ${d.n} entri</div>`, d => d.termin) +
+        cardRekap('📍 Rekap per Tempat', 'tempat', sT, ([t, d]) => `<div class="rk-t">${esc(t)}</div><div class="rk-s">${d.n} entri</div>`, d => d.termin);
+
+      panel.querySelectorAll('.rk-item-clickable').forEach(el => {
+        el.addEventListener('click', () => {
+          const type = el.getAttribute('data-rk-type');
+          const val = el.getAttribute('data-rk-val');
+          if (type === 'divisi') {
+            const f = document.getElementById('filterDivisi');
+            if (f) f.value = (f.value === val) ? '' : val;
+          } else if (type === 'mandor') {
+            const f = document.getElementById('filterMandor');
+            if (f) f.value = (f.value === val) ? '' : val;
+          } else if (type === 'tempat') {
+            const f = document.getElementById('filterTempat');
+            if (f) f.value = (f.value === val) ? '' : val;
+          }
+          applyFilters();
+          toast(`Filter ${type} disesuaikan: ${val}`);
+        });
+      });
     }
 
     /* ---------- render kelompok ---------- */
@@ -1602,13 +1776,30 @@
     }
 
     function renderGroups() {
+      const filteredRecords = getFilteredRecords();
       const wrap = document.getElementById('groups');
       wrap.innerHTML = '';
+
+      if (!filteredRecords.length) {
+        wrap.innerHTML = `<div class="card epic-card" style="padding:24px;text-align:center;color:var(--muted)">
+          <div style="font-size:32px;margin-bottom:8px">🔍</div>
+          <div style="font-weight:700;font-size:15px;color:var(--ink)">Tidak ada entri yang cocok dengan filter.</div>
+          <div style="font-size:12.5px;margin-top:4px">Coba ubah atau reset pilihan filter Anda.</div>
+          <button class="btn-soft epic-btn btn-sm" id="btnResetNoData" type="button" style="margin-top:12px">🧹 Reset Semua Filter</button>
+        </div>`;
+        const resetBtn = document.getElementById('btnResetNoData');
+        if (resetBtn) resetBtn.addEventListener('click', resetAllFilters);
+        animateGrandTotal('grand-total-display', 0);
+        const divBdEl = document.getElementById('grand-divisi-breakdown');
+        if (divBdEl) divBdEl.style.display = 'none';
+        return;
+      }
+
       const map = {};
       const lastIndexMap = {};
       const divisiTotals = {};
 
-      records.forEach((r, idx) => {
+      filteredRecords.forEach((r, idx) => {
         const k = keyOf(r);
         if (!map[k]) map[k] = [];
         map[k].push(r);
@@ -2096,8 +2287,21 @@
     /* ---------- events ---------- */
     document.addEventListener('DOMContentLoaded', () => {
       refreshSelects();
-      renderGroups();
+      populateFilterOptions();
+      applyFilters();
       updateGistStatusBadge();
+
+      ['filterDivisi', 'filterMandor', 'filterTempat'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', applyFilters);
+      });
+
+      const searchEl = document.getElementById('filterSearch');
+      if (searchEl) searchEl.addEventListener('input', applyFilters);
+
+      const btnResetF = document.getElementById('btnResetFilter');
+      if (btnResetF) btnResetF.addEventListener('click', resetAllFilters);
+
       document.getElementById('fTgl').value = new Date().toISOString().slice(0, 10);
 
       const divisiEl = document.getElementById('fDivisi');
