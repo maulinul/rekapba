@@ -2315,7 +2315,7 @@
       animateGrandTotal('grand-total-display', grand);
 
       // Update Grand Total Mini Dashboard Metrics & Progress Bar
-      const totalContractSum = filteredRecords.reduce((sum, r) => sum + (Number(r.kontrak) || 0), 0);
+      const totalContractSum = Object.values(map).reduce((sum, list) => sum + (Number(list[list.length - 1].kontrak) || 0), 0);
       const uniqueMandorsCount = new Set(filteredRecords.map(r => r.mandor)).size;
       const uniquePekerjaanCount = new Set(filteredRecords.map(r => r.pekerjaan)).size;
       const pctOfContract = totalContractSum > 0 ? Math.min(100, (grand / totalContractSum) * 100) : 0;
