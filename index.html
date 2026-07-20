@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencatat Progres Mandor (BA)</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#fff; --ink:#1f2937; --muted:#6b7280;
+    --line:#e5e7eb; --brand:#2563eb; --brand-d:#1d4ed8;
+    --yellow:#fff3a3; --yellow-b:#eab308; --red:#fca5a5; --red-b:#dc2626;
+    --green:#bbf7d0; --green-b:#16a34a; --soft:#eef2ff;
+    --field:#fff; --th:#f9fafb;
+    --ok-bg:#f0fdf4; --ok-bd:#bbf7d0; --ok-ink:#166534;
+    --err-bg:#fef2f2; --err-bd:#fecaca; --err-ink:#991b1b;
+    --warn-bg:#fff7ed; --warn-bd:#fdba74; --warn-ink:#9a3412;
+  }
+  /* ===== TEMA GELAP (tambahan) ===== */
+  [data-theme="dark"]{
+    --bg:#0b1220; --card:#111a2e; --ink:#e5e7eb; --muted:#94a3b8;
+    --line:#1f2a44; --brand:#3b82f6; --brand-d:#60a5fa;
+    --yellow:#3a3410; --yellow-b:#ca8a04; --red:#f87171; --red-b:#f87171;
+    --green:#0f3d24; --green-b:#4ade80; --soft:#16213d;
+    --field:#0f172a; --th:#16213d;
+    --ok-bg:#06281b; --ok-bd:#14532d; --ok-ink:#86efac;
+    --err-bg:#2a0f0f; --err-bd:#7f1d1d; --err-ink:#fca5a5;
+    --warn-bg:#2a1605; --warn-bd:#7c2d12; --warn-ink:#fdba74;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+  header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  header h1{margin:0;font-size:20px}
+  header p{margin:4px 0 0;opacity:.9;font-size:13px}
+  .gear{flex:0 0 auto;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:10px;padding:8px 12px;font-size:15px;cursor:pointer}
+  .gear:hover{background:rgba(255,255,255,.28)}
+  .wrap{max-width:none;margin:0;padding:16px 24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .card h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .grid-5{display:grid;grid-template-columns:1fr 1fr 1.1fr 1.1fr 1.2fr;gap:8px}
+  @media(max-width:1100px){.grid-5{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:680px){.grid,.grid3{grid-template-columns:1fr}}
+  @media(max-width:640px){.grid-5{grid-template-columns:repeat(2,1fr)}}
+  label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:var(--field);color:var(--ink)}
+  textarea{resize:vertical;min-height:54px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  input:focus,select:focus,textarea:focus{outline:2px solid #bfdbfe;border-color:var(--brand)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+  .row > *{flex:1;min-width:140px}
+  button{cursor:pointer;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600}
+  .btn{background:var(--brand);color:#fff}
+  .btn:hover{background:var(--brand-d)}
+  .btn-ghost{background:var(--card);color:var(--brand);border:1px solid var(--brand)}
+  .btn-soft{background:var(--soft);color:var(--brand-d);border:1px solid #c7d2fe}
+  .btn-danger{background:var(--card);color:var(--red-b);border:1px solid var(--red)}
+  .btn-sm{padding:5px 9px;font-size:12px}
+  .full{grid-column:1/-1}
+  .status{margin-top:10px;font-size:12.5px;padding:8px 10px;border-radius:8px;background:var(--ok-bg);border:1px solid var(--ok-bd);color:var(--ok-ink);display:none}
+  .status.err{background:var(--err-bg);border-color:var(--err-bd);color:var(--err-ink)}
+  .status.show{display:block}
+  .prevbox{margin-top:12px;border:1px dashed var(--yellow-b);background:var(--yellow);border-radius:10px;padding:10px 12px;font-size:13px}
+  .prevbox .ttl{font-weight:700;margin-bottom:6px}
+  .prevbox .nums{font-family:ui-monospace,Consolas,monospace}
+  .warn{margin-top:8px;background:var(--warn-bg);border:1px solid var(--warn-bd);color:var(--warn-ink);border-radius:8px;padding:8px 10px;font-size:12.5px}
+  .stat{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .pill{background:var(--soft);border:1px solid #c7d2fe;border-radius:999px;padding:6px 12px;font-size:12.5px}
+  .pill b{color:var(--brand-d)}
+  .pill.red{background:var(--err-bg);border-color:var(--err-bd)}.pill.red b{color:var(--err-ink)}
+  .pill.green{background:var(--ok-bg);border-color:var(--ok-bd)}.pill.green b{color:var(--ok-ink)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:center}
+  th{background:var(--th);font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+  td.l,th.l{text-align:left}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+  tr.hl-y td{background:var(--yellow)}
+  tr.hl-r td{background:var(--err-bg)}
+  .grp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .grp-head .t{font-weight:700}
+  .grp-head .s{font-size:12px;color:var(--muted)}
+  .grand{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .grand .v{font-size:22px;font-weight:800}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .help{font-size:12.5px;color:var(--muted)}
+  .help li{margin-bottom:4px}
+  .kbd{font-family:ui-monospace,monospace;background:var(--soft);border:1px solid #c7d2fe;border-radius:5px;padding:1px 5px;font-size:11.5px;color:var(--brand-d)}
+  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:200}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .muted{color:var(--muted)}
+  .mono{font-family:ui-monospace,Consolas,monospace}
+
+  /* ===== LAYOUT 40/60 ===== */
+  .layout{display:grid;grid-template-columns:40fr 60fr;gap:16px;align-items:start}
+  .col-left,.col-right{min-width:0}
+  @media(min-width:901px){.col-left{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:2px}}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  /* ===== REKAP KIRI ===== */
+  .rekap h2{font-size:14px}
+  .rekap ul{list-style:none;margin:8px 0 0;padding:0}
+  .rekap li{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .rekap li:last-child{border-bottom:none}
+  .rk-label{font-size:12.5px;min-width:0}
+  .rk-t{font-weight:700;word-break:break-word}
+  .rk-s{color:var(--muted);font-size:11.5px}
+  .rk-val{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;font-weight:800;color:var(--brand-d);white-space:nowrap}
+  .rk-total{font-size:12.5px;background:var(--soft);border:1px solid #c7d2fe;border-radius:8px;padding:6px 10px;margin-bottom:4px}
+  .rk-total b{color:var(--brand-d)}
+  .rk-empty{color:var(--muted);font-size:12.5px}
+
+  /* ===== MODAL SETTING (tambahan) ===== */
+  .overlay{position:fixed;inset:0;background:rgba(2,6,23,.55);display:none;align-items:flex-start;justify-content:center;z-index:150;padding:24px;overflow:auto}
+  .overlay.show{display:flex}
+  .modal{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;width:100%;max-width:580px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .modal-head h3{margin:0;font-size:16px}
+  .modal-body{padding:16px}
+  .modal-foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+  .x{background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .seg button{background:var(--field);color:var(--ink);border:none;border-right:1px solid var(--line);border-radius:0;padding:7px 12px;font-size:12.5px}
+  .seg button:last-child{border-right:none}
+  .seg button.on{background:var(--brand);color:#fff}
+  .set-grp{margin-bottom:16px}
+  .set-grp > label{font-size:13px;color:var(--ink);font-weight:700;margin-bottom:6px}
+  .set-hint{font-size:11.5px;color:var(--muted);margin-top:4px}
+  #sRegexOut{margin-top:8px;font-size:12px;font-family:ui-monospace,Consolas,monospace;white-space:pre-wrap;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px;display:none}
+  #sRegexOut.show{display:block}
+  #sRegexOut.err{background:var(--err-bg);border-color:var(--err-bd);color:var(--err-ink)}
+
+  /* --- EPIC ANIMATION PACK (ULTRA-SMOOTH 60FPS) --- */
+  :root {
+    --primary: #3b82f6;
+    --success: #22c55e;
+    --glow-primary: rgba(59, 130, 246, 0.35);
+    --glow-success: rgba(34, 197, 94, 0.4);
+    --ease-epic: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Tabular figures to prevent horizontal layout jank during number counting */
+  #grand-total-display, .v, .rk-val, .nums, table td {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 1. Staggered Entrance */
+  @keyframes fadeInUpSmooth {
+    from { opacity: 0; transform: translate3d(0, 24px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+
+  .panel-left {
+    animation: fadeInUpSmooth 0.5s var(--ease-epic) 0.05s forwards;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .panel-right {
+    animation: fadeInUpSmooth 0.5s var(--ease-epic) 0.15s forwards;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  .epic-card {
+    transition: transform 0.25s var(--ease-epic), box-shadow 0.25s var(--ease-epic);
+    will-change: transform, box-shadow;
+  }
+  .epic-card:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow: 0 12px 28px -6px rgba(0,0,0,0.12);
+  }
+
+  .card-entry {
+    animation: fadeInUpSmooth 0.35s var(--ease-epic) forwards;
+    will-change: transform, opacity;
+  }
+
+  /* 2. Grand Total Glow & Pulse */
+  #grand-total-display {
+    display: inline-block;
+    transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s var(--ease-bounce);
+    will-change: transform;
+  }
+  #grand-total-display.updating {
+    animation: pulseGlow 0.6s ease-in-out;
+    color: var(--success);
+  }
+  @keyframes pulseGlow {
+    0%, 100% { text-shadow: 0 0 15px var(--glow-primary); transform: scale(1); }
+    50% { text-shadow: 0 0 35px var(--glow-success); transform: scale(1.03); }
+  }
+
+  /* 3. Epic Buttons (Ripple + Hover) */
+  .epic-btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s var(--ease-epic), box-shadow 0.2s var(--ease-epic), background-color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    will-change: transform;
+    user-select: none;
+  }
+  .epic-btn:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow: 0 6px 16px -3px var(--glow-primary);
+  }
+  .epic-btn:active {
+    transform: translate3d(0, 1px, 0) scale(0.98);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+    transform: translate(-50%, -50%) scale(0);
+    animation: ripple-anim 0.5s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes ripple-anim {
+    to { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
+  }
+
+  /* 4. Parse Field Highlight Sequence (No scale transform to prevent layout reflow) */
+  @keyframes fieldPopulate {
+    0% {
+      background-color: rgba(59, 130, 246, 0.18);
+      box-shadow: 0 0 0 3px var(--glow-primary);
+      border-color: var(--primary) !important;
+    }
+    50% {
+      background-color: rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 4px var(--glow-primary);
+    }
+    100% {
+      background-color: var(--field);
+      box-shadow: none;
+    }
+  }
+  .field-highlight {
+    animation: fieldPopulate 0.7s var(--ease-epic) forwards;
+  }
+
+  /* 5. Glassmorphism Toast Notification */
+  .toast-epic {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-left: 4px solid var(--success);
+    padding: 14px 20px;
+    border-radius: 12px;
+    color: white;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.3);
+    transform: translate3d(120%, 0, 0);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    opacity: 0;
+    z-index: 9999;
+    font-family: system-ui, -apple-system, sans-serif;
+    pointer-events: none;
+  }
+  .toast-epic.show {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .toast-epic.error { border-left-color: #ef4444; }
+
+  /* 6. Collapsible Group Cards */
+  .tblwrap-collapsible {
+    max-height: 3500px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height 0.4s var(--ease-epic), opacity 0.3s ease, margin 0.3s ease;
+  }
+  .tblwrap-collapsible.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    margin: 0 !important;
+    border: none !important;
+  }
+  .grp-head {
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.2s ease;
+  }
+  .grp-head:hover {
+    opacity: 0.92;
+  }
+  .grp-head-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toggle-icon {
+    font-size: 11px;
+    transition: transform 0.3s var(--ease-epic);
+    display: inline-block;
+    color: var(--brand);
+  }
+  .toggle-icon.rotated {
+    transform: rotate(-90deg);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>📒 Pencatat Progres Mandor (BA)</h1>
+    <p>Kelompokkan per mandor &amp; pekerjaan · akumulasi otomatis · cegah salah hitung adendum</p>
+  </div>
+  <button class="gear epic-btn" id="btnSettings" type="button" title="Setting parsing & tema">⚙️ Setting</button>
+</header>
+
+<div class="wrap">
+
+  <!-- GRAND TOTAL -->
+  <div class="grand epic-card">
+    <div>
+      <div style="font-size:12px;opacity:.9">GRAND TOTAL TERMIN (total uang dicairkan semua mandor)</div>
+      <div class="v" id="grand-total-display">Rp 0</div>
+    </div>
+    <div style="font-size:12px;opacity:.9;text-align:right">
+      Ini angka yg masuk rekap Excel-mu<br>(bukan nilai kontrak, bukan kumulatif)
+    </div>
+  </div>
+
+  <!-- LAYOUT 40/60 -->
+  <div class="layout">
+    <aside class="col-left panel-left"><div id="rekapPanel"></div></aside>
+
+    <section class="col-right panel-right">
+      <!-- FORM INPUT -->
+      <div class="card epic-card" style="padding:14px;">
+        <h2 style="margin-bottom:10px;font-size:15px">➕ Input / Parse Entri BA</h2>
+        <div class="grid">
+          <div>
+            <label for="fMandor">Mandor</label>
+            <input type="text" id="fMandor" list="dlMandor" placeholder="Ketik / pilih mandor..." autocomplete="off" style="padding:7px 9px;">
+            <datalist id="dlMandor"></datalist>
+          </div>
+          <div>
+            <label for="fPekerjaan">Jenis Pekerjaan</label>
+            <input type="text" id="fPekerjaan" list="dlPekerjaan" placeholder="Ketik / pilih pekerjaan..." autocomplete="off" style="padding:7px 9px;">
+            <datalist id="dlPekerjaan"></datalist>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <label style="margin-bottom:0">Paste baris BA <span class="muted" style="font-weight:normal">(opsional)</span></label>
+            <button class="btn-soft epic-btn btn-sm" id="btnParse" type="button" style="padding:3px 10px;font-size:11.5px">🔍 Parse Baris</button>
+          </div>
+          <textarea id="fPaste" style="min-height:36px;height:36px;padding:6px 9px;font-size:12px;transition:height 0.2s ease" placeholder="Tohir Pekerjaan Sekatan, Plafon... 67,133% x Rp 47.909.204 = 32.162.886" onfocus="this.style.height='54px'" onblur="if(!this.value)this.style.height='36px'"></textarea>
+        </div>
+
+        <div class="grid-5" style="margin-top:8px">
+          <div>
+            <label>Tanggal</label>
+            <input type="date" id="fTgl" style="padding:6px 8px;font-size:13px">
+          </div>
+          <div>
+            <label>Progres (%)</label>
+            <input type="text" id="fPersen" placeholder="67,133" style="padding:6px 8px;font-size:13px">
+          </div>
+          <div>
+            <label>Kontrak (Rp)</label>
+            <input type="text" id="fKontrak" placeholder="47.909.204" style="padding:6px 8px;font-size:13px">
+          </div>
+          <div>
+            <label>Kumulatif (Rp)</label>
+            <input type="text" id="fKum" placeholder="32.162.886" style="padding:6px 8px;font-size:13px">
+          </div>
+          <div>
+            <label title="Otomatis = kumulatif terakhir (edit hanya bila BA pakai baseline lain setelah adendum)">Sebelumnya (Rp)</label>
+            <input type="text" id="fPrev" placeholder="otomatis" style="padding:6px 8px;font-size:13px">
+          </div>
+        </div>
+
+        <div id="prevBox" class="prevbox" style="display:none;margin-top:8px;padding:8px 10px;">
+          <div class="ttl" style="font-size:12px">📌 Progres Sebelumnya (entri terakhir kelompok ini) — referensi</div>
+          <div class="nums" id="prevNums" style="font-size:12px"></div>
+          <div class="acts" style="margin-top:6px">
+            <button class="btn-ghost btn-sm epic-btn" id="copyPrevXY" type="button">📋 Copy "Rp … = …"</button>
+            <button class="btn-ghost btn-sm epic-btn" id="copyPrevFull" type="button">📋 Copy baris lengkap</button>
+            <button class="btn-soft btn-sm epic-btn" id="usePrev" type="button">⬇ Pakai kumulatif ini sbg "Sebelumnya"</button>
+          </div>
+        </div>
+        <div id="adendumWarn" class="warn" style="display:none;margin-top:6px;padding:6px 9px;"></div>
+        <div id="status" class="status" style="margin-top:6px;padding:6px 9px;"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn epic-btn" id="btnSave" type="button" style="padding:8px 14px;">💾 Simpan Entri</button>
+          <button class="btn-ghost epic-btn" id="btnReset" type="button" style="padding:8px 14px;">🧹 Reset Form</button>
+          <button class="btn-soft epic-btn" id="btnSample" type="button" style="padding:8px 14px;">🎯 Isi Contoh BA Tohir (8 termin)</button>
+        </div>
+      </div>
+
+      <div id="groups"></div>
+    </section>
+  </div>
+
+  <!-- DATA -->
+  <div class="card epic-card">
+    <h2>💾 Data &amp; Backup</h2>
+    <div class="acts">
+      <button class="btn-soft epic-btn" id="btnExport" type="button">⬇ Export JSON</button>
+      <button class="btn-soft epic-btn" id="btnImport" type="button">⬆ Import JSON</button>
+      <input type="file" id="fileImport" accept="application/json" style="display:none">
+      <button class="btn-danger epic-btn" id="btnClear" type="button">🗑 Hapus Semua Data</button>
+    </div>
+    <p class="help" style="margin-top:10px">Data &amp; setting tersimpan otomatis di browser ini (localStorage). Export JSON untuk backup/pindah perangkat.</p>
+  </div>
+
+  <!-- BANTUAN -->
+  <div class="card epic-card">
+    <h2>❓ Cara Pakai &amp; Arti Kolom</h2>
+    <ul class="help">
+      <li><b>⚙️ Setting</b> (pojok kanan atas): atur <b>tema</b> (terang/gelap/otomatis) &amp; <b>aturan parsing</b> (cara ambil mandor, kata kunci tempat, format angka, regex kustom).</li>
+      <li><b>Mandor &amp; Pekerjaan</b>: pilih dari dropdown, atau <span class="kbd">+ Tambah baru…</span>. Kalau paste baris, keduanya terisi otomatis sesuai aturan di Setting.</li>
+      <li><b>Nilai Kumulatif</b> = persen × kontrak. <b>Termin</b> = Kumulatif − Sebelumnya = uang yg dicairkan di BA ini. <b>Jumlah semua termin = Grand Total</b>.</li>
+      <li><b>Nilai Sebelumnya</b>: otomatis = kumulatif terakhir. <b>WAJIB diedit</b> bila ada adendum &amp; BA menulis baseline berbeda (cth BA‑5 Tohir = 19.080.776).</li>
+      <li><b>Rekap kiri</b>: total termin per <b>Pekerjaan / Mandor / Tempat</b>. Tempat diambil dari kata kunci di Setting (default: Dapur, Gedung, Blok, …).</li>
+      <li>Baris tabel: <span style="background:var(--yellow);padding:1px 6px;border-radius:4px">kuning</span> = override "sebelumnya"; <span style="background:var(--err-bg);padding:1px 6px;border-radius:4px">merah</span> = termin negatif.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== MODAL SETTING (tambahan) ===== -->
+<div class="overlay" id="settingsOverlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h3>⚙️ Setting</h3>
+      <button class="x" id="settingsClose" type="button" aria-label="Tutup">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="set-grp">
+        <label>Tema tampilan</label>
+        <div class="seg" id="segTheme">
+          <button type="button" data-v="light">☀️ Terang</button>
+          <button type="button" data-v="dark">🌙 Gelap</button>
+          <button type="button" data-v="auto">🖥 Otomatis</button>
+        </div>
+        <div class="set-hint">"Otomatis" mengikuti setting gelap/terang di perangkatmu.</div>
+      </div>
+
+      <div class="set-grp">
+        <label for="sMandorParse">Cara ambil MANDOR dari baris paste</label>
+        <select id="sMandorParse">
+          <option value="auto">Otomatis (cocokkan dgn daftar mandor yg ada)</option>
+          <option value="first">Ambil 1 kata pertama sebagai mandor</option>
+          <option value="none">Jangan pisahkan (mandor pakai dropdown; semua teks = pekerjaan)</option>
+        </select>
+        <div class="set-hint">Pilih "Jangan pisahkan" kalau baris paste-mu tidak memuat nama mandor, atau kamu mau mandor ditentukan dari dropdown saja.</div>
+      </div>
+
+      <div class="set-grp">
+        <label for="sLocale">Format angka (uang &amp; persen)</label>
+        <select id="sLocale">
+          <option value="auto">Otomatis (cocok utk data BA Indonesia)</option>
+          <option value="id">Indonesia — ribu pakai titik, desimal pakai koma (47.909.204 / 67,133)</option>
+          <option value="en">Inggris — ribu pakai koma, desimal pakai titik (47,909,204 / 67.133)</option>
+        </select>
+        <div class="set-hint">Ganti ke "Inggris" hanya kalau kamu copy angka dari Excel ber‑locale Inggris sehingga parse meleset.</div>
+      </div>
+
+      <div class="set-grp">
+        <label for="sTempat">Kata kunci TEMPAT (satu per baris) — utk rekap per Tempat</label>
+        <textarea id="sTempat" style="min-height:96px"></textarea>
+        <div class="set-hint">Sistem mencari kata ini di nama pekerjaan lalu mengambil 1 kata sesudahnya (cth "Dapur" → "Dapur Randusari"). Tambah istilahmu sendiri, misal nama proyek/gedung.</div>
+      </div>
+
+      <div class="set-grp">
+        <label for="sRegex">Regex kustom (opsional / advanced)</label>
+        <textarea id="sRegex" style="min-height:70px" placeholder="Kosongkan = pakai parser bawaan.&#10;Contoh 3 grup: (\d+[.,]?\d*)%\s*x\s*Rp\s*([\d.,]+)\s*=\s*([\d.,]+)"></textarea>
+        <div class="set-hint">Kalau diisi, parser memakai regex ini. Urutan grup <span class="kbd">(...)</span> dari kiri:
+          <b>3 grup</b> = (persen)(kontrak)(kumulatif) · <b>4 grup</b> = (pekerjaan)(persen)(kontrak)(kumulatif) · <b>5 grup</b> = (mandor)(pekerjaan)(persen)(kontrak)(kumulatif). Persen tanpa %, uang tanpa "Rp".</div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn-soft btn-sm epic-btn" id="btnTestRegex" type="button" style="flex:0 0 auto">🧪 Uji regex (pakai isi kotak paste)</button>
+        </div>
+        <div id="sRegexOut"></div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost epic-btn" id="settingsCancel" type="button">Batal</button>
+      <button class="btn epic-btn" id="settingsSave" type="button">💾 Simpan Setting</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// --- EPIC ANIMATION CONTROLLER ---
+
+// 1. Ripple Effect untuk semua tombol dengan class 'epic-btn'
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.epic-btn');
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  const ripple = document.createElement('span');
+  ripple.classList.add('ripple');
+  ripple.style.left = `${e.clientX - rect.left}px`;
+  ripple.style.top = `${e.clientY - rect.top}px`;
+  btn.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
+});
+
+// 2. Epic Number Counter (Odometer Effect)
+let lastGrandTotalValue = 0;
+function animateGrandTotal(elementId, endValue, duration = 1000) {
+  const el = document.getElementById(elementId) || document.getElementById('grandTotal');
+  if (!el) return;
+  el.classList.add('updating');
+  const startValue = lastGrandTotalValue;
+  lastGrandTotalValue = endValue;
+  let startTimestamp = null;
+  
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    const easeProgress = 1 - Math.pow(1 - progress, 4); // Ease out quart
+    const currentVal = Math.floor(easeProgress * (endValue - startValue) + startValue);
+    
+    el.textContent = 'Rp ' + currentVal.toLocaleString('id-ID');
+    
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    } else {
+      el.classList.remove('updating');
+      el.textContent = 'Rp ' + endValue.toLocaleString('id-ID');
+    }
+  };
+  window.requestAnimationFrame(step);
+}
+
+// 3. Parse Field Highlight Sequence (Efek Scanning)
+function triggerParseAnimation() {
+  const fieldIds = ['fMandor', 'fPekerjaan', 'fTgl', 'fPersen', 'fKontrak', 'fKum', 'fPrev', 'mandor', 'pekerjaan', 'tanggal', 'progres', 'nilai_kontrak', 'nilai_kumulatif', 'nilai_sebelumnya'];
+  fieldIds.forEach((id, index) => {
+    const el = document.getElementById(id);
+    if (el) {
+      setTimeout(() => {
+        el.classList.add('field-highlight');
+        setTimeout(() => el.classList.remove('field-highlight'), 800);
+      }, index * 80);
+    }
+  });
+}
+
+// 4. 100% Offline Particle Burst (Confetti)
+function triggerEpicBurst(x, y) {
+  if (x === undefined || y === undefined) {
+    x = window.innerWidth / 2;
+    y = window.innerHeight / 2;
+  }
+  const colors = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#a855f7'];
+  for (let i = 0; i < 40; i++) {
+    const particle = document.createElement('div');
+    particle.style.position = 'fixed';
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.width = (4 + Math.random() * 6) + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.borderRadius = '50%';
+    particle.style.pointerEvents = 'none';
+    particle.style.zIndex = '9999';
+    document.body.appendChild(particle);
+
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = 60 + Math.random() * 120;
+    const tx = Math.cos(angle) * velocity;
+    const ty = Math.sin(angle) * velocity;
+
+    particle.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      { transform: `translate(${tx}px, ${ty + 50}px) scale(0)`, opacity: 0 }
+    ], {
+      duration: 600 + Math.random() * 400,
+      easing: 'cubic-bezier(0, .9, .57, 1)',
+    }).onfinish = () => particle.remove();
+  }
+}
+
+// 5. Glassmorphism Toast Notification
+function showEpicToast(message, type = 'success') {
+  const toastEl = document.createElement('div');
+  toastEl.className = `toast-epic ${type === 'error' ? 'error' : ''}`;
+  toastEl.innerHTML = `
+    <div style="font-weight: 700; margin-bottom: 4px; font-size: 1.05em;">
+      ${type === 'error' ? '⚠️ Perhatian' : '✅ Berhasil!'}
+    </div>
+    <div style="font-size: 0.9em; opacity: 0.9; line-height: 1.4;">${esc(message)}</div>
+  `;
+  document.body.appendChild(toastEl);
+  void toastEl.offsetWidth;
+  toastEl.classList.add('show');
+  
+  setTimeout(() => {
+    toastEl.classList.remove('show');
+    setTimeout(() => toastEl.remove(), 500);
+  }, 3500);
+}
+
+const KEY='mandorProgresRecords_v1';
+let records = load();
+
+/* ---------- SETTINGS (tambahan) ---------- */
+const SKEY='mandorProgresSettings_v1';
+const defaultSettings={ theme:'light', mandorParse:'auto', numLocale:'auto',
+  tempatKeywords:['Dapur','Gedung','Blok','Gudang','Ruko','Lantai','LT'], customRegex:'' };
+let settings = loadSettings();
+function loadSettings(){ try{ const o=JSON.parse(localStorage.getItem(SKEY)); const m=Object.assign({},defaultSettings,o||{}); if(!Array.isArray(m.tempatKeywords)) m.tempatKeywords=defaultSettings.tempatKeywords.slice(); return m; }catch(e){ return Object.assign({},defaultSettings,{tempatKeywords:defaultSettings.tempatKeywords.slice()}); } }
+function saveSettings(){ localStorage.setItem(SKEY, JSON.stringify(settings)); }
+function applyTheme(){
+  let mode=settings.theme;
+  if(mode==='auto') mode = window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  document.documentElement.setAttribute('data-theme', mode);
+}
+applyTheme();
+try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(settings.theme==='auto') applyTheme(); }); }catch(e){}
+
+/* ---------- storage ---------- */
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){ return []; } }
+function save(){ localStorage.setItem(KEY, JSON.stringify(records)); }
+
+/* ---------- util ---------- */
+function norm(s){ return String(s==null?'':s).trim().replace(/\s+/g,' '); }
+function escapeRe(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function extractTempat(p){
+  p=String(p||'');
+  for(const kw of (settings.tempatKeywords||[])){
+    const k=String(kw).trim(); if(!k) continue;
+    const re=new RegExp(escapeRe(k)+'\\s+([\\w\\-]+)','i');
+    const m=p.match(re); if(m) return (k+' '+m[1]).replace(/\s+/g,' ').trim();
+  }
+  const w=p.trim().split(/\s+/); return w.length>=2? w.slice(-2).join(' ') : (w[0]||'-');
+}
+function parseMoney(s){
+  if(s==null) return NaN;
+  let t=String(s).trim().replace(/\s/g,'').replace(/Rp/i,'');
+  if(t==='') return NaN;
+  const mode=settings.numLocale;
+  if(mode==='id'){ t=t.replace(/\./g,'').replace(',','.'); }
+  else if(mode==='en'){ t=t.replace(/,/g,''); }
+  else { const hc=t.includes(','), hd=t.includes('.');
+    if(hc&&hd){ if(t.lastIndexOf(',')>t.lastIndexOf('.')) t=t.replace(/\./g,'').replace(',','.'); else t=t.replace(/,/g,''); }
+    else if(hc){ t=t.replace(',','.'); }
+    else if(hd){ t=t.replace(/\./g,''); } }
+  return parseFloat(t);
+}
+function parsePercent(s){
+  if(s==null) return NaN;
+  let t=String(s).trim().replace(/%/g,'').replace(/\s/g,'');
+  if(t==='') return NaN;
+  t=t.replace(',','.');   // persen: koma maupun titik = desimal (tidak ada pemisah ribu)
+  return parseFloat(t);
+}
+function fmtMoney(n){ n=Number(n)||0; return Math.round(n).toLocaleString('id-ID'); }
+function fmtPercent(n){ n=Number(n)||0; return n.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:3}); }
+function fmtFull(r){ return `${r.mandor} ${r.pekerjaan} ${fmtPercent(r.persen)}%\tx\tRp ${fmtMoney(r.kontrak)}\t=\t${fmtMoney(r.kumulatif)}`; }
+function fmtXY(r){ return `Rp ${fmtMoney(r.kontrak)}\t=\t${fmtMoney(r.kumulatif)}`; }
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function keyOf(r){ return r.mandor+'||'+r.pekerjaan; }
+
+/* ---------- toast & copy ---------- */
+function toast(msg, type = 'success'){ showEpicToast(msg, type); }
+function copyText(t){
+  if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(t).then(()=>toast('Tersalin ✅')).catch(()=>fallbackCopy(t)); }
+  else fallbackCopy(t);
+}
+function fallbackCopy(t){
+  const ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('Tersalin ✅'); }catch(e){ toast('Gagal menyalin'); }
+  document.body.removeChild(ta);
+}
+
+/* ---------- status ---------- */
+function setStatus(msg,isErr){ const s=document.getElementById('status'); s.textContent=msg; s.className='status show'+(isErr?' err':''); }
+function clearStatus(){ const s=document.getElementById('status'); s.className='status'; s.textContent=''; }
+
+/* ---------- auto suggestion / datalist ---------- */
+function uniqueMandors(){ return [...new Set(records.map(r=>r.mandor).filter(Boolean))]; }
+function uniquePekerjaan(selectedMandor){
+  const m = norm(selectedMandor);
+  if(!m){
+    return [...new Set(records.map(r=>r.pekerjaan).filter(Boolean))];
+  }
+  const filtered = records.filter(r => norm(r.mandor) === m).map(r => r.pekerjaan);
+  if(filtered.length === 0){
+    return [...new Set(records.map(r=>r.pekerjaan).filter(Boolean))];
+  }
+  return [...new Set(filtered)];
+}
+
+function fillDatalist(dl, items){
+  if(!dl) return;
+  dl.innerHTML = items.map(it => `<option value="${esc(it)}"></option>`).join('');
+}
+function refreshSelects(){
+  const mEl = document.getElementById('fMandor');
+  const curMandor = mEl ? mEl.value : '';
+  fillDatalist(document.getElementById('dlMandor'), uniqueMandors());
+  fillDatalist(document.getElementById('dlPekerjaan'), uniquePekerjaan(curMandor));
+}
+
+/* ---------- kelompok helpers ---------- */
+function groupRecords(mandor,pekerjaan){ return records.filter(r=>r.mandor===mandor && r.pekerjaan===pekerjaan); }
+function lastOf(mandor,pekerjaan){ const g=groupRecords(mandor,pekerjaan); return g.length? g[g.length-1] : null; }
+
+/* ---------- progres sebelumnya + warning ---------- */
+function updatePrevBox(){
+  const m=document.getElementById('fMandor').value;
+  const p=document.getElementById('fPekerjaan').value;
+  const box=document.getElementById('prevBox');
+  const warn=document.getElementById('adendumWarn');
+  warn.style.display='none';
+  if(!m||!p){ box.style.display='none'; return; }
+  const last=lastOf(m,p);
+  if(!last){ box.style.display='none'; return; }
+  box.style.display='block';
+  document.getElementById('prevNums').innerHTML =
+    `Tgl <b>${esc(last.tanggal||'-')}</b> &nbsp;|&nbsp; Progres <b>${fmtPercent(last.persen)}%</b> &nbsp;|&nbsp; `+
+    `Kontrak <b>Rp ${fmtMoney(last.kontrak)}</b> &nbsp;|&nbsp; Kumulatif <b>Rp ${fmtMoney(last.kumulatif)}</b> &nbsp;|&nbsp; `+
+    `Termin <b>Rp ${fmtMoney(last.termin)}</b>`;
+  const prevInput=document.getElementById('fPrev');
+  if(prevInput.value.trim()==='') prevInput.value=fmtMoney(last.kumulatif);
+  const kNow=parseMoney(document.getElementById('fKontrak').value);
+  if(!isNaN(kNow) && Math.round(kNow)!==Math.round(last.kontrak)){
+    warn.style.display='block';
+    warn.innerHTML='⚠️ <b>Nilai kontrak berubah</b> (Rp '+fmtMoney(last.kontrak)+' → Rp '+fmtMoney(kNow)+
+      '). Kemungkinan <b>adendum</b>. Periksa field <b>"Nilai Sebelumnya"</b> — pada BA setelah adendum, baseline rupiah sering TIDAK sama dgn kumulatif terakhir (cth BA‑5 Tohir = 19.080.776).';
+  }
+}
+
+/* ---------- parse baris (baca settings) ---------- */
+function parseLine(line){
+  const reStr=(settings.customRegex||'').trim();
+  if(reStr){
+    let re; try{ re=new RegExp(reStr); }catch(e){ return {error:'Regex kustom tidak valid: '+e.message}; }
+    const m=line.match(re);
+    if(!m) return {error:'Regex kustom tidak cocok dengan baris.'};
+    const g=m.slice(1);
+    let mandor='',pekerjaan='',persen=NaN,kontrak=NaN,kumulatif=NaN;
+    if(g.length>=5){ mandor=g[0];pekerjaan=g[1];persen=parsePercent(g[2]);kontrak=parseMoney(g[3]);kumulatif=parseMoney(g[4]); }
+    else if(g.length===4){ pekerjaan=g[0];persen=parsePercent(g[1]);kontrak=parseMoney(g[2]);kumulatif=parseMoney(g[3]); }
+    else if(g.length===3){ persen=parsePercent(g[0]);kontrak=parseMoney(g[1]);kumulatif=parseMoney(g[2]); }
+    else return {error:'Regex kustom harus punya 3, 4, atau 5 grup tangkap.'};
+    mandor=norm(mandor); pekerjaan=norm(pekerjaan);
+    if([persen,kontrak,kumulatif].some(isNaN)) return {error:'Grup tangkap tidak menghasilkan angka valid (cek urutan grup & format angka).'};
+    return {mandor,pekerjaan,persen,kontrak,kumulatif};
+  }
+  const mPct = line.match(/(\d+(?:[.,]\d+)?)\s*%/);
+  const mKon = line.match(/Rp\s*([\d.,]+)/i);
+  const mKum = line.match(/=\s*([\d.,]+)\s*$/);
+  if(!mPct||!mKon||!mKum) return null;
+  const persen=parsePercent(mPct[1]);
+  const kontrak=parseMoney(mKon[1]);
+  const kumulatif=parseMoney(mKum[1]);
+  const prefix=line.slice(0, mPct.index).trim();
+  let mandor='', pekerjaan='';
+  const mode=settings.mandorParse;
+  if(mode==='none'){ mandor=''; pekerjaan=prefix; }
+  else if(mode==='first'){ const parts=prefix.split(/\s+/); mandor=parts[0]||''; pekerjaan=parts.slice(1).join(' '); }
+  else {
+    const existing=uniqueMandors().sort((a,b)=>b.length-a.length);
+    const low=prefix.toLowerCase(); let matched=null;
+    for(const m of existing){ const ml=m.toLowerCase(); if(low===ml || low.startsWith(ml+' ')){ matched=m; break; } }
+    if(matched){ mandor=matched; pekerjaan=prefix.slice(matched.length).trim(); }
+    else { const parts=prefix.split(/\s+/); mandor=parts[0]||''; pekerjaan=parts.slice(1).join(' '); }
+  }
+  mandor=norm(mandor); pekerjaan=norm(pekerjaan);
+  return {mandor,pekerjaan,persen,kontrak,kumulatif};
+}
+
+/* ---------- REKAP KIRI ---------- */
+function cardRekap(title, list, labelFn, valFn){
+  const total=list.reduce((a,[,d])=>a+valFn(d),0);
+  const items=list.length? list.map(([k,d])=>
+    `<li><div class="rk-label">${labelFn([k,d])}</div><div class="rk-val">Rp ${fmtMoney(valFn(d))}</div></li>`).join('')
+    : `<li><span class="rk-empty">—</span></li>`;
+  return `<div class="card rekap"><h2>${title}</h2>
+     <div class="rk-total">Total termin: <b>Rp ${fmtMoney(total)}</b></div>
+     <ul>${items}</ul></div>`;
+}
+function renderRekap(){
+  const panel=document.getElementById('rekapPanel');
+  if(!panel) return;
+  if(!records.length){ panel.innerHTML='<div class="card rekap"><h2>📊 Rekap</h2><p class="rk-empty">Belum ada data. Rekap per Pekerjaan / Mandor / Tempat muncul otomatis setelah ada entri.</p></div>'; return; }
+  const byP={}, byM={}, byT={};
+  records.forEach(r=>{
+    const t=Number(r.termin)||0;
+    (byP[r.pekerjaan] ??= {termin:0,n:0,man:new Set()}); byP[r.pekerjaan].termin+=t; byP[r.pekerjaan].n++; byP[r.pekerjaan].man.add(r.mandor);
+    (byM[r.mandor]    ??= {termin:0,n:0,pek:new Set()}); byM[r.mandor].termin+=t;    byM[r.mandor].n++;    byM[r.mandor].pek.add(r.pekerjaan);
+    const tp=extractTempat(r.pekerjaan);
+    (byT[tp]          ??= {termin:0,n:0});                byT[tp].termin+=t;          byT[tp].n++;
+  });
+  const sP=Object.entries(byP).sort((a,b)=>b[1].termin-a[1].termin);
+  const sM=Object.entries(byM).sort((a,b)=>b[1].termin-a[1].termin);
+  const sT=Object.entries(byT).sort((a,b)=>b[1].termin-a[1].termin);
+  panel.innerHTML =
+    cardRekap('🔧 Rekap per Pekerjaan', sP, ([p,d])=>`<div class="rk-t">${esc(p)}</div><div class="rk-s">Mandor: ${esc([...d.man].join(', '))} · ${d.n} entri</div>`, d=>d.termin) +
+    cardRekap('👷 Rekap per Mandor', sM, ([m,d])=>`<div class="rk-t">${esc(m)}</div><div class="rk-s">${d.pek.size} pekerjaan · ${d.n} entri</div>`, d=>d.termin) +
+    cardRekap('📍 Rekap per Tempat', sT, ([t,d])=>`<div class="rk-t">${esc(t)}</div><div class="rk-s">${d.n} entri</div>`, d=>d.termin);
+}
+
+/* ---------- render kelompok ---------- */
+const collapsedGroups = new Set();
+
+function renderGroups(){
+  const wrap=document.getElementById('groups');
+  wrap.innerHTML='';
+  const map={};
+  const lastIndexMap={};
+  records.forEach((r, idx)=>{
+    const k=keyOf(r);
+    if(!map[k]) map[k]=[];
+    map[k].push(r);
+    lastIndexMap[k] = idx;
+  });
+
+  // Sort groups by newest entry index descending so the group with latest progress activity is at the TOP!
+  const order = Object.keys(map).sort((a, b) => lastIndexMap[b] - lastIndexMap[a]);
+
+  let grand=0;
+  order.forEach(k=>{
+    const list=map[k];
+    const last=list[list.length-1];
+    const totalTermin=list.reduce((a,r)=>a+(Number(r.termin)||0),0);
+    grand+=totalTermin;
+    const sisa=Number(last.kontrak)-Number(last.kumulatif);
+    const isCollapsed = collapsedGroups.has(k);
+
+    const card=document.createElement('div'); card.className='card epic-card card-entry';
+    let rows='';
+    list.forEach((r,i)=>{
+      const overridden = r._overridePrev===true;
+      const neg = (Number(r.termin)||0)<0;
+      const cls = neg?'hl-r':(overridden?'hl-y':'');
+      rows+=`<tr class="${cls}">
+        <td>${i+1}</td>
+        <td class="l">${esc(r.tanggal||'-')}</td>
+        <td>${fmtPercent(r.persen)}%</td>
+        <td>${fmtMoney(r.kontrak)}</td>
+        <td>${fmtMoney(r.kumulatif)}</td>
+        <td>${fmtMoney(r.prev)}</td>
+        <td><b>${fmtMoney(r.termin)}</b></td>
+        <td>
+          <button class="btn-soft btn-sm epic-btn" data-xy="${esc(fmtXY(r))}">Rp =</button>
+          <button class="btn-ghost btn-sm epic-btn" data-full="${esc(fmtFull(r))}">baris</button>
+          <button class="btn-danger btn-sm epic-btn" data-del="${r.id}">✕</button>
+        </td></tr>`;
+    });
+
+    card.innerHTML=`
+      <div class="grp-head" data-toggle="${esc(k)}">
+        <div>
+          <div class="t grp-head-title">
+            <span class="toggle-icon ${isCollapsed ? 'rotated' : ''}">▼</span>
+            👷 ${esc(last.mandor)}
+          </div>
+          <div class="s">🔧 ${esc(last.pekerjaan)}</div>
+        </div>
+        <div class="stat">
+          <span class="pill">Kontrak terakhir <b>Rp ${fmtMoney(last.kontrak)}</b></span>
+          <span class="pill">Progres <b>${fmtPercent(last.persen)}%</b></span>
+          <span class="pill">Kumulatif <b>Rp ${fmtMoney(last.kumulatif)}</b></span>
+          <span class="pill green">Total Termin <b>Rp ${fmtMoney(totalTermin)}</b></span>
+          <span class="pill red">Sisa <b>Rp ${fmtMoney(sisa)}</b></span>
+          <button class="btn-ghost btn-sm epic-btn btn-collapse-toggle" type="button" style="padding:4px 8px;font-size:11.5px;margin-left:4px;">
+            ${isCollapsed ? '▶ Buka (' + list.length + ' baris)' : '▲ Ciutkan'}
+          </button>
+        </div>
+      </div>
+      <div class="tblwrap tblwrap-collapsible ${isCollapsed ? 'collapsed' : ''}"><table>
+        <thead><tr>
+          <th>#</th><th class="l">Tanggal</th><th>Progres</th><th>Kontrak</th>
+          <th>Kumulatif</th><th>Sebelumnya</th><th>Termin</th><th>Aksi</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+    wrap.appendChild(card);
+  });
+
+  animateGrandTotal('grand-total-display', grand);
+
+  // Collapse toggle event listeners
+  wrap.querySelectorAll('[data-toggle]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('button[data-xy], button[data-full], button[data-del]')) return;
+      const key = el.getAttribute('data-toggle');
+      if (collapsedGroups.has(key)) {
+        collapsedGroups.delete(key);
+      } else {
+        collapsedGroups.add(key);
+      }
+      renderGroups();
+    });
+  });
+
+  wrap.querySelectorAll('[data-xy]').forEach(b=>b.onclick=(e)=>{ e.stopPropagation(); copyText(b.getAttribute('data-xy')); });
+  wrap.querySelectorAll('[data-full]').forEach(b=>b.onclick=(e)=>{ e.stopPropagation(); copyText(b.getAttribute('data-full')); });
+  wrap.querySelectorAll('[data-del]').forEach(b=>b.onclick=(e)=>{
+    e.stopPropagation();
+    if(confirm('Hapus entri ini?')){ records=records.filter(r=>r.id!==b.getAttribute('data-del')); save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Entri dihapus'); }
+  });
+
+  renderRekap();
+}
+
+/* ---------- simpan ---------- */
+function doSave(e){
+  clearStatus();
+  let mandor=norm(document.getElementById('fMandor').value);
+  let pekerjaan=norm(document.getElementById('fPekerjaan').value);
+  if(!mandor||!pekerjaan){ setStatus('Pilih / isi Mandor dan Pekerjaan dulu.',true); return; }
+  const persen=parsePercent(document.getElementById('fPersen').value);
+  const kontrak=parseMoney(document.getElementById('fKontrak').value);
+  const kumulatif=parseMoney(document.getElementById('fKum').value);
+  if([persen,kontrak,kumulatif].some(isNaN)){ setStatus('Persen / Kontrak / Kumulatif tidak valid.',true); return; }
+
+  const last=lastOf(mandor,pekerjaan);
+  let prevRaw=document.getElementById('fPrev').value.trim();
+  let prev, override=false;
+  if(prevRaw===''){ prev = last? Number(last.kumulatif):0; }
+  else { prev=parseMoney(prevRaw); if(isNaN(prev)){ setStatus('"Nilai Sebelumnya" tidak valid.',true); return; } override=true; }
+
+  const termin = kumulatif - prev;
+  const rec={
+    id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    mandor, pekerjaan,
+    tanggal: document.getElementById('fTgl').value || '',
+    persen, kontrak, kumulatif, prev, termin,
+    _overridePrev: override
+  };
+  records.push(rec); save();
+  refreshSelects(mandor,pekerjaan);
+  renderGroups();
+  setStatus(`✅ Tersimpan. Termin = Rp ${fmtMoney(termin)} (Kumulatif ${fmtMoney(kumulatif)} − Sebelumnya ${fmtMoney(prev)}).`, termin<0);
+  
+  // Epic Animation Effects
+  const clickX = e && e.clientX ? e.clientX : undefined;
+  const clickY = e && e.clientY ? e.clientY : undefined;
+  triggerEpicBurst(clickX, clickY);
+  toast(`Data mandor (${mandor}) berhasil disimpan!`);
+
+  document.getElementById('fPersen').value='';
+  document.getElementById('fKontrak').value='';
+  document.getElementById('fKum').value='';
+  document.getElementById('fPrev').value='';
+  document.getElementById('fPaste').value='';
+  updatePrevBox();
+}
+
+/* ---------- contoh data ---------- */
+function loadSample(){
+  if(records.length && !confirm('Data saat ini akan DITIMPA contoh BA Tohir. Lanjut?')) return;
+  const M='Tohir', P='Pekerjaan Sekatan, Plafon Dan Repair Dinding Dapur Randusari';
+  const raw=[
+    ['2026-01-13',21.101,30948658,6530476,0],
+    ['2026-01-22',35.396,30948658,10954587,6530476],
+    ['2026-01-28',61.283,30948658,18966266,10954587],
+    ['2026-02-04',82.552,30948658,25548736,18966266],
+    ['2026-02-11',58.235,41439939,24132548,19080776],
+    ['2026-02-25',69.130,41439939,28647430,24132548],
+    ['2026-03-06',74.509,41439939,30876484,28647430],
+    ['2026-03-16',67.133,47909204,32162886,30876484],
+  ];
+  records = raw.map((r,i)=>({
+    id:'s'+i+Date.now().toString(36),
+    mandor:M, pekerjaan:P, tanggal:r[0], persen:r[1], kontrak:r[2], kumulatif:r[3], prev:r[4],
+    termin:r[3]-r[4], _overridePrev:(i===4)
+  }));
+  save(); refreshSelects(); renderGroups(); updatePrevBox();
+  toast('Contoh dimuat — cek Grand Total = 38.630.845');
+}
+
+/* ---------- export / import ---------- */
+function doExport(){
+  const blob=new Blob([JSON.stringify(records,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='progres-mandor-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+  URL.revokeObjectURL(a.href); toast('JSON di-export');
+}
+function doImport(file){
+  const rd=new FileReader();
+  rd.onload=()=>{ try{ const d=JSON.parse(rd.result); if(!Array.isArray(d)) throw 0;
+    records=d; save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Import berhasil: '+d.length+' entri');
+  }catch(e){ toast('File JSON tidak valid'); } };
+  rd.readAsText(file);
+}
+
+/* ---------- MODAL SETTING handlers (tambahan) ---------- */
+function openSettings(){
+  document.getElementById('sMandorParse').value=settings.mandorParse;
+  document.getElementById('sLocale').value=settings.numLocale;
+  document.getElementById('sTempat').value=(settings.tempatKeywords||[]).join('\n');
+  document.getElementById('sRegex').value=settings.customRegex||'';
+  setThemeSeg(settings.theme);
+  const out=document.getElementById('sRegexOut'); out.className=''; out.textContent='';
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('show'); }
+function setThemeSeg(v){ document.querySelectorAll('#segTheme button').forEach(b=>b.classList.toggle('on', b.getAttribute('data-v')===v)); }
+function readSettingsFromModal(){
+  settings.mandorParse=document.getElementById('sMandorParse').value;
+  settings.numLocale=document.getElementById('sLocale').value;
+  settings.tempatKeywords=document.getElementById('sTempat').value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  settings.customRegex=document.getElementById('sRegex').value;
+  const on=document.querySelector('#segTheme button.on');
+  settings.theme = on? on.getAttribute('data-v') : 'light';
+}
+function testCustomRegex(){
+  const out=document.getElementById('sRegexOut');
+  const reStr=document.getElementById('sRegex').value.trim();
+  const line=document.getElementById('fPaste').value.trim();
+  if(!reStr){ out.className='show err'; out.textContent='Regex masih kosong.'; return; }
+  if(!line){ out.className='show err'; out.textContent='Isi dulu kotak "Paste baris BA" sebagai sampel uji.'; return; }
+  let re; try{ re=new RegExp(reStr); }catch(e){ out.className='show err'; out.textContent='❌ Regex tidak valid: '+e.message; return; }
+  const m=line.match(re);
+  if(!m){ out.className='show err'; out.textContent='❌ Tidak cocok (match = null).'; return; }
+  const g=m.slice(1);
+  let map;
+  if(g.length>=5) map=['mandor','pekerjaan','persen','kontrak','kumulatif'];
+  else if(g.length===4) map=['pekerjaan','persen','kontrak','kumulatif'];
+  else if(g.length===3) map=['persen','kontrak','kumulatif'];
+  else { out.className='show err'; out.textContent='❌ Jumlah grup tangkap = '+g.length+'. Harus 3, 4, atau 5.'; return; }
+  let txt='✅ Cocok! Grup tangkap:\n';
+  map.forEach((k,i)=>{ txt+=`  ${k} = "${g[i]}"\n`; });
+  out.className='show'; out.textContent=txt;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('DOMContentLoaded',()=>{
+  refreshSelects();
+  renderGroups();
+  document.getElementById('fTgl').value=new Date().toISOString().slice(0,10);
+
+  const mandorEl = document.getElementById('fMandor');
+  if(mandorEl){
+    const updateJobDatalist = (e) => {
+      fillDatalist(document.getElementById('dlPekerjaan'), uniquePekerjaan(e.target.value));
+      updatePrevBox();
+    };
+    mandorEl.addEventListener('input', updateJobDatalist);
+    mandorEl.addEventListener('change', updateJobDatalist);
+  }
+
+  ['fPekerjaan','fKontrak','fKum'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){
+      el.addEventListener('input',updatePrevBox);
+      el.addEventListener('change',updatePrevBox);
+    }
+  });
+
+  document.getElementById('btnParse').addEventListener('click',()=>{
+    clearStatus();
+    const line=document.getElementById('fPaste').value.trim();
+    if(!line){ setStatus('Tempel baris BA dulu.',true); return; }
+    const r=parseLine(line);
+    if(r && r.error){ setStatus('⚠️ '+r.error, true); return; }
+    if(!r){ setStatus('Format tidak dikenali. Pastikan ada: persen%, "Rp …", dan "= …" (atau sesuaikan regex di ⚙️ Setting).',true); return; }
+    if(r.mandor) ensureOption('fMandor', r.mandor);
+    ensureOption('fPekerjaan', r.pekerjaan);
+    document.getElementById('fMandor').value=r.mandor||'';
+    fillDatalist(document.getElementById('dlPekerjaan'), uniquePekerjaan(r.mandor));
+    document.getElementById('fPekerjaan').value=r.pekerjaan;
+    document.getElementById('fPersen').value=fmtPercent(r.persen);
+    document.getElementById('fKontrak').value=fmtMoney(r.kontrak);
+    document.getElementById('fKum').value=fmtMoney(r.kumulatif);
+    document.getElementById('fPrev').value='';
+    updatePrevBox();
+    triggerParseAnimation();
+    const note = r.mandor? `Mandor: ${r.mandor} | ` : 'Mandor: (pilih di dropdown) | ';
+    setStatus(`✅ Ter-parse → ${note}Pekerjaan: ${r.pekerjaan} | ${fmtPercent(r.persen)}% × Rp ${fmtMoney(r.kontrak)} = Rp ${fmtMoney(r.kumulatif)}`);
+  });
+
+  document.getElementById('btnSave').addEventListener('click',doSave);
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    ['fPaste','fPersen','fKontrak','fKum','fPrev'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fMandor').value=''; document.getElementById('fPekerjaan').value='';
+    refreshSelects();
+    document.getElementById('fTgl').value=new Date().toISOString().slice(0,10);
+    clearStatus(); updatePrevBox();
+  });
+  document.getElementById('btnSample').addEventListener('click',loadSample);
+
+  document.getElementById('copyPrevXY').addEventListener('click',()=>{ const l=getLastFromForm(); if(l) copyText(fmtXY(l)); });
+  document.getElementById('copyPrevFull').addEventListener('click',()=>{ const l=getLastFromForm(); if(l) copyText(fmtFull(l)); });
+  document.getElementById('usePrev').addEventListener('click',()=>{ const l=getLastFromForm(); if(l){ document.getElementById('fPrev').value=fmtMoney(l.kumulatif); toast('Sebelumnya diisi'); } });
+
+  document.getElementById('btnExport').addEventListener('click',doExport);
+  document.getElementById('btnImport').addEventListener('click',()=>document.getElementById('fileImport').click());
+  document.getElementById('fileImport').addEventListener('change',e=>{ if(e.target.files[0]) doImport(e.target.files[0]); e.target.value=''; });
+  document.getElementById('btnClear').addEventListener('click',()=>{ if(confirm('Hapus SEMUA data? Tidak bisa undo.')){ records=[]; save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Semua data dihapus'); } });
+
+  // setting modal
+  document.getElementById('btnSettings').addEventListener('click',openSettings);
+  document.getElementById('settingsClose').addEventListener('click',closeSettings);
+  document.getElementById('settingsCancel').addEventListener('click',closeSettings);
+  document.getElementById('settingsOverlay').addEventListener('click',e=>{ if(e.target.id==='settingsOverlay') closeSettings(); });
+  document.querySelectorAll('#segTheme button').forEach(b=>b.addEventListener('click',()=>setThemeSeg(b.getAttribute('data-v'))));
+  document.getElementById('btnTestRegex').addEventListener('click',testCustomRegex);
+  document.getElementById('settingsSave').addEventListener('click',()=>{
+    readSettingsFromModal();
+    saveSettings();
+    applyTheme();
+    renderRekap();          // kata kunci tempat mungkin berubah
+    closeSettings();
+    toast('Setting tersimpan ✅');
+  });
+});
+
+function getLastFromForm(){ const m=document.getElementById('fMandor').value,p=document.getElementById('fPekerjaan').value; return lastOf(m,p); }
+function ensureOption(id,val){
+  val=norm(val);
+  if(!val) return;
+  const dlId = id==='fMandor'?'dlMandor':(id==='fPekerjaan'?'dlPekerjaan':null);
+  if(dlId){
+    const dl=document.getElementById(dlId);
+    if(dl && ![...dl.options].some(o=>o.value===val)){
+      const opt=document.createElement('option');
+      opt.value=val;
+      dl.appendChild(opt);
+    }
+  }
+}
+</script>
+</body>
+</html>
