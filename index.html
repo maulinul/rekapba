@@ -1648,39 +1648,135 @@
       }
     }
 
-    // 5. Glassmorphism Toast Notification
-    function showEpicToast(message, type = 'success') {
+    // 5. Glassmorphism Toast Notification with Action / Undo support
+    function showEpicToast(message, type = 'success', actionText = null, actionFn = null) {
       const toastEl = document.createElement('div');
       toastEl.className = `toast-epic ${type === 'error' ? 'error' : ''}`;
+      
+      let actionBtnHtml = '';
+      if (actionText) {
+        actionBtnHtml = `<button class="btn-undo-toast" style="margin-top:8px;padding:4px 10px;font-size:12px;background:var(--brand);color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:4px;">${esc(actionText)}</button>`;
+      }
+
       toastEl.innerHTML = `
     <div style="font-weight: 700; margin-bottom: 4px; font-size: 1.05em;">
       ${type === 'error' ? '⚠️ Perhatian' : '✅ Berhasil!'}
     </div>
     <div style="font-size: 0.9em; opacity: 0.9; line-height: 1.4;">${esc(message)}</div>
+    ${actionBtnHtml}
   `;
       document.body.appendChild(toastEl);
       void toastEl.offsetWidth;
       toastEl.classList.add('show');
 
+      if (actionText && typeof actionFn === 'function') {
+        const btn = toastEl.querySelector('.btn-undo-toast');
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            actionFn();
+            toastEl.classList.remove('show');
+            setTimeout(() => toastEl.remove(), 300);
+          });
+        }
+      }
+
       setTimeout(() => {
-        toastEl.classList.remove('show');
-        setTimeout(() => toastEl.remove(), 500);
-      }, 3500);
+        if (toastEl.parentNode) {
+          toastEl.classList.remove('show');
+          setTimeout(() => toastEl.remove(), 500);
+        }
+      }, actionText ? 7000 : 3500);
     }
 
     const KEY = 'mandorProgresRecords_v1';
+    const SKEY = 'mandorProgresSettings_v1';
+    const SCHEMA_VER_KEY = 'mandorProgresVersion_v1';
+    const APP_SCHEMA_VERSION = 2;
+
+    /* ---------- UNIQUE ID GENERATOR (No Race Condition) ---------- */
+    let _idCounter = 0;
+    function generateId() {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      _idCounter = (_idCounter + 1) % 10000;
+      return 'r_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8) + '_' + _idCounter;
+    }
+
+    /* ---------- DATE VALIDATOR & TIMEZONE HELPERS ---------- */
+    function getTodayISO() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function validateDate(dStr) {
+      if (!dStr || typeof dStr !== 'string') return getTodayISO();
+      const trimmed = dStr.trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+        const d = new Date(trimmed);
+        if (!isNaN(d.getTime())) return trimmed;
+      }
+      return getTodayISO();
+    }
+
+    /* ---------- UNDO STACK SYSTEM ---------- */
+    const undoStack = [];
+
+    function pushUndoState(actionMsg) {
+      undoStack.push({
+        records: JSON.parse(JSON.stringify(records)),
+        editingId: editingId,
+        msg: actionMsg
+      });
+      if (undoStack.length > 15) undoStack.shift();
+    }
+
+    function doUndo() {
+      if (!undoStack.length) {
+        showEpicToast('Tidak ada aksi yang bisa di-undo', 'error');
+        return;
+      }
+      const state = undoStack.pop();
+      records = state.records;
+      editingId = state.editingId;
+      save();
+      refreshSelects();
+      renderGroups();
+      updatePrevBox();
+      showEpicToast(`↩️ Undo Berhasil: ${state.msg}`);
+    }
+
     let records = load();
 
     /* ---------- SETTINGS (tambahan) ---------- */
-    const SKEY = 'mandorProgresSettings_v1';
     const defaultSettings = {
       theme: 'light', mandorParse: 'auto', numLocale: 'auto',
       tempatKeywords: ['Dapur', 'Gedung', 'Blok', 'Gudang', 'Ruko', 'Lantai', 'LT'], customRegex: '',
       ghToken: '', ghGistId: ''
     };
     let settings = loadSettings();
-    function loadSettings() { try { const o = JSON.parse(localStorage.getItem(SKEY)); const m = Object.assign({}, defaultSettings, o || {}); if (!Array.isArray(m.tempatKeywords)) m.tempatKeywords = defaultSettings.tempatKeywords.slice(); return m; } catch (e) { return Object.assign({}, defaultSettings, { tempatKeywords: defaultSettings.tempatKeywords.slice() }); } }
-    function saveSettings() { localStorage.setItem(SKEY, JSON.stringify(settings)); }
+    function loadSettings() {
+      try {
+        const o = JSON.parse(localStorage.getItem(SKEY));
+        const m = Object.assign({}, defaultSettings, o || {});
+        if (!Array.isArray(m.tempatKeywords)) m.tempatKeywords = defaultSettings.tempatKeywords.slice();
+        return m;
+      } catch (e) {
+        return Object.assign({}, defaultSettings, { tempatKeywords: defaultSettings.tempatKeywords.slice() });
+      }
+    }
+    function saveSettings() {
+      try {
+        localStorage.setItem(SKEY, JSON.stringify(settings));
+      } catch (err) {
+        console.error('Save settings error:', err);
+        showEpicToast('⚠️ Gagal menyimpan pengaturan ke localStorage', 'error');
+      }
+    }
     function applyTheme() {
       let mode = settings.theme;
       if (mode === 'auto') mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -1689,9 +1785,65 @@
     applyTheme();
     try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (settings.theme === 'auto') applyTheme(); }); } catch (e) { }
 
-    /* ---------- storage ---------- */
-    function load() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
-    function save() { localStorage.setItem(KEY, JSON.stringify(records)); }
+    /* ---------- STORAGE & SCHEMA MIGRATION ---------- */
+    function migrateData(rawRecords) {
+      if (!Array.isArray(rawRecords)) return [];
+      return rawRecords.map(r => {
+        if (!r || typeof r !== 'object') return null;
+        const persen = parsePercent(r.persen);
+        const kontrak = parseMoney(r.kontrak);
+        const kumulatif = parseMoney(r.kumulatif);
+        const prev = parseMoney(r.prev);
+        const termin = !isNaN(r.termin) ? parseMoney(r.termin) : ((!isNaN(kumulatif) && !isNaN(prev)) ? (kumulatif - prev) : 0);
+        return {
+          id: r.id || generateId(),
+          divisi: norm(r.divisi || 'Umum'),
+          mandor: norm(r.mandor || ''),
+          pekerjaan: norm(r.pekerjaan || ''),
+          tanggal: validateDate(r.tanggal),
+          persen: isNaN(persen) ? 0 : persen,
+          kontrak: isNaN(kontrak) ? 0 : kontrak,
+          kumulatif: isNaN(kumulatif) ? 0 : kumulatif,
+          prev: isNaN(prev) ? 0 : prev,
+          termin: isNaN(termin) ? 0 : termin,
+          _overridePrev: Boolean(r._overridePrev),
+          catatan: norm(r.catatan || '')
+        };
+      }).filter(Boolean);
+    }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        const currentVer = parseInt(localStorage.getItem(SCHEMA_VER_KEY) || '1', 10);
+        const migrated = migrateData(parsed);
+        if (currentVer < APP_SCHEMA_VERSION) {
+          try {
+            localStorage.setItem(SCHEMA_VER_KEY, String(APP_SCHEMA_VERSION));
+            localStorage.setItem(KEY, JSON.stringify(migrated));
+          } catch (e) { }
+        }
+        return migrated;
+      } catch (e) {
+        console.error('Storage load error:', e);
+        return [];
+      }
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(records));
+      } catch (err) {
+        console.error('Storage save error:', err);
+        showEpicToast('⚠️ Kuota localStorage Penuh! Menyimpan data gagal.', 'error');
+        if (err && (err.name === 'QuotaExceededError' || err.code === 22 || err.code === 1014)) {
+          showEpicToast('💾 Mendownload backup otomatis file JSON...', 'success');
+          setTimeout(() => doExport(), 800);
+        }
+      }
+    }
 
     /* ---------- util ---------- */
     function norm(s) { return String(s == null ? '' : s).trim().replace(/\s+/g, ' '); }
@@ -2370,14 +2522,16 @@
         };
       });
       wrap.querySelectorAll('[data-xy]').forEach(b => b.onclick = (e) => { e.stopPropagation(); copyText(b.getAttribute('data-xy')); });
-      wrap.querySelectorAll('[data-full]').forEach(b => b.onclick = (e) => { e.stopPropagation(); copyText(b.getAttribute('data-full')); });
       wrap.querySelectorAll('[data-del]').forEach(b => b.onclick = (e) => {
         e.stopPropagation();
         const delId = b.getAttribute('data-del');
+        const targetRec = records.find(r => r.id === delId);
         if (confirm('Hapus entri ini?')) {
+          pushUndoState(`Entri ${targetRec ? esc(targetRec.mandor) : ''} dipulihkan`);
           records = records.filter(r => r.id !== delId);
           if (editingId === delId) cancelEditEntry();
-          save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Entri dihapus');
+          save(); refreshSelects(); renderGroups(); updatePrevBox();
+          toast('Entri dihapus', 'success', '↩️ Undo', () => doUndo());
         }
       });
 
@@ -2412,6 +2566,9 @@
         return;
       }
 
+      const rawTgl = document.getElementById('fTgl').value;
+      const validTgl = validateDate(rawTgl);
+
       const last = lastOf(divisi, mandor, pekerjaan);
       let prevRaw = document.getElementById('fPrev').value.trim();
       let prev, override = false;
@@ -2423,10 +2580,11 @@
       if (editingId) {
         const idx = records.findIndex(r => r.id === editingId);
         if (idx !== -1) {
+          pushUndoState(`Perubahan entri ${records[idx].mandor} dipulihkan`);
           records[idx] = {
             ...records[idx],
             divisi, mandor, pekerjaan,
-            tanggal: document.getElementById('fTgl').value || '',
+            tanggal: validTgl,
             persen, kontrak, kumulatif, prev, termin,
             _overridePrev: override
           };
@@ -2447,10 +2605,11 @@
         }
       }
 
+      pushUndoState(`Entri baru ${mandor} dipulihkan`);
       const rec = {
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        id: generateId(),
         divisi, mandor, pekerjaan,
-        tanggal: document.getElementById('fTgl').value || '',
+        tanggal: validTgl,
         persen, kontrak, kumulatif, prev, termin,
         _overridePrev: override
       };
@@ -2476,6 +2635,7 @@
     /* ---------- contoh data ---------- */
     function loadSample() {
       if (records.length && !confirm('Data saat ini akan DITIMPA contoh BA. Lanjut?')) return;
+      pushUndoState('Data lama sebelum sampel dipulihkan');
       const D1 = 'Sipil & Plafon', M1 = 'Tohir', P1 = 'Pekerjaan Sekatan, Plafon Dan Repair Dinding Dapur Randusari';
       const D2 = 'MEP & Listrik', M2 = 'Budi', P2 = 'Instalasi Listrik & Lighting Dapur Randusari';
       const raw1 = [
@@ -2493,18 +2653,18 @@
         ['2026-02-20', 100.000, 15000000, 15000000, 6000000],
       ];
       const recs1 = raw1.map((r, i) => ({
-        id: 's1_' + i + Date.now().toString(36),
+        id: generateId(),
         divisi: D1, mandor: M1, pekerjaan: P1, tanggal: r[0], persen: r[1], kontrak: r[2], kumulatif: r[3], prev: r[4],
         termin: r[3] - r[4], _overridePrev: (i === 4)
       }));
       const recs2 = raw2.map((r, i) => ({
-        id: 's2_' + i + Date.now().toString(36),
+        id: generateId(),
         divisi: D2, mandor: M2, pekerjaan: P2, tanggal: r[0], persen: r[1], kontrak: r[2], kumulatif: r[3], prev: r[4],
         termin: r[3] - r[4], _overridePrev: false
       }));
       records = [...recs1, ...recs2];
       save(); refreshSelects(); renderGroups(); updatePrevBox();
-      toast('Contoh dimuat — cek Grand Total & Breakdown Divisi');
+      toast('Contoh dimuat — cek Grand Total & Breakdown Divisi', 'success', '↩️ Undo', () => doUndo());
     }
 
     /* ---------- export / import ---------- */
@@ -2853,7 +3013,26 @@
       document.getElementById('btnExport').addEventListener('click', doExport);
       document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
       document.getElementById('fileImport').addEventListener('change', e => { if (e.target.files[0]) doImport(e.target.files[0]); e.target.value = ''; });
-      document.getElementById('btnClear').addEventListener('click', () => { if (confirm('Hapus SEMUA data? Tidak bisa undo.')) { records = []; save(); refreshSelects(); renderGroups(); updatePrevBox(); updateGistStatusBadge(); toast('Semua data dihapus'); } });
+      document.getElementById('btnClear').addEventListener('click', () => {
+        if (confirm('Hapus SEMUA data? Anda masih bisa membatalkan aksi ini melalui tombol Undo.')) {
+          pushUndoState('Semua data dipulihkan');
+          records = [];
+          save(); refreshSelects(); renderGroups(); updatePrevBox(); updateGistStatusBadge();
+          toast('Semua data dihapus', 'error', '↩️ Undo', () => doUndo());
+        }
+      });
+
+      // Ctrl + Z Keyboard Shortcut for Undo
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+          const active = document.activeElement;
+          const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable);
+          if (!isInput && undoStack.length > 0) {
+            e.preventDefault();
+            doUndo();
+          }
+        }
+      });
 
       // GitHub Gist main buttons
       const btnPushMain = document.getElementById('btnPushGistMain');
