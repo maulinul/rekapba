@@ -11,11 +11,9 @@
    1. DESIGN TOKENS (CSS Custom Properties)
    ═══════════════════════════════════════════ */
 :root {
-  /* Spacing scale */
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px;
   --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
 
-  /* Colors - Light */
   --bg-primary: #f8fafc;
   --bg-card: #ffffff;
   --text-primary: #0f172a;
@@ -27,26 +25,22 @@
   
   --muted: #64748b;
 
-  /* Glassmorphism */
   --glass-bg: rgba(255,255,255,.72);
   --glass-border: rgba(255,255,255,.3);
   --glass-blur: 16px;
 
-  /* Animation tokens */
   --ease-spring: cubic-bezier(.34,1.56,.64,1);
   --ease-smooth: cubic-bezier(.4,0,.2,1);
   --duration-fast: 150ms;
   --duration-normal: 300ms;
   --duration-slow: 600ms;
 
-  /* Layout */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
   --shadow-card: 0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.04);
 }
 
-/* Dark theme override */
 [data-theme="dark"] {
   --bg-primary: #0f172a;
   --bg-card: #1e293b;
@@ -57,9 +51,6 @@
   --shadow-card: 0 1px 3px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.2);
 }
 
-/* ═══════════════════════════════════════════
-   2. BASE / RESET
-   ═══════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -70,9 +61,6 @@ body {
   overflow-x: hidden;
 }
 
-/* ═══════════════════════════════════════════
-   3. LAYOUT - BENTO GRID
-   ═══════════════════════════════════════════ */
 .bento-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -83,7 +71,7 @@ body {
   margin: 0 auto;
 }
 .bento-grid .card--grand-total {
-  grid-column: 1 / -1; /* full width */
+  grid-column: 1 / -1;
   background: linear-gradient(135deg, #1e3a8a, var(--accent));
   color: white;
   border-radius: var(--radius-lg);
@@ -105,11 +93,6 @@ body {
   box-shadow: var(--shadow-card);
 }
 
-/* ═══════════════════════════════════════════
-   4. COMPONENTS
-   ═══════════════════════════════════════════ */
-
-/* 4a. Sticky Glass Navbar */
 .navbar {
   position: sticky; top: 0; z-index: 100;
   background: var(--glass-bg);
@@ -124,10 +107,9 @@ body {
   transition: width var(--duration-normal) var(--ease-smooth);
 }
 
-/* 4b. Command Palette (Ctrl+K) */
 .cmd-palette {
   position: fixed; inset: 0; z-index: 999;
-  display: none; /* toggled via JS */
+  display: none;
   place-items: start center;
   background: rgba(0,0,0,.5);
   backdrop-filter: blur(4px);
@@ -151,7 +133,6 @@ body {
 .cmd-palette__results li { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid var(--glass-border); }
 .cmd-palette__results li:hover { background: var(--glass-bg); }
 
-/* 4c. Mandor Card */
 .card-mandor {
   background: var(--bg-card);
   border-radius: var(--radius-md);
@@ -177,7 +158,6 @@ body {
     padding: var(--sp-3);
 }
 
-/* 4d. Sparkline (pure SVG) */
 .sparkline { width: 100px; height: 32px; }
 .sparkline polyline {
   fill: none; stroke: var(--accent);
@@ -187,7 +167,6 @@ body {
 }
 @keyframes sparkDraw { to { stroke-dashoffset: 0; } }
 
-/* 4e. Progress Ring (SVG) */
 .progress-ring-box {
     position: relative; display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px;
 }
@@ -197,7 +176,6 @@ body {
 }
 .progress-ring-text { position: absolute; font-size: 10px; font-weight: 800; }
 
-/* 4f. Skeleton Loading */
 .skeleton {
   background: linear-gradient(90deg,
     var(--bg-card) 25%, rgba(255,255,255,.15) 50%, var(--bg-card) 75%);
@@ -207,7 +185,6 @@ body {
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
-/* 4h. Toast (Glassmorphism) */
 .toast-epic {
   position: fixed; bottom: var(--sp-5); right: var(--sp-5);
   background: var(--glass-bg);
@@ -223,7 +200,6 @@ body {
 .toast-epic.show { transform: translateY(0); opacity:1; }
 .toast-epic.error { border-left-color: var(--danger); }
 
-/* 5a. Staggered Entrance */
 .stagger-item {
   opacity: 0; transform: translateY(20px);
   animation: staggerIn var(--duration-slow) var(--ease-spring) forwards;
@@ -232,12 +208,10 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 5c. Confetti Particle */
 .confetti-particle {
   position: fixed; pointer-events: none; z-index: 9999;
 }
 
-/* 5d. Parse Scanning Highlight */
 .field-highlight {
   background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
   background-size: 200% 100%;
@@ -320,7 +294,7 @@ body {
   <strong style="font-size:18px;">📋 RekapBA Pro</strong>
   <div style="display:flex; gap: 8px;">
     <button id="btnCmdK" class="epic-btn btn-soft" title="Ctrl+K">🔍 Cari (Ctrl+K)</button>
-    <button id="btnSettingsNav" class="epic-btn btn-ghost" title="Setting">⚙️</button>
+    <button id="btnSettings" class="epic-btn btn-ghost" title="Setting">⚙️</button>
     <button id="btnTheme" class="epic-btn btn-ghost">🌙</button>
   </div>
   <div class="navbar__progress" id="scrollProgress"></div>
@@ -397,11 +371,12 @@ body {
     
     <div class="row" style="margin-top:16px;">
         <button class="epic-btn btn" id="btnSave">💾 Simpan Entri</button>
+        <button class="epic-btn btn-ghost" id="btnCancelEdit" style="display:none;">Batal Edit</button>
         <button class="epic-btn btn-ghost" id="btnReset">🧹 Reset Form</button>
     </div>
   </section>
 
-  <!-- Rekap Panels (Right Side / Flowing) -->
+  <!-- Rekap Panels -->
   <section class="card--rekap" id="rekapDivisi">
       <h3 style="margin-top:0;font-size:15px;">🏢 Rekap Divisi</h3>
       <ul class="rekap-panel-list" id="listRekapDivisi"></ul>
@@ -415,10 +390,9 @@ body {
       <ul class="rekap-panel-list" id="listRekapMandor"></ul>
   </section>
 
-  <!-- Mandor Cards Container (Full width row) -->
+  <!-- Mandor Cards Container -->
   <section id="mandorCards" style="grid-column: 1 / -1; margin-top: 24px;">
     <h3 style="margin-bottom:12px;">📊 Detail Data per Kelompok</h3>
-    <!-- Rendered dynamically via JS -->
   </section>
 
   <!-- Data Backup Card -->
@@ -1524,7 +1498,6 @@ body {
      <div class="rk-total">Total termin: <b>Rp ${fmtMoney(total)}</b></div>
      <ul>${items}</ul></div>`;
     }
-    
     function getRekapListHtml(list, type, labelFn, valFn) {
         if(!list.length) return '<li><span class="muted">Belum ada data</span></li>';
         return list.map(([k, d]) => `
@@ -1537,7 +1510,30 @@ body {
 
     function renderRekap() {
       if (!records.length) return;
-    /* ---------- render kelompok ---------- */
+      const sourceRecords = getFilteredRecords();
+      const byD = {}, byP = {}, byM = {};
+      sourceRecords.forEach(r => {
+        const dName = norm(r.divisi || 'Umum');
+        const t = Number(r.termin) || 0;
+        (byD[dName] ??= { termin: 0, n: 0, man: new Set() }); byD[dName].termin += t; byD[dName].n++; byD[dName].man.add(r.mandor);
+        (byP[r.pekerjaan] ??= { termin: 0, n: 0 }); byP[r.pekerjaan].termin += t; byP[r.pekerjaan].n++;
+        (byM[r.mandor] ??= { termin: 0, n: 0 }); byM[r.mandor].termin += t; byM[r.mandor].n++;
+      });
+      
+      const sD = Object.entries(byD).sort((a, b) => b[1].termin - a[1].termin);
+      const sP = Object.entries(byP).sort((a, b) => b[1].termin - a[1].termin);
+      const sM = Object.entries(byM).sort((a, b) => b[1].termin - a[1].termin);
+
+      const dEl = document.getElementById('listRekapDivisi');
+      const pEl = document.getElementById('listRekapPekerjaan');
+      const mEl = document.getElementById('listRekapMandor');
+
+      if (dEl) dEl.innerHTML = getRekapListHtml(sD, 'divisi', ([k,d]) => `<b>${esc(k)}</b><br><span class="muted" style="font-size:11px;">${d.n} entri</span>`, d => d.termin);
+      if (pEl) pEl.innerHTML = getRekapListHtml(sP, 'pekerjaan', ([k,d]) => `${esc(k)}`, d => d.termin);
+      if (mEl) mEl.innerHTML = getRekapListHtml(sM, 'mandor', ([k,d]) => `${esc(k)}`, d => d.termin);
+    }
+
+/* ---------- render kelompok ---------- */
     const collapsedGroups = new Set();
 
     /* ---------- EDIT ENTRY STATE & HELPERS ---------- */
@@ -1588,7 +1584,6 @@ body {
       if (notice) notice.style.display = 'none';
     }
 
-    
     function renderGroups() {
       const filteredRecords = getFilteredRecords();
       const wrap = document.getElementById('mandorCards');
@@ -1721,251 +1716,7 @@ body {
       });
     }
 
-      const map = {};
-      const lastIndexMap = {};
-      const divisiTotals = {};
-
-      filteredRecords.forEach((r, idx) => {
-        const k = keyOf(r);
-        if (!map[k]) map[k] = [];
-        map[k].push(r);
-        lastIndexMap[k] = idx;
-
-        const divName = norm(r.divisi || 'Umum');
-        const tVal = Number(r.termin) || 0;
-        divisiTotals[divName] = (divisiTotals[divName] || 0) + tVal;
-      });
-
-      // Sort groups by newest entry index descending so the group with latest progress activity is at the TOP!
-      const order = Object.keys(map).sort((a, b) => lastIndexMap[b] - lastIndexMap[a]);
-
-      let grand = 0;
-      order.forEach(k => {
-        const list = map[k];
-        const last = list[list.length - 1];
-        const totalTermin = list.reduce((a, r) => a + (Number(r.termin) || 0), 0);
-        grand += totalTermin;
-        const sisa = Number(last.kontrak) - Number(last.kumulatif);
-        const isCollapsed = collapsedGroups.has(k);
-
-        const card = document.createElement('div');
-        card.className = 'card epic-card card-entry';
-        card.setAttribute('data-group-key', k);
-        card.setAttribute('draggable', 'true');
-        card.addEventListener('dragstart', (e) => {
-          card.classList.add('dragging');
-          e.dataTransfer.setData('text/plain', k);
-          e.dataTransfer.effectAllowed = 'move';
-        });
-        card.addEventListener('dragend', () => {
-          card.classList.remove('dragging');
-          wrap.querySelectorAll('.card-entry').forEach(c => c.classList.remove('drag-over'));
-        });
-        card.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-          card.classList.add('drag-over');
-        });
-        card.addEventListener('dragleave', () => {
-          card.classList.remove('drag-over');
-        });
-        card.addEventListener('drop', (e) => {
-          e.preventDefault();
-          card.classList.remove('drag-over');
-          const srcKey = e.dataTransfer.getData('text/plain');
-          const targetKey = k;
-          if (srcKey && targetKey && srcKey !== targetKey) {
-            reorderGroups(srcKey, targetKey);
-          }
-        });
-
-        let rows = '';
-        list.forEach((r, i) => {
-          const overridden = r._overridePrev === true;
-          const neg = (Number(r.termin) || 0) < 0;
-          const cls = neg ? 'hl-r' : (overridden ? 'hl-y' : '');
-          const isEditingThis = (editingId === r.id);
-          rows += `<tr class="${cls}" style="${isEditingThis ? 'outline:2px solid var(--yellow-b);background:var(--yellow);' : ''}">
-        <td>${i + 1}</td>
-        <td class="l">${esc(r.tanggal || '-')}</td>
-        <td>${fmtPercent(r.persen)}%</td>
-        <td>${fmtMoney(r.kontrak)}</td>
-        <td>${fmtMoney(r.kumulatif)}</td>
-        <td>${fmtMoney(r.prev)}</td>
-        <td><b>${fmtMoney(r.termin)}</b></td>
-        <td>
-          <button class="btn-soft btn-sm epic-btn" data-edit="${r.id}" title="Edit entri ini">✏️ Edit</button>
-          <button class="btn-soft btn-sm epic-btn" data-dup="${r.id}" title="Duplikat ke form (update progres baru)">📋 Duplikat</button>
-          <button class="btn-soft btn-sm epic-btn" data-hist="${r.id}" title="Lihat riwayat audit trail">📜 Audit</button>
-          <button class="btn-soft btn-sm epic-btn" data-xy="${esc(fmtXY(r))}">Rp =</button>
-          <button class="btn-ghost btn-sm epic-btn" data-full="${esc(fmtFull(r))}">baris</button>
-          <button class="btn-danger btn-sm epic-btn" data-del="${r.id}">✕</button>
-        </td></tr>`;
-        });
-
-        // 8. Circular SVG Progress Ring
-        const radius = 18;
-        const circ = 2 * Math.PI * radius;
-        const pctVal = Math.min(100, Math.max(0, Number(last.persen) || 0));
-        const offset = circ - (circ * pctVal) / 100;
-        const ringColor = pctVal >= 100 ? 'var(--green-b)' : (pctVal >= 50 ? 'var(--brand)' : 'var(--yellow-b)');
-
-        const progressRingHtml = `
-          <div class="progress-ring-box" title="Progres Kumulatif: ${fmtPercent(last.persen)}%">
-            <svg class="progress-ring" width="42" height="42" viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="18" fill="none" stroke="var(--line)" stroke-width="4" />
-              <circle class="progress-ring-circle" cx="24" cy="24" r="18" fill="none"
-                stroke="${ringColor}" stroke-width="4"
-                stroke-dasharray="${circ.toFixed(2)}"
-                stroke-dashoffset="${offset.toFixed(2)}"
-                stroke-linecap="round"/>
-            </svg>
-            <span class="progress-ring-text">${Math.round(pctVal)}%</span>
-          </div>`;
-
-        card.innerHTML = `
-      <div class="grp-head" data-toggle="${esc(k)}">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span class="drag-handle" title="Tarik untuk urutkan posisi kelompok">☰</span>
-          ${progressRingHtml}
-          <div>
-            <div class="t grp-head-title">
-              <span class="toggle-icon ${isCollapsed ? 'rotated' : ''}">▼</span>
-              <span class="pill" style="padding:2px 8px;font-size:11.5px;background:var(--soft);color:var(--brand-d);border:1px solid #c7d2fe;font-weight:700;">🏢 ${esc(last.divisi || 'Umum')}</span>
-              👷 ${esc(last.mandor)}
-            </div>
-            <div class="s">🔧 ${esc(last.pekerjaan)}</div>
-          </div>
-        </div>
-        <div class="stat">
-          <span class="pill">Kontrak terakhir <b>Rp ${fmtMoney(last.kontrak)}</b></span>
-          <span class="pill">Kumulatif <b>Rp ${fmtMoney(last.kumulatif)}</b></span>
-          <span class="pill green">Total Termin <b>Rp ${fmtMoney(totalTermin)}</b></span>
-          <span class="pill red">Sisa <b>Rp ${fmtMoney(sisa)}</b></span>
-          <button class="btn-ghost btn-sm epic-btn btn-collapse-toggle" type="button" style="padding:4px 8px;font-size:11.5px;margin-left:4px;">
-            ${isCollapsed ? '▶ Buka (' + list.length + ' baris)' : '▲ Ciutkan'}
-          </button>
-        </div>
-      </div>
-      <div class="tblwrap tblwrap-collapsible ${isCollapsed ? 'collapsed' : ''}"><table>
-        <thead><tr>
-          <th>#</th><th class="l">Tanggal</th><th>Progres</th><th>Kontrak</th>
-          <th>Kumulatif</th><th>Sebelumnya</th><th>Termin</th><th>Aksi</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table></div>`;
-        wrap.appendChild(card);
-      });
-
-      // FLIP Invert & Play Animation
-      wrap.querySelectorAll('.card-entry').forEach(c => {
-        const key = c.getAttribute('data-group-key');
-        if (key && firstRects.has(key)) {
-          const first = firstRects.get(key);
-          const lastRect = c.getBoundingClientRect();
-          const deltaY = first.top - lastRect.top;
-          if (deltaY !== 0) {
-            c.style.transform = `translate3d(0, ${deltaY}px, 0)`;
-            c.style.transition = 'none';
-            requestAnimationFrame(() => {
-              c.style.transition = 'transform 0.5s var(--ease-epic), opacity 0.5s var(--ease-epic)';
-              c.style.transform = 'translate3d(0, 0, 0)';
-            });
-          }
-        }
-      });
-
-      observeCardReveals();
-
-      animateGrandTotal('odometerValue', grand);
-
-      // Update Grand Total Mini Dashboard Metrics & Progress Bar
-      const totalContractSum = Object.values(map).reduce((sum, list) => sum + (Number(list[list.length - 1].kontrak) || 0), 0);
-      const uniqueMandorsCount = new Set(filteredRecords.map(r => r.mandor)).size;
-      const uniquePekerjaanCount = new Set(filteredRecords.map(r => r.pekerjaan)).size;
-      const pctOfContract = totalContractSum > 0 ? Math.min(100, (grand / totalContractSum) * 100) : 0;
-
-      const metricsEl = document.getElementById('grand-dash-metrics');
-      if (metricsEl) {
-        metricsEl.innerHTML = `
-          <span class="grand-div-pill">👷 <b>${uniqueMandorsCount}</b> Mandor</span>
-          <span class="grand-div-pill">🔧 <b>${uniquePekerjaanCount}</b> Pekerjaan</span>
-          <span class="grand-div-pill">📋 <b>${filteredRecords.length}</b> Entri BA</span>`;
-      }
-
-      const barEl = document.getElementById('grand-progress-bar');
-      const valEl = document.getElementById('grand-pct-val');
-      if (barEl) barEl.style.width = pctOfContract.toFixed(1) + '%';
-      if (valEl) valEl.textContent = `${pctOfContract.toFixed(1)}% dari Total Nilai Kontrak (Rp ${fmtMoney(totalContractSum)})`;
-
-      // Render Divisi Breakdown in Grand Total card
-      const divBdEl = document.getElementById('grand-divisi-breakdown');
-      if (divBdEl) {
-        const divEntries = Object.entries(divisiTotals).sort((a, b) => b[1] - a[1]);
-        if (divEntries.length > 0) {
-          divBdEl.innerHTML = '<span style="opacity:0.85;font-weight:600;margin-right:4px;display:flex;align-items:center;">Total per Divisi:</span>' +
-            divEntries.map(([d, tot]) => `<span class="grand-div-pill">🏢 ${esc(d)}: <b>Rp ${fmtMoney(tot)}</b></span>`).join('');
-          divBdEl.style.display = 'flex';
-        } else {
-          divBdEl.innerHTML = '';
-          divBdEl.style.display = 'none';
-        }
-      }
-
-      // Collapse toggle event listeners
-      wrap.querySelectorAll('[data-toggle]').forEach(el => {
-        el.addEventListener('click', (e) => {
-          if (e.target.closest('button[data-edit], button[data-dup], button[data-hist], button[data-xy], button[data-full], button[data-del]')) return;
-          const key = el.getAttribute('data-toggle');
-          if (collapsedGroups.has(key)) {
-            collapsedGroups.delete(key);
-          } else {
-            collapsedGroups.add(key);
-          }
-          renderGroups();
-        });
-      });
-
-      wrap.querySelectorAll('[data-edit]').forEach(b => {
-        b.onclick = (e) => {
-          e.stopPropagation();
-          const id = b.getAttribute('data-edit');
-          const r = records.find(x => x.id === id);
-          if (r) startEditEntry(r);
-        };
-      });
-      wrap.querySelectorAll('[data-dup]').forEach(b => {
-        b.onclick = (e) => {
-          e.stopPropagation();
-          const id = b.getAttribute('data-dup');
-          duplicateEntryToForm(id);
-        };
-      });
-      wrap.querySelectorAll('[data-hist]').forEach(b => {
-        b.onclick = (e) => {
-          e.stopPropagation();
-          const id = b.getAttribute('data-hist');
-          openHistoryModal(id);
-        };
-      });
-      wrap.querySelectorAll('[data-xy]').forEach(b => b.onclick = (e) => { e.stopPropagation(); copyText(b.getAttribute('data-xy')); });
-      wrap.querySelectorAll('[data-del]').forEach(b => b.onclick = (e) => {
-        e.stopPropagation();
-        const delId = b.getAttribute('data-del');
-        const targetRec = records.find(r => r.id === delId);
-        if (confirm('Hapus entri ini?')) {
-          pushUndoState(`Entri ${targetRec ? esc(targetRec.mandor) : ''} dipulihkan`);
-          records = records.filter(r => r.id !== delId);
-          if (editingId === delId) cancelEditEntry();
-          save(); refreshSelects(); renderGroups(); updatePrevBox();
-          toast('Entri dihapus', 'success', '↩️ Undo', () => doUndo());
-        }
-      });
-
-      renderRekap();
-    }
-
-    /* ---------- simpan ---------- */
+/* ---------- simpan ---------- */
     function doSave(e) {
       clearStatus();
       let divisi = norm(document.getElementById('fDivisi').value) || 'Umum';
@@ -2398,7 +2149,7 @@ body {
         }
       });
 
-      document.getElementById('btnParse').addEventListener('click', () => {
+      document.getElementById('btnParse')?.addEventListener('click', () => {
         clearStatus();
         const line = document.getElementById('fPaste').value.trim();
         if (!line) { setStatus('Tempel baris BA dulu.', true); triggerHaptic('error'); return; }
@@ -2432,13 +2183,13 @@ body {
         setStatus(`✅ Ter-parse → ${noteDiv}${noteMan}Pekerjaan: ${r.pekerjaan} | ${fmtPercent(r.persen)}% × Rp ${fmtMoney(r.kontrak)} = Rp ${fmtMoney(r.kumulatif)}`);
       });
 
-      document.getElementById('btnSave').addEventListener('click', (e) => {
+      document.getElementById('btnSave')?.addEventListener('click', (e) => {
         doSave(e);
         setFormDirty(false);
       });
       const btnCancelEditEl = document.getElementById('btnCancelEdit');
       if (btnCancelEditEl) btnCancelEditEl.addEventListener('click', cancelEditEntry);
-      document.getElementById('btnReset').addEventListener('click', () => {
+      document.getElementById('btnReset')?.addEventListener('click', () => {
         ['fPaste', 'fPersen', 'fKontrak', 'fKum', 'fPrev'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('fDivisi').value = ''; document.getElementById('fMandor').value = ''; document.getElementById('fPekerjaan').value = '';
         cancelEditEntry();
@@ -2446,16 +2197,16 @@ body {
         document.getElementById('fTgl').value = getTodayISO();
         clearStatus(); updatePrevBox(); setFormDirty(false);
       });
-      document.getElementById('btnSample').addEventListener('click', loadSample);
+      document.getElementById('btnSample')?.addEventListener('click', loadSample);
 
-      document.getElementById('copyPrevXY').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtXY(l)); else toast('Belum ada entri sebelumnya', 'error'); });
-      document.getElementById('copyPrevFull').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtFull(l)); else toast('Belum ada entri sebelumnya', 'error'); });
-      document.getElementById('usePrev').addEventListener('click', () => { const l = getLastFromForm(); if (l) { document.getElementById('fPrev').value = fmtMoney(l.kumulatif); toast('Sebelumnya diisi'); setFormDirty(true); } else toast('Belum ada entri sebelumnya', 'error'); });
+      document.getElementById('copyPrevXY')?.addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtXY(l)); else toast('Belum ada entri sebelumnya', 'error'); });
+      document.getElementById('copyPrevFull')?.addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtFull(l)); else toast('Belum ada entri sebelumnya', 'error'); });
+      document.getElementById('usePrev')?.addEventListener('click', () => { const l = getLastFromForm(); if (l) { document.getElementById('fPrev').value = fmtMoney(l.kumulatif); toast('Sebelumnya diisi'); setFormDirty(true); } else toast('Belum ada entri sebelumnya', 'error'); });
 
-      document.getElementById('btnExport').addEventListener('click', doExport);
-      document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
-      document.getElementById('fileImport').addEventListener('change', e => { if (e.target.files[0]) doImport(e.target.files[0]); e.target.value = ''; });
-      document.getElementById('btnClear').addEventListener('click', () => {
+      document.getElementById('btnExport')?.addEventListener('click', doExport);
+      document.getElementById('btnImport')?.addEventListener('click', () => document.getElementById('fileImport').click());
+      document.getElementById('fileImport')?.addEventListener('change', e => { if (e.target.files[0]) doImport(e.target.files[0]); e.target.value = ''; });
+      document.getElementById('btnClear')?.addEventListener('click', () => {
         if (confirm('Hapus SEMUA data? Anda masih bisa membatalkan aksi ini melalui tombol Undo.')) {
           pushUndoState('Semua data dipulihkan');
           records = [];
@@ -2591,13 +2342,13 @@ body {
       }
 
       // setting modal
-      document.getElementById('btnSettings').addEventListener('click', openSettings);
-      document.getElementById('settingsClose').addEventListener('click', closeSettings);
-      document.getElementById('settingsCancel').addEventListener('click', closeSettings);
-      document.getElementById('settingsOverlay').addEventListener('click', e => { if (e.target.id === 'settingsOverlay') closeSettings(); });
+      document.getElementById('btnSettings')?.addEventListener('click', openSettings);
+      document.getElementById('settingsClose')?.addEventListener('click', closeSettings);
+      document.getElementById('settingsCancel')?.addEventListener('click', closeSettings);
+      document.getElementById('settingsOverlay')?.addEventListener('click', e => { if (e.target.id === 'settingsOverlay') closeSettings(); });
       document.querySelectorAll('#segTheme button').forEach(b => b.addEventListener('click', () => setThemeSeg(b.getAttribute('data-v'))));
-      document.getElementById('btnTestRegex').addEventListener('click', testCustomRegex);
-      document.getElementById('settingsSave').addEventListener('click', () => {
+      document.getElementById('btnTestRegex')?.addEventListener('click', testCustomRegex);
+      document.getElementById('settingsSave')?.addEventListener('click', () => {
         readSettingsFromModal();
         saveSettings();
         applyTheme();
@@ -2660,12 +2411,10 @@ body {
         const q = cmdInput.value.toLowerCase();
         let res = [];
         
-        // Commands
         if ('setting'.includes(q) || 'pengaturan'.includes(q)) res.push({ label: '⚙️ Buka Setting', action: openSettings });
         if ('export'.includes(q)) res.push({ label: '⬇️ Export JSON', action: doExport });
         if ('gist'.includes(q)) res.push({ label: '☁️ Push ke Gist', action: pushToGist });
 
-        // Search records
         if (q.trim()) {
             const matches = records.filter(r => (r.mandor + ' ' + r.pekerjaan + ' ' + (r.divisi||'')).toLowerCase().includes(q)).slice(0, 5);
             matches.forEach(m => {
@@ -2685,7 +2434,6 @@ body {
         }
     }
 
-    // Connect theme button
     if (document.getElementById('btnTheme')) {
         document.getElementById('btnTheme').addEventListener('click', () => {
             settings.theme = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
@@ -2694,9 +2442,7 @@ body {
             setThemeSeg(settings.theme);
         });
     }
-    
-    // Connect old buttons to new IDs
-    if(document.getElementById('btnSettingsNav')) document.getElementById('btnSettingsNav').addEventListener('click', openSettings);
+
 </script>
 </body>
 </html>
