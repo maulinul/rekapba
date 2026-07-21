@@ -7,70 +7,61 @@
   <title>Pencatat Progres Mandor (BA)</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <style>
-    /* ===== TEMA MOLTEN FORGE (Light Mode) ===== */
     :root {
-      --bg: #FAF8F5;
-      --card: #FFFFFF;
-      --ink: #1A1A2E;
-      --muted: #7A756C;
-      --line: #E5E0D8;
-      --brand: #D4880F;
-      --brand-d: #B36E05;
-      --accent-teal: #0D9488;
-      --accent-copper: #D9532F;
-      --yellow: #FEF3C7;
-      --yellow-b: #D4880F;
-      --red: #FEE2E2;
-      --red-b: #DC2626;
-      --green: #D1FAE5;
-      --green-b: #0D9488;
-      --soft: #F5EFE6;
-      --field: #FFFFFF;
-      --th: #F5EFE6;
-      --ok-bg: #ECFDF5;
-      --ok-bd: #A7F3D0;
-      --ok-ink: #065F46;
-      --err-bg: #FEF2F2;
-      --err-bd: #FECACA;
-      --err-ink: #991B1B;
-      --warn-bg: #FFF7ED;
-      --warn-bd: #FDBA74;
-      --warn-ink: #9A3412;
-      --glow-gold: 0 0 15px rgba(212, 136, 15, 0.4);
-      --glow-teal: 0 0 12px rgba(13, 148, 136, 0.35);
+      --bg: #f4f6f9;
+      --card: #fff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --brand: #2563eb;
+      --brand-d: #1d4ed8;
+      --yellow: #fff3a3;
+      --yellow-b: #eab308;
+      --red: #fca5a5;
+      --red-b: #dc2626;
+      --green: #bbf7d0;
+      --green-b: #16a34a;
+      --soft: #eef2ff;
+      --field: #fff;
+      --th: #f9fafb;
+      --ok-bg: #f0fdf4;
+      --ok-bd: #bbf7d0;
+      --ok-ink: #166534;
+      --err-bg: #fef2f2;
+      --err-bd: #fecaca;
+      --err-ink: #991b1b;
+      --warn-bg: #fff7ed;
+      --warn-bd: #fdba74;
+      --warn-ink: #9a3412;
     }
 
-    /* ===== TEMA MOLTEN FORGE (Dark Mode - Primary) ===== */
+    /* ===== TEMA GELAP (tambahan) ===== */
     [data-theme="dark"] {
-      --bg: #0D1117;
-      --card: #1C2333;
-      --ink: #F0EDE6;
-      --muted: #8B95A5;
-      --line: rgba(245, 166, 35, 0.18);
-      --brand: #F5A623;
-      --brand-d: #FFD700;
-      --accent-teal: #00E5CC;
-      --accent-copper: #E8683F;
-      --yellow: #2A200B;
-      --yellow-b: #F5A623;
-      --red: #3B1419;
-      --red-b: #FF4757;
-      --green: #0A2E1C;
-      --green-b: #2ECC71;
-      --soft: #151C2A;
-      --field: #121824;
-      --th: #182030;
-      --ok-bg: #082919;
-      --ok-bd: #14532D;
-      --ok-ink: #2ECC71;
-      --err-bg: #2D0F14;
-      --err-bd: #7F1D1D;
-      --err-ink: #FF4757;
-      --warn-bg: #2B1605;
-      --warn-bd: #7C2D12;
-      --warn-ink: #F5A623;
-      --glow-gold: 0 0 20px rgba(245, 166, 35, 0.5);
-      --glow-teal: 0 0 15px rgba(0, 229, 204, 0.4);
+      --bg: #0b1220;
+      --card: #111a2e;
+      --ink: #e5e7eb;
+      --muted: #94a3b8;
+      --line: #1f2a44;
+      --brand: #3b82f6;
+      --brand-d: #60a5fa;
+      --yellow: #3a3410;
+      --yellow-b: #ca8a04;
+      --red: #f87171;
+      --red-b: #f87171;
+      --green: #0f3d24;
+      --green-b: #4ade80;
+      --soft: #16213d;
+      --field: #0f172a;
+      --th: #16213d;
+      --ok-bg: #06281b;
+      --ok-bd: #14532d;
+      --ok-ink: #86efac;
+      --err-bg: #2a0f0f;
+      --err-bd: #7f1d1d;
+      --err-ink: #fca5a5;
+      --warn-bg: #2a1605;
+      --warn-bd: #7c2d12;
+      --warn-ink: #fdba74;
     }
 
     * {
@@ -807,30 +798,29 @@
       will-change: transform, opacity;
     }
 
-    /* 2. Grand Total Glow & Pulse (Molten Gold Glow) */
+    /* 2. Grand Total Glow & Pulse */
     #grand-total-display {
       display: inline-block;
       transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s var(--ease-bounce);
       will-change: transform;
-      color: var(--brand-d);
-      text-shadow: 0 0 16px rgba(245, 166, 35, 0.35);
     }
 
     #grand-total-display.updating {
       animation: pulseGlow 0.6s ease-in-out;
-      color: #FFD700;
+      color: var(--green-b);
     }
 
     @keyframes pulseGlow {
+
       0%,
       100% {
-        text-shadow: 0 0 20px rgba(245, 166, 35, 0.6);
+        text-shadow: 0 0 15px var(--glow-primary);
         transform: scale(1);
       }
 
       50% {
-        text-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 20px rgba(245, 166, 35, 0.6);
-        transform: scale(1.04);
+        text-shadow: 0 0 35px var(--glow-success);
+        transform: scale(1.03);
       }
     }
 
@@ -870,17 +860,17 @@
       }
     }
 
-    /* 4. Parse Field Highlight Sequence (Electric Teal Sweep) */
+    /* 4. Parse Field Highlight Sequence (No scale transform to prevent layout reflow) */
     @keyframes fieldPopulate {
       0% {
-        background-color: rgba(0, 229, 204, 0.22);
-        box-shadow: 0 0 0 3px rgba(0, 229, 204, 0.4);
-        border-color: #00E5CC !important;
+        background-color: rgba(59, 130, 246, 0.18);
+        box-shadow: 0 0 0 3px var(--glow-primary);
+        border-color: var(--brand) !important;
       }
 
       50% {
-        background-color: rgba(0, 229, 204, 0.12);
-        box-shadow: 0 0 0 4px rgba(0, 229, 204, 0.25);
+        background-color: rgba(59, 130, 246, 0.1);
+        box-shadow: 0 0 0 4px var(--glow-primary);
       }
 
       100% {
@@ -893,20 +883,20 @@
       animation: fieldPopulate 0.7s var(--ease-epic) forwards;
     }
 
-    /* 5. Glassmorphism Toast Notification (Molten Gold Border + Dark Slate Glass) */
+    /* 5. Glassmorphism Toast Notification */
     .toast-epic {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: rgba(28, 35, 51, 0.85);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      border: 1px solid rgba(245, 166, 35, 0.25);
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-left: 4px solid var(--green-b);
       padding: 14px 20px;
       border-radius: 12px;
-      color: var(--ink);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35), 0 0 15px rgba(245, 166, 35, 0.15);
+      color: white;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
       transform: translate3d(120%, 0, 0);
       transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
       opacity: 0;
@@ -1984,7 +1974,7 @@
         x = window.innerWidth / 2;
         y = window.innerHeight / 2;
       }
-      const colors = ['#FFD700', '#00E5CC', '#E8683F', '#2ECC71', '#FF6B9D'];
+      const colors = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#a855f7', '#06b6d4', '#f97316'];
       const shapes = ['rect', 'circle', 'star', 'ribbon'];
       const particleCount = 45;
 
