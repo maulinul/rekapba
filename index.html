@@ -67,8 +67,8 @@ body {
   grid-auto-rows: min-content;
   gap: var(--sp-4);
   padding: var(--sp-4);
-  max-width: 1400px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
 }
 .bento-grid .card--grand-total {
   grid-column: 1 / -1;
@@ -1509,7 +1509,6 @@ body {
     }
 
     function renderRekap() {
-      if (!records.length) return;
       const sourceRecords = getFilteredRecords();
       const byD = {}, byP = {}, byM = {};
       sourceRecords.forEach(r => {
