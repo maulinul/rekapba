@@ -1027,20 +1027,41 @@
     }
     .rekap li.rk-item-clickable {
       cursor: pointer;
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 6px 8px;
       margin: 2px -8px;
       transition: background-color 0.2s ease, transform 0.15s ease;
       user-select: none;
+      position: relative;
     }
     .rekap li.rk-item-clickable:hover {
       background: var(--soft);
-      transform: translateX(4px);
+      transform: translateX(3px);
     }
     .rekap li.rk-item-clickable.active-filter {
       background: var(--soft);
       border: 1px solid #c7d2fe;
       font-weight: 700;
+    }
+    .rk-edit-btn {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.85);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      margin-left: 8px;
+      padding: 2px 7px !important;
+      font-size: 11px !important;
+      border-radius: 6px !important;
+      background: var(--card) !important;
+      color: var(--brand-d) !important;
+      border: 1px solid var(--brand) !important;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      flex: 0 0 auto;
+    }
+    .rekap li.rk-item-clickable:hover .rk-edit-btn {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
     }
 
     /* ===== DARK MODE SMOOTH TRANSITION & FILTER CHIPS ===== */
@@ -1595,16 +1616,17 @@
           </div>
 
           <div style="margin-top:8px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <label style="margin-bottom:0">Paste baris BA <span class="muted"
-                  style="font-weight:normal">(opsional)</span></label>
-              <button class="btn-soft epic-btn btn-sm" id="btnParse" type="button"
-                style="padding:3px 10px;font-size:11.5px">🔍 Parse Baris</button>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px">
+              <label style="margin-bottom:0">Paste baris / Batch BA <span class="muted" style="font-weight:normal">(1 atau banyak baris sekaligus)</span></label>
+              <div style="display:flex;gap:4px;align-items:center;">
+                <button class="btn-soft epic-btn btn-sm" id="btnBatchSampleFormat" type="button" style="padding:3px 8px;font-size:11px" title="Isi contoh batch format baris (Bowo Wiyono Pekerjaan...)">📋 Contoh Batch Format</button>
+                <button class="btn-soft epic-btn btn-sm" id="btnParse" type="button" style="padding:3px 10px;font-size:11.5px">⚡ Parse Baris / Batch</button>
+              </div>
             </div>
             <textarea id="fPaste"
-              style="min-height:36px;height:36px;padding:6px 9px;font-size:12px;transition:height 0.2s ease"
-              placeholder="Tohir Pekerjaan Sekatan, Plafon... 67,133% x Rp 47.909.204 = 32.162.886"
-              onfocus="this.style.height='54px'" onblur="if(!this.value)this.style.height='36px'"></textarea>
+              style="min-height:42px;height:42px;padding:6px 9px;font-size:12px;transition:height 0.2s ease"
+              placeholder="Contoh format: Bowo Wiyono Pekerjaan Sipil Pembangunan Gudang (G31–G34) 9,18600% x Rp215.307.520 = Rp19.778.149"
+              onfocus="this.style.height='90px'" onblur="if(!this.value)this.style.height='42px'"></textarea>
           </div>
 
           <div class="grid-5" style="margin-top:8px">
@@ -1743,9 +1765,15 @@
 
         <div class="set-grp">
           <label for="sTempat">Kata kunci TEMPAT (satu per baris) — utk rekap per Tempat</label>
-          <textarea id="sTempat" style="min-height:96px"></textarea>
+          <textarea id="sTempat" style="min-height:80px"></textarea>
           <div class="set-hint">Sistem mencari kata ini di nama pekerjaan lalu mengambil 1 kata sesudahnya (cth "Dapur"
             → "Dapur Randusari"). Tambah istilahmu sendiri, misal nama proyek/gedung.</div>
+        </div>
+
+        <div class="set-grp">
+          <label for="sMandor">Kata kunci NAMA MANDOR (satu per baris) — utk presisi parse nama mandor</label>
+          <textarea id="sMandor" style="min-height:80px" placeholder="Bowo Wiyono&#10;Sugito Sudarman&#10;Tohir&#10;Budi"></textarea>
+          <div class="set-hint">Daftar nama mandor untuk memisahkan nama mandor dari deskripsi pekerjaan secara presisi saat parse baris BA (terutama nama mandor yang terdiri dari 2 kata atau lebih, contoh: "Bowo Wiyono").</div>
         </div>
 
         <div class="set-grp">
@@ -2836,7 +2864,9 @@
     /* ---------- SETTINGS (tambahan) ---------- */
     const defaultSettings = {
       theme: 'light', mandorParse: 'auto', numLocale: 'auto',
-      tempatKeywords: ['Dapur', 'Gedung', 'Blok', 'Gudang', 'Ruko', 'Lantai', 'LT'], customRegex: '',
+      tempatKeywords: ['Dapur', 'Gedung', 'Blok', 'Gudang', 'Ruko', 'Lantai', 'LT'],
+      mandorKeywords: ['Bowo Wiyono', 'Sugito Sudarman', 'Tohir', 'Budi', 'Sugito', 'Bowo'],
+      customRegex: '',
       ghToken: '', ghGistId: '', autoSync: true
     };
     let settings = loadSettings();
@@ -2845,9 +2875,13 @@
         const o = JSON.parse(localStorage.getItem(SKEY));
         const m = Object.assign({}, defaultSettings, o || {});
         if (!Array.isArray(m.tempatKeywords)) m.tempatKeywords = defaultSettings.tempatKeywords.slice();
+        if (!Array.isArray(m.mandorKeywords)) m.mandorKeywords = defaultSettings.mandorKeywords.slice();
         return m;
       } catch (e) {
-        return Object.assign({}, defaultSettings, { tempatKeywords: defaultSettings.tempatKeywords.slice() });
+        return Object.assign({}, defaultSettings, {
+          tempatKeywords: defaultSettings.tempatKeywords.slice(),
+          mandorKeywords: defaultSettings.mandorKeywords.slice()
+        });
       }
     }
     function saveSettings() {
@@ -3103,11 +3137,15 @@
 
     /* ---------- parse baris (baca settings) ---------- */
     function parseLine(line) {
+      if (!line || typeof line !== 'string') return null;
+      const cleanLine = line.trim();
+      if (!cleanLine) return null;
+
       const curDiv = norm(document.getElementById('fDivisi') ? document.getElementById('fDivisi').value : '') || 'Umum';
       const reStr = (settings.customRegex || '').trim();
       if (reStr) {
         let re; try { re = new RegExp(reStr); } catch (e) { return { error: 'Regex kustom tidak valid: ' + e.message }; }
-        const m = line.match(re);
+        const m = cleanLine.match(re);
         if (!m) return { error: 'Regex kustom tidak cocok dengan baris.' };
         const g = m.slice(1);
         let divisi = curDiv, mandor = '', pekerjaan = '', persen = NaN, kontrak = NaN, kumulatif = NaN;
@@ -3120,26 +3158,70 @@
         if ([persen, kontrak, kumulatif].some(isNaN)) return { error: 'Grup tangkap tidak menghasilkan angka valid (cek urutan grup & format angka).' };
         return { divisi, mandor, pekerjaan, persen, kontrak, kumulatif };
       }
-      const mPct = line.match(/(\d+(?:[.,]\d+)?)\s*%/);
-      const mKon = line.match(/Rp\s*([\d.,]+)/i);
-      const mKum = line.match(/=\s*(?:Rp\s*)?([\d.,]+)\s*$/i);
+
+      // 1. Match percentage e.g. "9,18600%" or "28.356%"
+      const mPct = cleanLine.match(/(\d+(?:[.,]\d+)?)\s*%/);
+      if (!mPct) return null;
+
+      // 2. Match kontrak e.g. "x Rp215.307.520" or "x 215.307.520" or "Rp 215.307.520"
+      let mKon = cleanLine.match(/(?:x|\*)\s*[\t ]*(?:Rp\s*)?([\d.,]+)/i);
+      if (!mKon) mKon = cleanLine.match(/Rp\s*([\d.,]+)/i);
+
+      // 3. Match kumulatif e.g. "= Rp19.778.149" or "= 19.778.149"
+      let mKum = cleanLine.match(/=\s*[\t ]*(?:Rp\s*)?([\d.,]+)\s*$/i);
+      if (!mKum) mKum = cleanLine.match(/(?:=\s*|:\s*)(?:Rp\s*)?([\d.,]+)\s*$/i);
+
       if (!mPct || !mKon || !mKum) return null;
+
       const persen = parsePercent(mPct[1]);
       const kontrak = parseMoney(mKon[1]);
       const kumulatif = parseMoney(mKum[1]);
-      const prefix = line.slice(0, mPct.index).trim();
+
+      if (isNaN(persen) || isNaN(kontrak) || isNaN(kumulatif)) return null;
+
+      const prefix = cleanLine.slice(0, mPct.index).trim();
       let mandor = '', pekerjaan = '';
+
       const mode = settings.mandorParse;
-      if (mode === 'none') { mandor = ''; pekerjaan = prefix; }
-      else if (mode === 'first') { const parts = prefix.split(/\s+/); mandor = parts[0] || ''; pekerjaan = parts.slice(1).join(' '); }
-      else {
-        const existing = uniqueMandors(curDiv).sort((a, b) => b.length - a.length);
-        const low = prefix.toLowerCase(); let matched = null;
-        for (const m of existing) { const ml = m.toLowerCase(); if (low === ml || low.startsWith(ml + ' ')) { matched = m; break; } }
-        if (matched) { mandor = matched; pekerjaan = prefix.slice(matched.length).trim(); }
-        else { const parts = prefix.split(/\s+/); mandor = parts[0] || ''; pekerjaan = parts.slice(1).join(' '); }
+      if (mode === 'none') {
+        mandor = '';
+        pekerjaan = prefix;
+      } else {
+        const knownMandors = [...new Set([
+          ...(settings.mandorKeywords || []),
+          ...uniqueMandors(curDiv)
+        ])].filter(Boolean).sort((a, b) => b.length - a.length);
+
+        const low = prefix.toLowerCase();
+        let matched = null;
+        for (const m of knownMandors) {
+          const ml = m.toLowerCase();
+          if (low === ml || low.startsWith(ml + ' ')) {
+            matched = m;
+            break;
+          }
+        }
+
+        if (matched) {
+          mandor = matched;
+          pekerjaan = prefix.slice(matched.length).trim();
+        } else {
+          // Smart job keyword boundary split ("Pekerjaan", "Pk.", "Pembangunan", "Pengadaan", "Pemasangan", "Jasa", "Perbaikan", "Pembuatan", "Renovasi")
+          const kwRegex = /\b(Pekerjaan|Pk\.?|Pembangunan|Pengadaan|Pemasangan|Jasa|Perbaikan|Pembuatan|Renovasi|Finishing|Struktur|Arsitektur|MEP)\b/i;
+          const kwMatch = prefix.match(kwRegex);
+          if (kwMatch && kwMatch.index > 0) {
+            mandor = prefix.slice(0, kwMatch.index).trim();
+            pekerjaan = prefix.slice(kwMatch.index).trim();
+          } else {
+            const parts = prefix.split(/\s+/);
+            mandor = parts[0] || '';
+            pekerjaan = parts.slice(1).join(' ');
+          }
+        }
       }
-      mandor = norm(mandor); pekerjaan = norm(pekerjaan);
+
+      mandor = norm(mandor);
+      pekerjaan = norm(pekerjaan);
       return { divisi: curDiv, mandor, pekerjaan, persen, kontrak, kumulatif };
     }
 
@@ -3312,7 +3394,10 @@
         const isAct = (activeVal && activeVal === k);
         return `<li class="rk-item-clickable ${isAct ? 'active-filter' : ''}" data-rk-type="${type}" data-rk-val="${esc(k)}" title="Klik untuk filter ${type}: ${esc(k)}">
           <div class="rk-label">${labelFn([k, d])}</div>
-          <div class="rk-val">Rp ${fmtMoney(valFn(d))}</div>
+          <div class="rk-val" style="display:flex;align-items:center;">
+            <span>Rp ${fmtMoney(valFn(d))}</span>
+            <button class="btn-soft epic-btn rk-edit-btn" data-rk-edit-type="${type}" data-rk-edit-val="${esc(k)}" type="button" title="Edit / Rename massal ${type}: ${esc(k)}">✏️ Edit</button>
+          </div>
         </li>`;
       }).join('') : `<li><span class="rk-empty">—</span></li>`;
 
@@ -3320,6 +3405,55 @@
      <div class="rk-total">Total termin: <b>Rp ${fmtMoney(total)}</b></div>
      <ul>${items}</ul></div>`;
     }
+
+    function bulkRenameCategory(type, oldVal) {
+      if (!oldVal) return;
+      let promptMsg = '';
+      if (type === 'divisi') promptMsg = `Ubah nama DIVISI "${oldVal}" pada SEMUA entri menjadi:`;
+      else if (type === 'mandor') promptMsg = `Ubah nama MANDOR "${oldVal}" pada SEMUA entri menjadi:`;
+      else if (type === 'pekerjaan') promptMsg = `Ubah nama PEKERJAAN "${oldVal}" pada SEMUA entri menjadi:`;
+      else if (type === 'tempat') promptMsg = `Ubah kata kunci TEMPAT PROYEK "${oldVal}" pada SEMUA deskripsi pekerjaan menjadi:`;
+      else promptMsg = `Ubah nama "${oldVal}" menjadi:`;
+
+      const newVal = prompt(promptMsg, oldVal);
+      if (newVal === null || !newVal.trim() || newVal.trim() === oldVal) return;
+
+      const targetVal = newVal.trim();
+      pushUndoState(`Edit massal ${type} "${oldVal}" -> "${targetVal}"`);
+
+      let count = 0;
+      records.forEach(r => {
+        if (type === 'divisi' && norm(r.divisi || 'Umum') === norm(oldVal)) {
+          r.divisi = targetVal;
+          count++;
+        } else if (type === 'mandor' && norm(r.mandor) === norm(oldVal)) {
+          r.mandor = targetVal;
+          count++;
+        } else if (type === 'pekerjaan' && norm(r.pekerjaan) === norm(oldVal)) {
+          r.pekerjaan = targetVal;
+          count++;
+        } else if (type === 'tempat') {
+          const currentTempat = extractTempat(r.pekerjaan);
+          if (currentTempat === oldVal) {
+            r.pekerjaan = r.pekerjaan.replace(new RegExp(oldVal, 'gi'), targetVal);
+            count++;
+          }
+        }
+      });
+
+      if (count > 0) {
+        save();
+        refreshSelects();
+        populateFilterOptions();
+        renderGroups();
+        renderRekap();
+        updatePrevBox();
+        triggerSuccessSequence(null, `✅ Berhasil memperbarui ${count} entri data (${type}: "${targetVal}")!`);
+      } else {
+        toast('Tidak ada entri data yang berubah', 'error');
+      }
+    }
+
     function renderRekap() {
       const panel = document.getElementById('rekapPanel');
       if (!panel) return;
@@ -3354,6 +3488,15 @@
         cardRekap('🔧 Rekap per Pekerjaan', 'pekerjaan', sP, ([p, d]) => `<div class="rk-t">${esc(p)}</div><div class="rk-s">Mandor: ${esc([...d.man].join(', '))} · ${d.n} entri</div>`, d => d.termin) +
         cardRekap('👷 Rekap per Mandor', 'mandor', sM, ([m, d]) => `<div class="rk-t">${esc(m)}</div><div class="rk-s">${d.pek.size} pekerjaan · ${d.n} entri</div>`, d => d.termin) +
         cardRekap('📍 Rekap per Tempat', 'tempat', sT, ([t, d]) => `<div class="rk-t">${esc(t)}</div><div class="rk-s">${d.n} entri</div>`, d => d.termin);
+
+      panel.querySelectorAll('.rk-edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const type = btn.getAttribute('data-rk-edit-type');
+          const val = btn.getAttribute('data-rk-edit-val');
+          bulkRenameCategory(type, val);
+        });
+      });
 
       panel.querySelectorAll('.rk-item-clickable').forEach(el => {
         el.addEventListener('click', () => {
@@ -3872,6 +4015,8 @@
       document.getElementById('sMandorParse').value = settings.mandorParse;
       document.getElementById('sLocale').value = settings.numLocale;
       document.getElementById('sTempat').value = (settings.tempatKeywords || []).join('\n');
+      const mandorEl = document.getElementById('sMandor');
+      if (mandorEl) mandorEl.value = (settings.mandorKeywords || []).join('\n');
       document.getElementById('sRegex').value = settings.customRegex || '';
       document.getElementById('sGhToken').value = settings.ghToken || '';
       document.getElementById('sGhGistId').value = settings.ghGistId || '';
@@ -3888,6 +4033,8 @@
       settings.mandorParse = document.getElementById('sMandorParse').value;
       settings.numLocale = document.getElementById('sLocale').value;
       settings.tempatKeywords = document.getElementById('sTempat').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      const mandorEl = document.getElementById('sMandor');
+      if (mandorEl) settings.mandorKeywords = mandorEl.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
       settings.customRegex = document.getElementById('sRegex').value;
       settings.ghToken = (document.getElementById('sGhToken').value || '').trim();
       settings.ghGistId = (document.getElementById('sGhGistId').value || '').trim();
@@ -4195,6 +4342,29 @@
           el.addEventListener('change', () => { updatePrevBox(); checkRealtimeValidation(); setFormDirty(true); });
         }
       });
+
+      const btnBatchSample = document.getElementById('btnBatchSampleFormat');
+      if (btnBatchSample) {
+        btnBatchSample.addEventListener('click', () => {
+          const sampleBatchText = 
+            "Bowo Wiyono Pekerjaan Sipil Pembangunan Gudang (G31–G34) 9,18600%\tx\tRp215.307.520\t=\tRp19.778.149\n" +
+            "Bowo Wiyono Pekerjaan Sipil Pembangunan Gudang (G31–G34) 9,18600%\tx\tRp215.307.520\t=\tRp19.778.149\n" +
+            "Bowo Wiyono Pekerjaan Sipil Pembangunan Gudang (G31–G34) 28,35600%\tx\tRp215.307.520\t=\tRp61.052.600\n" +
+            "Bowo Wiyono Pekerjaan Sipil Pembangunan Gudang (G31–G34) 35,41600%\tx\tRp215.307.520\t=\tRp76.253.311\n" +
+            "Bowo Wiyono Pekerjaan Sipil Pembangunan Gudang (G31–G34) 40,11800%\tx\tRp215.307.520\t=\tRp86.377.071\n" +
+            "Bowo Wiyono Pekerjaan Sipil Pembangunan Gudang (G31–G34) 40,11800%\tx\tRp215.307.520\t=\tRp86.377.071\n" +
+            "Bowo Wiyono Pekerjaan Sipil Pembangunan Gudang (G31–G34) 43,55900%\tx\tRp215.307.520\t=\tRp93.785.803";
+          
+          const pasteEl = document.getElementById('fPaste');
+          if (pasteEl) {
+            pasteEl.value = sampleBatchText;
+            pasteEl.style.height = '140px';
+          }
+          toast('Contoh batch format dimuat. Membuka modal preview batch parse...', 'success');
+          const lines = sampleBatchText.split('\n');
+          openBatchModal(lines);
+        });
+      }
 
       document.getElementById('btnParse').addEventListener('click', () => {
         clearStatus();
