@@ -1479,7 +1479,11 @@
       </h1>
       <p>Kelompokkan per mandor &amp; pekerjaan · akumulasi otomatis · cegah salah hitung adendum</p>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div id="headerSyncBadge" class="header-sync-pill" title="Status Auto-Sync Local Storage, IndexedDB & GitHub Gist" style="font-size:11.5px;padding:5px 10px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);border-radius:999px;color:#fff;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+        <span class="sync-dot" id="headerSyncDot" style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></span>
+        <span id="headerSyncText">💾 Auto-Sync Active</span>
+      </div>
       <button class="gear epic-btn" id="btnCmdPalette" type="button" title="Buka Command Palette (Ctrl+K)">🔍 <span style="font-size:12px;opacity:0.8;margin-left:2px">Ctrl+K</span></button>
       <button class="gear epic-btn" id="btnSettings" type="button" title="Setting parsing & tema">⚙️ Setting</button>
     </div>
@@ -1765,6 +1769,14 @@
           <label style="font-size:13.5px;color:var(--brand);margin-bottom:8px;display:flex;align-items:center;gap:6px">
             <span>☁️ Sync GitHub Gist (Backup &amp; Sync Cloud)</span>
           </label>
+
+          <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px;background:var(--soft);padding:10px 12px;border-radius:10px;border:1px solid #c7d2fe;">
+            <input type="checkbox" id="sAutoSync" style="width:18px;height:18px;cursor:pointer;">
+            <div>
+              <label for="sAutoSync" style="font-size:13px;font-weight:700;margin:0;cursor:pointer;color:var(--brand-d);">⚡ Otomatis Sync ke Local &amp; GitHub Gist</label>
+              <div class="set-hint" style="margin:2px 0 0 0;">Otomatis simpan ke Local (Storage &amp; IndexedDB) dan upload ke Gist secara otomatis setiap kali ada perubahan data.</div>
+            </div>
+          </div>
 
           <div style="margin-bottom:12px;">
             <label for="sGhToken">GitHub Personal Access Token (PAT)</label>
@@ -2825,7 +2837,7 @@
     const defaultSettings = {
       theme: 'light', mandorParse: 'auto', numLocale: 'auto',
       tempatKeywords: ['Dapur', 'Gedung', 'Blok', 'Gudang', 'Ruko', 'Lantai', 'LT'], customRegex: '',
-      ghToken: '', ghGistId: ''
+      ghToken: '', ghGistId: '', autoSync: true
     };
     let settings = loadSettings();
     function loadSettings() {
@@ -2853,6 +2865,37 @@
     }
     applyTheme();
     try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (settings.theme === 'auto') applyTheme(); }); } catch (e) { }
+
+    /* ---------- INDEXEDDB BACKUP HELPER ---------- */
+    let idbDb = null;
+    function initIndexedDB() {
+      if (!window.indexedDB) return;
+      try {
+        const req = indexedDB.open('RekapBADB', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('records')) {
+            db.createObjectStore('records', { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = (e) => { idbDb = e.target.result; };
+      } catch (err) {
+        console.warn('IndexedDB init warning:', err);
+      }
+    }
+    initIndexedDB();
+
+    function saveToIndexedDB(recList) {
+      if (!idbDb) return;
+      try {
+        const tx = idbDb.transaction('records', 'readwrite');
+        const store = tx.objectStore('records');
+        store.clear();
+        recList.forEach(r => store.put(r));
+      } catch (e) {
+        console.warn('IndexedDB save warning:', e);
+      }
+    }
 
     /* ---------- STORAGE & SCHEMA MIGRATION ---------- */
     function migrateData(rawRecords) {
@@ -2901,9 +2944,12 @@
       }
     }
 
+    let autoSyncGistDebounceTimer = null;
     function save() {
       try {
         localStorage.setItem(KEY, JSON.stringify(records));
+        saveToIndexedDB(records);
+        updateHeaderSyncBadge('local');
       } catch (err) {
         console.error('Storage save error:', err);
         showEpicToast('⚠️ Kuota localStorage Penuh! Menyimpan data gagal.', 'error');
@@ -2911,6 +2957,15 @@
           showEpicToast('💾 Mendownload backup otomatis file JSON...', 'success');
           setTimeout(() => doExport(), 800);
         }
+      }
+
+      // Auto-Sync GitHub Gist Trigger (Debounced 2.5s)
+      if (settings.autoSync !== false && settings.ghToken) {
+        if (autoSyncGistDebounceTimer) clearTimeout(autoSyncGistDebounceTimer);
+        updateHeaderSyncBadge('pending');
+        autoSyncGistDebounceTimer = setTimeout(() => {
+          pushToGist({ quiet: true });
+        }, 2500);
       }
     }
 
@@ -3820,6 +3875,8 @@
       document.getElementById('sRegex').value = settings.customRegex || '';
       document.getElementById('sGhToken').value = settings.ghToken || '';
       document.getElementById('sGhGistId').value = settings.ghGistId || '';
+      const autoSyncEl = document.getElementById('sAutoSync');
+      if (autoSyncEl) autoSyncEl.checked = (settings.autoSync !== false);
       setThemeSeg(settings.theme);
       const out = document.getElementById('sRegexOut'); if (out) { out.className = ''; out.textContent = ''; }
       const ghOut = document.getElementById('sGhOut'); if (ghOut) { ghOut.style.display = 'none'; ghOut.textContent = ''; }
@@ -3834,6 +3891,8 @@
       settings.customRegex = document.getElementById('sRegex').value;
       settings.ghToken = (document.getElementById('sGhToken').value || '').trim();
       settings.ghGistId = (document.getElementById('sGhGistId').value || '').trim();
+      const autoSyncEl = document.getElementById('sAutoSync');
+      if (autoSyncEl) settings.autoSync = autoSyncEl.checked;
       const on = document.querySelector('#segTheme button.on');
       settings.theme = on ? on.getAttribute('data-v') : 'light';
     }
@@ -3880,7 +3939,33 @@
       }
     }
 
-    async function pushToGist() {
+    function updateHeaderSyncBadge(state = 'local', detailText = '') {
+      const dot = document.getElementById('headerSyncDot');
+      const text = document.getElementById('headerSyncText');
+      if (!dot || !text) return;
+
+      if (state === 'syncing') {
+        dot.style.background = '#f59e0b';
+        text.textContent = '☁️ Auto-Syncing Gist...';
+      } else if (state === 'gist') {
+        dot.style.background = '#10b981';
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        text.textContent = `☁️ Synced to Gist (${timeStr})`;
+      } else if (state === 'pending') {
+        dot.style.background = '#3b82f6';
+        text.textContent = '💾 Saved Local (Sync pending...)';
+      } else if (state === 'error') {
+        dot.style.background = '#ef4444';
+        text.textContent = `⚠️ ${detailText || 'Sync Error'}`;
+      } else {
+        dot.style.background = '#10b981';
+        text.textContent = '💾 Auto-Synced Local';
+      }
+    }
+
+    async function pushToGist(options = {}) {
+      const isQuiet = Boolean(options && options.quiet);
       if (document.getElementById('settingsOverlay')?.classList.contains('show')) {
         readSettingsFromModal();
         saveSettings();
@@ -3889,12 +3974,16 @@
       let gistId = settings.ghGistId;
 
       if (!token) {
-        toast('Token GitHub belum diisi di Setting ⚙️', 'error');
-        openSettings();
+        if (!isQuiet) {
+          toast('Token GitHub belum diisi di Setting ⚙️', 'error');
+          openSettings();
+        }
+        updateHeaderSyncBadge('local');
         return false;
       }
 
-      toast('Mengunggah data ke GitHub Gist...', 'success');
+      if (!isQuiet) toast('Mengunggah data ke GitHub Gist...', 'success');
+      updateHeaderSyncBadge('syncing');
 
       const payload = {
         description: 'Backup Data & Setting Pencatat Progres Mandor (BA)',
@@ -3937,7 +4026,8 @@
         if (!res.ok) {
           const errJson = await res.json().catch(() => ({}));
           const msg = errJson.message || `HTTP ${res.status}`;
-          toast(`Gagal Push ke Gist: ${msg}`, 'error');
+          if (!isQuiet) toast(`Gagal Push ke Gist: ${msg}`, 'error');
+          updateHeaderSyncBadge('error', 'Gist Error');
           return false;
         }
 
@@ -3950,10 +4040,12 @@
         }
 
         updateGistStatusBadge();
-        toast(`✅ Data & Setting berhasil di-Push ke Gist (${(gistData.id || gistId).slice(0, 8)}...)`);
+        updateHeaderSyncBadge('gist');
+        if (!isQuiet) toast(`✅ Data & Setting berhasil di-Push ke Gist (${(gistData.id || gistId).slice(0, 8)}...)`);
         return true;
       } catch (err) {
-        toast('Gagal Push: ' + err.message, 'error');
+        if (!isQuiet) toast('Gagal Push: ' + err.message, 'error');
+        updateHeaderSyncBadge('error', 'Offline');
         return false;
       }
     }
@@ -4052,6 +4144,12 @@
       populateFilterOptions();
       applyFilters();
       updateGistStatusBadge();
+      updateHeaderSyncBadge(settings.ghGistId ? 'gist' : 'local');
+
+      document.getElementById('headerSyncBadge')?.addEventListener('click', () => {
+        if (settings.ghToken) pushToGist({ quiet: false });
+        else toast('Auto-Sync Local Storage & IndexedDB aktif 💾 (Atur Token & Gist di Setting ⚙️ untuk Cloud Sync)');
+      });
 
       ['filterDivisi', 'filterMandor', 'filterTempat'].forEach(id => {
         const el = document.getElementById(id);
