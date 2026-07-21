@@ -1,3625 +1,776 @@
 <!DOCTYPE html>
-<html lang="id">
-
+<html lang="id" data-theme="auto">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pencatat Progres Mandor (BA)</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <style>
-    :root {
-      --bg: #f4f6f9;
-      --card: #fff;
-      --ink: #1f2937;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --brand: #2563eb;
-      --brand-d: #1d4ed8;
-      --yellow: #fff3a3;
-      --yellow-b: #eab308;
-      --red: #fca5a5;
-      --red-b: #dc2626;
-      --green: #bbf7d0;
-      --green-b: #16a34a;
-      --soft: #eef2ff;
-      --field: #fff;
-      --th: #f9fafb;
-      --ok-bg: #f0fdf4;
-      --ok-bd: #bbf7d0;
-      --ok-ink: #166534;
-      --err-bg: #fef2f2;
-      --err-bd: #fecaca;
-      --err-ink: #991b1b;
-      --warn-bg: #fff7ed;
-      --warn-bd: #fdba74;
-      --warn-ink: #9a3412;
-    }
-
-    /* ===== TEMA GELAP (tambahan) ===== */
-    [data-theme="dark"] {
-      --bg: #0b1220;
-      --card: #111a2e;
-      --ink: #e5e7eb;
-      --muted: #94a3b8;
-      --line: #1f2a44;
-      --brand: #3b82f6;
-      --brand-d: #60a5fa;
-      --yellow: #3a3410;
-      --yellow-b: #ca8a04;
-      --red: #f87171;
-      --red-b: #f87171;
-      --green: #0f3d24;
-      --green-b: #4ade80;
-      --soft: #16213d;
-      --field: #0f172a;
-      --th: #16213d;
-      --ok-bg: #06281b;
-      --ok-bd: #14532d;
-      --ok-ink: #86efac;
-      --err-bg: #2a0f0f;
-      --err-bd: #7f1d1d;
-      --err-ink: #fca5a5;
-      --warn-bg: #2a1605;
-      --warn-bd: #7c2d12;
-      --warn-ink: #fdba74;
-    }
-
-    * {
-      box-sizing: border-box
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      line-height: 1.45
-    }
-
-    header {
-      background: linear-gradient(135deg, #1e3a8a, #2563eb);
-      color: #fff;
-      padding: 18px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 20px
-    }
-
-    header p {
-      margin: 4px 0 0;
-      opacity: .9;
-      font-size: 13px
-    }
-
-    .gear {
-      flex: 0 0 auto;
-      background: rgba(255, 255, 255, .15);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, .35);
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 15px;
-      cursor: pointer
-    }
-
-    .gear:hover {
-      background: rgba(255, 255, 255, .28)
-    }
-
-    .wrap {
-      max-width: none;
-      margin: 0;
-      padding: 16px 24px
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, .05)
-    }
-
-    .card h2 {
-      margin: 0 0 12px;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px
-    }
-
-    .grid3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px
-    }
-
-    .grid-5 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1.1fr 1.1fr 1.2fr;
-      gap: 8px
-    }
-
-    @media(max-width:1100px) {
-      .grid-5 {
-        grid-template-columns: repeat(3, 1fr)
-      }
-    }
-
-    @media(max-width:680px) {
-
-      .grid,
-      .grid3 {
-        grid-template-columns: 1fr
-      }
-    }
-
-    @media(max-width:640px) {
-      .grid-5 {
-        grid-template-columns: repeat(2, 1fr)
-      }
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 4px
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      padding: 9px 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      font-size: 14px;
-      background: var(--field);
-      color: var(--ink)
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 54px;
-      font-family: ui-monospace, Consolas, monospace;
-      font-size: 12.5px
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      outline: 2px solid #bfdbfe;
-      border-color: var(--brand)
-    }
-
-    .row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: flex-end
-    }
-
-    .row>* {
-      flex: 1;
-      min-width: 140px
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      padding: 9px 14px;
-      font-size: 13px;
-      font-weight: 600
-    }
-
-    .btn {
-      background: var(--brand);
-      color: #fff
-    }
-
-    .btn:hover {
-      background: var(--brand-d)
-    }
-
-    .btn-ghost {
-      background: var(--card);
-      color: var(--brand);
-      border: 1px solid var(--brand)
-    }
-
-    .btn-soft {
-      background: var(--soft);
-      color: var(--brand-d);
-      border: 1px solid #c7d2fe
-    }
-
-    .btn-danger {
-      background: var(--card);
-      color: var(--red-b);
-      border: 1px solid var(--red)
-    }
-
-    .btn-sm {
-      padding: 5px 9px;
-      font-size: 12px
-    }
-
-    .full {
-      grid-column: 1/-1
-    }
-
-    .status {
-      margin-top: 10px;
-      font-size: 12.5px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      background: var(--ok-bg);
-      border: 1px solid var(--ok-bd);
-      color: var(--ok-ink);
-      display: none
-    }
-
-    .status.err {
-      background: var(--err-bg);
-      border-color: var(--err-bd);
-      color: var(--err-ink)
-    }
-
-    .status.show {
-      display: block
-    }
-
-    .prevbox {
-      margin-top: 12px;
-      border: 1px dashed var(--yellow-b);
-      background: var(--yellow);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 13px
-    }
-
-    .prevbox .ttl {
-      font-weight: 700;
-      margin-bottom: 6px
-    }
-
-    .prevbox .nums {
-      font-family: ui-monospace, Consolas, monospace
-    }
-
-    .warn {
-      margin-top: 8px;
-      background: var(--warn-bg);
-      border: 1px solid var(--warn-bd);
-      color: var(--warn-ink);
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 12.5px
-    }
-
-    .stat {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px
-    }
-
-    .pill {
-      background: var(--soft);
-      border: 1px solid #c7d2fe;
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 12.5px
-    }
-
-    .pill b {
-      color: var(--brand-d)
-    }
-
-    .pill.red {
-      background: var(--err-bg);
-      border-color: var(--err-bd)
-    }
-
-    .pill.red b {
-      color: var(--err-ink)
-    }
-
-    .pill.green {
-      background: var(--ok-bg);
-      border-color: var(--ok-bd)
-    }
-
-    .pill.green b {
-      color: var(--ok-ink)
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12.5px
-    }
-
-    th,
-    td {
-      padding: 7px 8px;
-      text-align: right;
-      border-bottom: 1px solid var(--line);
-      white-space: nowrap
-    }
-
-    th:first-child,
-    td:first-child {
-      text-align: center
-    }
-
-    th {
-      background: var(--th);
-      font-size: 11.5px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .3px
-    }
-
-    td.l,
-    th.l {
-      text-align: left
-    }
-
-    .tblwrap {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: 10px
-    }
-
-    tr.hl-y td {
-      background: var(--yellow)
-    }
-
-    tr.hl-r td {
-      background: var(--err-bg)
-    }
-
-    .grp-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 10px
-    }
-
-    .grp-head .t {
-      font-weight: 700
-    }
-
-    .grp-head .s {
-      font-size: 12px;
-      color: var(--muted)
-    }
-
-    .grand {
-      background: linear-gradient(135deg, #1e3a8a, #2563eb);
-      color: #fff;
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px
-    }
-
-    .grand .v {
-      font-size: 22px;
-      font-weight: 800
-    }
-
-    .acts {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap
-    }
-
-    .help {
-      font-size: 12.5px;
-      color: var(--muted)
-    }
-
-    .help li {
-      margin-bottom: 4px
-    }
-
-    .kbd {
-      font-family: ui-monospace, monospace;
-      background: var(--soft);
-      border: 1px solid #c7d2fe;
-      border-radius: 5px;
-      padding: 1px 5px;
-      font-size: 11.5px;
-      color: var(--brand-d)
-    }
-
-    #toast {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #111827;
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-size: 13px;
-      opacity: 0;
-      transition: .25s;
-      pointer-events: none;
-      z-index: 200
-    }
-
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0)
-    }
-
-    .muted {
-      color: var(--muted)
-    }
-
-    .mono {
-      font-family: ui-monospace, Consolas, monospace
-    }
-
-    /* ===== LAYOUT 40/60 ===== */
-    .layout {
-      display: grid;
-      grid-template-columns: 40fr 60fr;
-      gap: 16px;
-      align-items: start
-    }
-
-    .col-left,
-    .col-right {
-      min-width: 0
-    }
-
-    @media(min-width:901px) {
-      .col-left {
-        position: sticky;
-        top: 12px;
-        max-height: calc(100vh - 24px);
-        overflow: auto;
-        padding-right: 2px
-      }
-    }
-
-    @media(max-width:900px) {
-      .layout {
-        grid-template-columns: 1fr
-      }
-    }
-
-    /* ===== REKAP KIRI ===== */
-    .rekap h2 {
-      font-size: 14px
-    }
-
-    .rekap ul {
-      list-style: none;
-      margin: 8px 0 0;
-      padding: 0
-    }
-
-    .rekap li {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-      padding: 7px 0;
-      border-bottom: 1px dashed var(--line)
-    }
-
-    .rekap li:last-child {
-      border-bottom: none
-    }
-
-    .rk-label {
-      font-size: 12.5px;
-      min-width: 0
-    }
-
-    .rk-t {
-      font-weight: 700;
-      word-break: break-word
-    }
-
-    .rk-s {
-      color: var(--muted);
-      font-size: 11.5px
-    }
-
-    .rk-val {
-      font-family: ui-monospace, Consolas, monospace;
-      font-size: 12.5px;
-      font-weight: 800;
-      color: var(--brand-d);
-      white-space: nowrap
-    }
-
-    .rk-total {
-      font-size: 12.5px;
-      background: var(--soft);
-      border: 1px solid #c7d2fe;
-      border-radius: 8px;
-      padding: 6px 10px;
-      margin-bottom: 4px
-    }
-
-    .rk-total b {
-      color: var(--brand-d)
-    }
-
-    .rk-empty {
-      color: var(--muted);
-      font-size: 12.5px
-    }
-
-    /* ===== MODAL SETTING (tambahan) ===== */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(2, 6, 23, .55);
-      display: none;
-      align-items: flex-start;
-      justify-content: center;
-      z-index: 150;
-      padding: 24px;
-      overflow: auto
-    }
-
-    .overlay.show {
-      display: flex
-    }
-
-    .modal {
-      background: var(--card);
-      color: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      width: 100%;
-      max-width: 580px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, .35)
-    }
-
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line)
-    }
-
-    .modal-head h3 {
-      margin: 0;
-      font-size: 16px
-    }
-
-    .modal-body {
-      padding: 16px
-    }
-
-    .modal-foot {
-      padding: 12px 16px;
-      border-top: 1px solid var(--line);
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px
-    }
-
-    .x {
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-size: 20px;
-      cursor: pointer;
-      line-height: 1
-    }
-
-    .seg {
-      display: inline-flex;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      overflow: hidden
-    }
-
-    .seg button {
-      background: var(--field);
-      color: var(--ink);
-      border: none;
-      border-right: 1px solid var(--line);
-      border-radius: 0;
-      padding: 7px 12px;
-      font-size: 12.5px
-    }
-
-    .seg button:last-child {
-      border-right: none
-    }
-
-    .seg button.on {
-      background: var(--brand);
-      color: #fff
-    }
-
-    .set-grp {
-      margin-bottom: 16px
-    }
-
-    .set-grp>label {
-      font-size: 13px;
-      color: var(--ink);
-      font-weight: 700;
-      margin-bottom: 6px
-    }
-
-    .set-hint {
-      font-size: 11.5px;
-      color: var(--muted);
-      margin-top: 4px
-    }
-
-    #sRegexOut {
-      margin-top: 8px;
-      font-size: 12px;
-      font-family: ui-monospace, Consolas, monospace;
-      white-space: pre-wrap;
-      background: var(--soft);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 8px;
-      display: none
-    }
-
-    #sRegexOut.show {
-      display: block
-    }
-
-    #sRegexOut.err {
-      background: var(--err-bg);
-      border-color: var(--err-bd);
-      color: var(--err-ink)
-    }
-
-    /* --- EPIC ANIMATION PACK (ULTRA-SMOOTH 60FPS) --- */
-    :root {
-      --primary: #3b82f6;
-      --success: #22c55e;
-      --glow-primary: rgba(59, 130, 246, 0.35);
-      --glow-success: rgba(34, 197, 94, 0.4);
-      --ease-epic: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    /* Tabular figures to prevent horizontal layout jank during number counting */
-    #grand-total-display,
-    .v,
-    .rk-val,
-    .nums,
-    table td {
-      font-variant-numeric: tabular-nums;
-    }
-
-    .grand-div-pill {
-      background: rgba(255, 255, 255, 0.16);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 999px;
-      padding: 3px 10px;
-      font-size: 12px;
-    }
-
-    .grand-div-pill b {
-      color: #fff;
-      font-weight: 700;
-    }
-
-    /* 1. Staggered Entrance */
-    @keyframes fadeInUpSmooth {
-      from {
-        opacity: 0;
-        transform: translate3d(0, 24px, 0);
-      }
-
-      to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-      }
-    }
-
-    .panel-left {
-      animation: fadeInUpSmooth 0.5s var(--ease-epic) 0.05s forwards;
-      opacity: 0;
-      will-change: transform, opacity;
-    }
-
-    .panel-right {
-      animation: fadeInUpSmooth 0.5s var(--ease-epic) 0.15s forwards;
-      opacity: 0;
-      will-change: transform, opacity;
-    }
-
-    .epic-card {
-      transition: transform 0.25s var(--ease-epic), box-shadow 0.25s var(--ease-epic);
-      will-change: transform, box-shadow;
-    }
-
-    .epic-card:hover {
-      transform: translate3d(0, -2px, 0);
-      box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.12);
-    }
-
-    .card-entry {
-      animation: fadeInUpSmooth 0.35s var(--ease-epic) forwards;
-      will-change: transform, opacity;
-    }
-
-    /* 2. Grand Total Glow & Pulse */
-    #grand-total-display {
-      display: inline-block;
-      transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s var(--ease-bounce);
-      will-change: transform;
-    }
-
-    #grand-total-display.updating {
-      animation: pulseGlow 0.6s ease-in-out;
-      color: var(--success);
-    }
-
-    @keyframes pulseGlow {
-
-      0%,
-      100% {
-        text-shadow: 0 0 15px var(--glow-primary);
-        transform: scale(1);
-      }
-
-      50% {
-        text-shadow: 0 0 35px var(--glow-success);
-        transform: scale(1.03);
-      }
-    }
-
-    /* 3. Epic Buttons (Ripple + Hover) */
-    .epic-btn {
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.2s var(--ease-epic), box-shadow 0.2s var(--ease-epic), background-color 0.2s ease, border-color 0.2s ease;
-      cursor: pointer;
-      will-change: transform;
-      user-select: none;
-    }
-
-    .epic-btn:hover {
-      transform: translate3d(0, -2px, 0);
-      box-shadow: 0 6px 16px -3px var(--glow-primary);
-    }
-
-    .epic-btn:active {
-      transform: translate3d(0, 1px, 0) scale(0.98);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.45);
-      transform: translate(-50%, -50%) scale(0);
-      animation: ripple-anim 0.5s ease-out forwards;
-      pointer-events: none;
-    }
-
-    @keyframes ripple-anim {
-      to {
-        transform: translate(-50%, -50%) scale(3.5);
-        opacity: 0;
-      }
-    }
-
-    /* 4. Parse Field Highlight Sequence (No scale transform to prevent layout reflow) */
-    @keyframes fieldPopulate {
-      0% {
-        background-color: rgba(59, 130, 246, 0.18);
-        box-shadow: 0 0 0 3px var(--glow-primary);
-        border-color: var(--primary) !important;
-      }
-
-      50% {
-        background-color: rgba(59, 130, 246, 0.1);
-        box-shadow: 0 0 0 4px var(--glow-primary);
-      }
-
-      100% {
-        background-color: var(--field);
-        box-shadow: none;
-      }
-    }
-
-    .field-highlight {
-      animation: fieldPopulate 0.7s var(--ease-epic) forwards;
-    }
-
-    /* 5. Glassmorphism Toast Notification */
-    .toast-epic {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-left: 4px solid var(--success);
-      padding: 14px 20px;
-      border-radius: 12px;
-      color: white;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
-      transform: translate3d(120%, 0, 0);
-      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
-      opacity: 0;
-      z-index: 9999;
-      font-family: system-ui, -apple-system, sans-serif;
-      pointer-events: none;
-    }
-
-    .toast-epic.show {
-      transform: translate3d(0, 0, 0);
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .toast-epic.error {
-      border-left-color: #ef4444;
-    }
-
-    /* 6. Collapsible Group Cards */
-    .tblwrap-collapsible {
-      max-height: 3500px;
-      opacity: 1;
-      overflow: hidden;
-      transition: max-height 0.4s var(--ease-epic), opacity 0.3s ease, margin 0.3s ease;
-    }
-
-    .tblwrap-collapsible.collapsed {
-      max-height: 0 !important;
-      opacity: 0;
-      margin: 0 !important;
-      border: none !important;
-    }
-
-    .grp-head {
-      cursor: pointer;
-      user-select: none;
-      transition: opacity 0.2s ease;
-    }
-
-    .grp-head:hover {
-      opacity: 0.92;
-    }
-
-    .grp-head-title {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .toggle-icon {
-      font-size: 11px;
-      transition: transform 0.3s var(--ease-epic);
-      display: inline-block;
-      color: var(--brand);
-    }
-
-    .toggle-icon.rotated {
-      transform: rotate(-90deg);
-    }
-
-    /* ===== 8. CIRCULAR PROGRESS RING STYLES ===== */
-    .progress-ring-box {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      flex-shrink: 0;
-    }
-    .progress-ring {
-      transform: rotate(-90deg);
-    }
-    .progress-ring-circle {
-      transition: stroke-dashoffset 0.8s var(--ease-epic), stroke 0.3s ease;
-    }
-    .progress-ring-text {
-      position: absolute;
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--ink);
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* ===== 6. FORM SHAKE & MICRO-INTERACTION STYLES ===== */
-    @keyframes formShake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-6px); }
-      40%, 80% { transform: translateX(6px); }
-    }
-    .form-shake {
-      animation: formShake 0.4s ease-in-out;
-      border-color: var(--red-b) !important;
-    }
-
-    /* ===== 2. SKELETON LOADING SHIMMER STYLES ===== */
-    @keyframes shimmerAnim {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    .skeleton-shimmer {
-      background: linear-gradient(90deg, var(--line) 25%, var(--soft) 50%, var(--line) 75%) !important;
-      background-size: 200% 100% !important;
-      animation: shimmerAnim 1.5s infinite linear !important;
-      border-radius: 6px;
-      color: transparent !important;
-      pointer-events: none !important;
-    }
-
-    /* ===== 5. SCROLL TRIGGERED REVEAL STYLES ===== */
-    .card-entry {
-      opacity: 0;
-      transform: translate3d(0, 24px, 0);
-      transition: opacity 0.45s var(--ease-epic), transform 0.45s var(--ease-epic);
-      will-change: transform, opacity;
-    }
-    .card-entry.revealed {
-      opacity: 1;
-      transform: translate3d(0, 0, 0);
-    }
-
-    /* ===== MULTI FILTER & REKAP CLICKABLE STYLES ===== */
-    @media(max-width:1050px) {
-      .grid-filter { grid-template-columns: repeat(2, 1fr) !important; }
-    }
-    @media(max-width:560px) {
-      .grid-filter { grid-template-columns: 1fr !important; }
-    }
-    .rekap li.rk-item-clickable {
-      cursor: pointer;
-      border-radius: 6px;
-      padding: 6px 8px;
-      margin: 2px -8px;
-      transition: background-color 0.2s ease, transform 0.15s ease;
-      user-select: none;
-    }
-    .rekap li.rk-item-clickable:hover {
-      background: var(--soft);
-      transform: translateX(4px);
-    }
-    .rekap li.rk-item-clickable.active-filter {
-      background: var(--soft);
-      border: 1px solid #c7d2fe;
-      font-weight: 700;
-    }
-
-    /* ===== DARK MODE SMOOTH TRANSITION & FILTER CHIPS ===== */
-    body, div, input, select, textarea, button, table, td, th, .card, header {
-      transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-    }
-
-    .filter-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: var(--soft);
-      border: 1px solid var(--line);
-      color: var(--ink);
-      font-size: 11.5px;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
-    }
-    .filter-chip:hover {
-      transform: translateY(-1px);
-      border-color: var(--brand);
-    }
-    .filter-chip.active {
-      background: var(--brand);
-      color: #ffffff;
-      border-color: var(--brand-d);
-      font-weight: 700;
-      box-shadow: 0 2px 8px var(--glow-primary);
-    }
-
-    /* Mobile First Responsive Touch Styling */
-    @media (max-width: 768px) {
-      .layout {
-        flex-direction: column !important;
-      }
-      .panel-left, .panel-right {
-        width: 100% !important;
-      }
-      .tblwrap {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-    }
-
-    /* Animated Header & Web Icon Styles */
-    .animated-header-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.3s var(--ease-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)), filter 0.3s ease;
-      will-change: transform;
-      flex-shrink: 0;
-    }
-    .animated-header-icon:hover {
-      transform: scale(1.12) rotate(4deg);
-      filter: drop-shadow(0 6px 16px rgba(59, 130, 246, 0.6));
-    }
-    @keyframes hdrPulse {
-      0%, 100% { opacity: 0.4; transform: scale(0.98); }
-      50% { opacity: 0.95; transform: scale(1.03); }
-    }
-    @keyframes hdrBarFill {
-      0% { width: 20px; }
-      50%, 100% { width: 150px; }
-    }
-    @keyframes hdrBadgeFloat {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-5px) rotate(3deg); }
-    }
-    @keyframes hdrCheckDraw {
-      0% { stroke-dashoffset: 50; opacity: 0.2; }
-      40%, 100% { stroke-dashoffset: 0; opacity: 1; }
-    }
-    .hdr-pulse { transform-origin: center; animation: hdrPulse 3s ease-in-out infinite; }
-    .hdr-bar { animation: hdrBarFill 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate; }
-    .hdr-badge { transform-origin: 360px 130px; animation: hdrBadgeFloat 3.2s ease-in-out infinite; }
-    .hdr-check { stroke-dasharray: 50; stroke-dashoffset: 50; animation: hdrCheckDraw 2.8s ease-in-out infinite alternate; }
-
-    /* ===== WORKFLOW UPGRADES CSS ===== */
-    .card-entry.dragging {
-      opacity: 0.45;
-      transform: scale(0.98);
-      border: 2px dashed var(--brand) !important;
-    }
-    .card-entry.drag-over {
-      border-top: 4px solid var(--brand) !important;
-    }
-    .drag-handle {
-      cursor: grab;
-      user-select: none;
-      padding: 2px 6px;
-      font-size: 14px;
-      opacity: 0.65;
-      transition: opacity 0.2s;
-    }
-    .drag-handle:hover {
-      opacity: 1;
-    }
-    tr.kb-selected {
-      outline: 2px solid var(--brand-d) !important;
-      background: var(--soft) !important;
-    }
-    .dirty-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--yellow-b);
-      background: var(--yellow);
-      padding: 2px 8px;
-      border-radius: 12px;
-      border: 1px solid var(--yellow-b);
-      animation: pulseDirty 1.5s infinite alternate;
-    }
-    @keyframes pulseDirty {
-      from { opacity: 0.7; }
-      to { opacity: 1; }
-    }
-    .timeline-item {
-      position: relative;
-      padding-left: 20px;
-      border-left: 2px solid var(--line);
-      padding-bottom: 12px;
-      font-size: 12.5px;
-    }
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -5px;
-      top: 4px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--brand);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<!-- PWA Manifest (inline via data URI) -->
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;RekapBA Pro&quot;,&quot;short_name&quot;:&quot;RekapBA&quot;,&quot;display&quot;:&quot;standalone&quot;}">
+<title>RekapBA Pro</title>
+
+<style>
+/* ═══════════════════════════════════════════
+   1. DESIGN TOKENS (CSS Custom Properties)
+   ═══════════════════════════════════════════ */
+:root {
+  /* Spacing scale */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px;
+  --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+
+  /* Colors - Light */
+  --bg-primary: #f8fafc;
+  --bg-card: #ffffff;
+  --text-primary: #0f172a;
+  --accent: #6366f1;
+  --accent-glow: rgba(99,102,241,.35);
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255,255,255,.72);
+  --glass-border: rgba(255,255,255,.3);
+  --glass-blur: 16px;
+
+  /* Animation tokens */
+  --ease-spring: cubic-bezier(.34,1.56,.64,1);
+  --ease-smooth: cubic-bezier(.4,0,.2,1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 600ms;
+
+  /* Layout */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.04);
+  
+  /* Z-Index Layers */
+  --z-navbar: 100;
+  --z-bottom-sheet: 200;
+  --z-cmd-palette: 999;
+  --z-toast: 1000;
+  --z-confetti: 9999;
+}
+
+/* Dark theme override */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-card: #1e293b;
+  --text-primary: #f1f5f9;
+  --glass-bg: rgba(30,41,59,.72);
+  --glass-border: rgba(255,255,255,.08);
+  --shadow-card: 0 1px 3px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.2);
+}
+
+/* ═══════════════════════════════════════════
+   2. BASE / RESET
+   ═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  transition: background-color var(--duration-normal) var(--ease-smooth), color var(--duration-normal) var(--ease-smooth);
+}
+button { cursor: pointer; border: none; font-family: inherit; }
+input, textarea { font-family: inherit; }
+
+/* ═══════════════════════════════════════════
+   3. LAYOUT - BENTO GRID
+   ═══════════════════════════════════════════ */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-auto-rows: min-content;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.bento-grid .card--grand-total {
+  grid-column: 1 / -1; /* full width */
+}
+.bento-grid .card--input {
+  grid-row: span 2;
+}
+
+@media (max-width: 768px) {
+  .bento-grid .card--input {
+    grid-row: span 1;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   4. COMPONENTS
+   ═══════════════════════════════════════════ */
+
+/* 4a. Sticky Glass Navbar */
+.navbar {
+  position: sticky; top: 0; z-index: var(--z-navbar);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid var(--glass-border);
+  padding: var(--sp-3) var(--sp-5);
+  display: flex; align-items: center; gap: var(--sp-4);
+  justify-content: space-between;
+}
+.navbar__left { display: flex; align-items: center; gap: var(--sp-4); }
+.navbar__right { display: flex; align-items: center; gap: var(--sp-2); }
+.navbar__progress {
+  position: absolute; bottom: 0; left: 0;
+  height: 2px; background: var(--accent);
+  transition: width 50ms linear;
+  width: 0%;
+}
+.btn-icon {
+  background: transparent;
+  color: var(--text-primary);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  transition: background-color var(--duration-fast);
+}
+.btn-icon:hover { background: rgba(127,127,127,0.1); }
+
+/* 4b. Command Palette (Ctrl+K) */
+.cmd-palette {
+  position: fixed; inset: 0; z-index: var(--z-cmd-palette);
+  display: none; /* toggled via JS */
+  place-items: start center;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.cmd-palette.active { display: grid; }
+.cmd-palette__box {
+  margin-top: 15vh; width: min(560px, 90vw);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  overflow: hidden;
+  animation: cmdSlideIn var(--duration-normal) var(--ease-spring);
+  border: 1px solid var(--glass-border);
+}
+@keyframes cmdSlideIn {
+  from { opacity: 0; transform: translateY(-12px) scale(.97); }
+}
+.cmd-palette__input { 
+  width: 100%; padding: var(--sp-5);
+  font-size: 1.1rem; border: none; background: transparent;
+  color: var(--text-primary); border-bottom: 1px solid var(--glass-border);
+  outline: none;
+}
+.cmd-palette__results { 
+  list-style: none; max-height: 50vh; overflow-y: auto; 
+}
+.cmd-palette__results li {
+  padding: var(--sp-3) var(--sp-5);
+  cursor: pointer; display: flex; justify-content: space-between;
+  border-bottom: 1px solid rgba(127,127,127,0.05);
+}
+.cmd-palette__results li:hover, .cmd-palette__results li.selected {
+  background: var(--accent-glow);
+}
+
+/* 4c. Mandor Card */
+.card-mandor, .card--input, .card--grand-total {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: var(--sp-4);
+  border: 1px solid var(--glass-border);
+}
+.card-mandor {
+  contain: layout style; /* perf */
+  content-visibility: auto; /* skip offscreen render */
+  contain-intrinsic-size: 0 280px;
+  overflow: hidden;
+  transition: transform var(--duration-fast) var(--ease-smooth),
+              box-shadow var(--duration-fast) var(--ease-smooth);
+}
+.card-mandor:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.1), 0 16px 40px rgba(0,0,0,.08);
+}
+.card-mandor header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: var(--sp-3);
+}
+
+/* 4d. Sparkline (pure SVG) */
+.sparkline { width: 100px; height: 32px; }
+.sparkline polyline {
+  fill: none; stroke: var(--accent);
+  stroke-width: 2; stroke-linecap: round;
+  stroke-dasharray: 200; stroke-dashoffset: 200;
+  animation: sparkDraw 1s var(--ease-smooth) forwards;
+}
+@keyframes sparkDraw { to { stroke-dashoffset: 0; } }
+
+/* 4e. Progress Ring (SVG) */
+.progress-ring { width: 80px; height: 80px; }
+.progress-ring circle {
+  transition: stroke-dashoffset var(--duration-slow) var(--ease-spring);
+  fill: transparent; stroke-width: 8; stroke-linecap: round;
+}
+.progress-ring .bg { stroke: rgba(127,127,127,0.1); }
+.progress-ring .fg { stroke: var(--success); stroke-dasharray: 200; stroke-dashoffset: 200; }
+
+/* 4f. Skeleton Loading */
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--bg-card) 25%, rgba(127,127,127,.1) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* 4g. Bottom Sheet (Mobile Input) */
+.bottom-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: var(--z-bottom-sheet);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  transform: translateY(100%);
+  transition: transform var(--duration-normal) var(--ease-spring);
+  max-height: 85dvh; overflow-y: auto;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+  padding: var(--sp-4); border-top: 1px solid var(--glass-border);
+}
+.bottom-sheet.open { transform: translateY(0); }
+.bottom-sheet__handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--text-primary); opacity: .3;
+  margin: 0 auto var(--sp-4) auto;
+}
+
+/* 4h. Toast (Glassmorphism) */
+.toast {
+  position: fixed; bottom: var(--sp-5); right: var(--sp-5);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-5);
+  z-index: var(--z-toast);
+  box-shadow: var(--shadow-card);
+  animation: toastIn var(--duration-normal) var(--ease-spring);
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(16px) scale(.95); }
+}
+
+/* ═══════════════════════════════════════════
+   5. ANIMATIONS & SPECIFIC STYLES
+   ═══════════════════════════════════════════ */
+
+.card--grand-total {
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(135deg, var(--accent), #3b82f6);
+  color: white;
+}
+.card--grand-total h2 { font-weight: 500; opacity: 0.9; margin-bottom: 4px; font-size: 0.9rem; }
+.card--grand-total .odometer { font-size: 2.5rem; font-weight: 800; }
+
+textarea {
+  width: 100%; min-height: 100px;
+  background: transparent; color: var(--text-primary);
+  border: 1px solid rgba(127,127,127,0.2); border-radius: var(--radius-sm);
+  padding: var(--sp-3); margin-bottom: var(--sp-3);
+  resize: vertical;
+}
+textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+
+.btn-magnetic {
+  width: 100%; padding: var(--sp-3);
+  background: var(--accent); color: white;
+  border-radius: var(--radius-sm); font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-magnetic:hover { transform: translateY(-2px); box-shadow: 0 4px 12px var(--accent-glow); }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { text-align: right; padding: var(--sp-2) 0; border-bottom: 1px solid rgba(127,127,127,0.1); }
+th:first-child, td:first-child { text-align: left; }
+th { color: rgba(127,127,127,0.8); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
+
+/* Staggered Entrance */
+.stagger-item {
+  opacity: 0; transform: translateY(20px);
+  animation: staggerIn var(--duration-slow) var(--ease-spring) forwards;
+}
+@keyframes staggerIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Parse Scanning Highlight */
+.parse-highlight {
+  background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
+  background-size: 200% 100%;
+  animation: scanHighlight .8s var(--ease-smooth);
+}
+@keyframes scanHighlight {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+.card-pulse-glow {
+  animation: pulseGlow .8s var(--ease-smooth);
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: var(--shadow-card); }
+  50% { box-shadow: 0 0 0 4px var(--accent-glow), var(--shadow-card); }
+}
+
+/* ═══════════════════════════════════════════
+   6. THEMES (auto via prefers-color-scheme)
+   ═══════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    --bg-primary: #0f172a;
+    --bg-card: #1e293b;
+    --text-primary: #f1f5f9;
+    --glass-bg: rgba(30,41,59,.72);
+    --glass-border: rgba(255,255,255,.08);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   7. PRINT
+   ═══════════════════════════════════════════ */
+@media print {
+  .navbar, .cmd-palette, .toast, .bottom-sheet,
+  .btn, #confettiCanvas, .card--input { display: none !important; }
+  .bento-grid { display: block; }
+  .card-mandor {
+    break-inside: avoid;
+    box-shadow: none; border: 1px solid #ccc;
+    margin-bottom: 12px;
+  }
+  body { background: #fff; color: #000; }
+}
+
+/* ═══════════════════════════════════════════
+   8. REDUCED MOTION
+   ═══════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .stagger-item { opacity: 1; transform: none; }
+}
+
+.d-none { display: none !important; }
+</style>
 </head>
 
 <body>
-  <header>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar" id="navbar">
+  <div class="navbar__left">
+    <strong>📋 RekapBA Pro</strong>
+  </div>
+  <div class="navbar__right">
+    <button id="btnCmdK" class="btn-icon" title="Cari (Ctrl+K)">🔍</button>
+    <button id="btnTheme" class="btn-icon" title="Ganti Tema">🌙</button>
+  </div>
+  <div class="navbar__progress" id="scrollProgress"></div>
+</nav>
+
+<!-- ═══ COMMAND PALETTE ═══ -->
+<div class="cmd-palette" id="cmdPalette">
+  <div class="cmd-palette__box">
+    <input class="cmd-palette__input" id="cmdInput" placeholder="Cari mandor, pekerjaan, aksi..." autocomplete="off" />
+    <ul class="cmd-palette__results" id="cmdResults"></ul>
+  </div>
+</div>
+
+<!-- ═══ MAIN BENTO GRID ═══ -->
+<main class="bento-grid" id="app">
+
+  <!-- Grand Total Card -->
+  <section class="card--grand-total" id="grandTotal">
     <div>
-      <h1 style="display:flex;align-items:center;gap:12px">
-        <span class="animated-header-icon" title="Pencatat Progres Mandor App Icon">
-          <svg width="42" height="42" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));">
-            <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#hdrBgGrad)"/>
-            <rect x="44" y="44" width="424" height="424" rx="84" stroke="#60a5fa" stroke-width="6" stroke-opacity="0.7" class="hdr-pulse"/>
-            <rect x="116" y="105" width="280" height="335" rx="24" fill="#ffffff"/>
-            <rect x="186" y="80" width="140" height="44" rx="12" fill="url(#hdrGoldGrad)"/>
-            <circle cx="256" cy="102" r="8" fill="#0f172a"/>
-            <rect x="156" y="155" width="130" height="16" rx="8" fill="#1e3a8a"/>
-            <rect x="156" y="190" width="200" height="14" rx="7" fill="#e2e8f0"/>
-            <rect x="156" y="190" width="150" height="14" rx="7" fill="url(#hdrAccentGrad)" class="hdr-bar"/>
-            <circle cx="168" cy="240" r="11" fill="#10b981"/>
-            <path d="M163 240 l4 4 l7 -7" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="192" y="234" width="150" height="12" rx="6" fill="#475569"/>
-            <circle cx="168" cy="280" r="11" fill="#10b981"/>
-            <path d="M163 280 l4 4 l7 -7" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="192" y="274" width="125" height="12" rx="6" fill="#475569"/>
-            <circle cx="168" cy="320" r="11" fill="#3b82f6"/>
-            <path d="M164 320 h8" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
-            <rect x="192" y="314" width="160" height="12" rx="6" fill="#94a3b8"/>
-            <g class="hdr-badge">
-              <circle cx="360" cy="130" r="38" fill="url(#hdrGoldGrad)"/>
-              <path d="M345 130 l10 10 l18 -18" stroke="#0f172a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="hdr-check"/>
-            </g>
-            <defs>
-              <linearGradient id="hdrBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#1e3a8a"/>
-                <stop offset="100%" stop-color="#3b82f6"/>
-              </linearGradient>
-              <linearGradient id="hdrGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#fde047"/>
-                <stop offset="100%" stop-color="#eab308"/>
-              </linearGradient>
-              <linearGradient id="hdrAccentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#2563eb"/>
-                <stop offset="100%" stop-color="#10b981"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </span>
-        <span>Pencatat Progres Mandor (BA)</span>
-      </h1>
-      <p>Kelompokkan per mandor &amp; pekerjaan · akumulasi otomatis · cegah salah hitung adendum</p>
+      <h2>Grand Total Kumulatif</h2>
+      <div class="odometer" id="odometerValue">Rp 0</div>
     </div>
-    <button class="gear epic-btn" id="btnSettings" type="button" title="Setting parsing & tema">⚙️ Setting</button>
-  </header>
+    <svg class="progress-ring" viewBox="0 0 100 100">
+      <circle class="bg" cx="50" cy="50" r="40"></circle>
+      <circle class="fg" id="grandProgressRing" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="251.2" transform="rotate(-90 50 50)"></circle>
+    </svg>
+  </section>
 
-  <div class="wrap">
-
-    <!-- GRAND TOTAL MINI DASHBOARD -->
-    <div class="grand epic-card" style="flex-direction:column;align-items:stretch;gap:12px;padding:18px 22px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div>
-          <div style="font-size:11.5px;opacity:.9;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">💰 Grand Total Termin Dicairkan</div>
-          <div class="v" id="grand-total-display" style="font-size:30px;font-weight:900;letter-spacing:-0.5px;">Rp 0</div>
-        </div>
-        <div id="grand-dash-metrics" style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;">
-          <!-- Dynamically filled: 👷 X Mandor · 🔧 Y Pekerjaan · 📋 Z Entri -->
-        </div>
-      </div>
-
-      <!-- Overall Contract Progress Bar -->
-      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;">
-        <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;font-weight:600;">
-          <span id="grand-pct-label">Progres Pencairan Uang Mandor</span>
-          <span id="grand-pct-val">0% dari Total Kontrak</span>
-        </div>
-        <div style="height:8px;background:rgba(0,0,0,0.2);border-radius:4px;overflow:hidden;">
-          <div id="grand-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg, #fde047, #10b981);transition:width 0.8s var(--ease-epic);border-radius:4px;"></div>
-        </div>
-      </div>
-
-      <div id="grand-divisi-breakdown"
-        style="display:flex;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.2);font-size:12.5px">
-      </div>
+  <!-- Input Card / Bottom Sheet trigger -->
+  <section class="card--input" id="inputCard">
+    <h3 style="margin-bottom: var(--sp-3)">Input BA</h3>
+    <textarea id="parseInput" placeholder="Paste baris BA di sini..."></textarea>
+    <button id="btnParse" class="btn-magnetic">⚡ Parse & Simpan</button>
+    <!-- Batch Preview Table -->
+    <div id="batchPreview" class="d-none" style="margin-top: var(--sp-3)">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Mandor</th>
+            <th>Pekerjaan</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody id="batchTableBody"></tbody>
+      </table>
+      <button id="btnBulkSave" class="btn-magnetic" style="margin-top: var(--sp-3); background: var(--success);">✅ Simpan Terpilih</button>
     </div>
+  </section>
 
-    <!-- MULTI FILTER CARD -->
-    <div class="card epic-card" style="padding:14px;margin-bottom:16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-        <h2 style="margin:0;font-size:15px;display:flex;align-items:center;gap:6px">
-          <span>🔍 Multi-Filter &amp; Pencarian Data</span>
-        </h2>
-        <div id="filterCountBadge" class="pill green" style="font-size:12px;padding:4px 10px;">
-          Menampilkan semua entri
-        </div>
+  <!-- Mandor Cards Container -->
+  <section id="mandorCards" style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--sp-4);">
+    <!-- Rendered dynamically -->
+  </section>
+
+</main>
+
+<!-- ═══ BOTTOM SHEET (Mobile) ═══ -->
+<div class="bottom-sheet" id="bottomSheet">
+  <div class="bottom-sheet__handle"></div>
+  <!-- Form input clone goes here if needed, or we just rely on the bento grid wrapping -->
+</div>
+
+<!-- ═══ TOAST CONTAINER ═══ -->
+<div id="toastContainer"></div>
+
+<!-- ═══ CONFETTI CANVAS ═══ -->
+<canvas id="confettiCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:var(--z-confetti);"></canvas>
+
+<template id="tplMandorCard">
+  <article class="card-mandor stagger-item">
+    <header>
+      <div>
+        <h4 class="mandor-name" style="margin-bottom: 4px;"></h4>
+        <div class="mandor-divisi" style="font-size: 0.8rem; color: rgba(127,127,127,0.8);"></div>
       </div>
-      <div class="grid grid-filter" style="grid-template-columns: repeat(4, 1fr); gap:10px;">
-        <div>
-          <label for="filterDivisi">Divisi</label>
-          <select id="filterDivisi" style="padding:7px 9px;">
-            <option value="">Semua Divisi</option>
-          </select>
-        </div>
-        <div>
-          <label for="filterMandor">Mandor</label>
-          <select id="filterMandor" style="padding:7px 9px;">
-            <option value="">Semua Mandor</option>
-          </select>
-        </div>
-        <div>
-          <label for="filterTempat">Tempat Proyek</label>
-          <select id="filterTempat" style="padding:7px 9px;">
-            <option value="">Semua Tempat Proyek</option>
-          </select>
-        </div>
-        <div>
-          <label for="filterSearch">Cari Kata Kunci</label>
-          <div style="display:flex;gap:6px;">
-            <input type="text" id="filterSearch" placeholder="Mandor, pekerjaan, tgl..." style="padding:7px 9px;">
-            <button class="btn-ghost epic-btn btn-sm" id="btnResetFilter" type="button" style="flex:0 0 auto;padding:0 10px;" title="Reset Filter">🧹 Reset</button>
-          </div>
-        </div>
-      </div>
-      <!-- Filter Chips Bar -->
-      <div id="filterChipContainer" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:12px;"></div>
+      <svg class="sparkline" viewBox="0 0 100 32" preserveAspectRatio="none"><polyline points="0,32 100,32"/></svg>
+    </header>
+    <div class="card-body">
+      <table>
+        <tbody class="tbl-detail"></tbody>
+      </table>
     </div>
+    <footer style="margin-top: var(--sp-3); display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 500;">
+      <span class="termin-badge" style="color: var(--success);"></span>
+      <span class="kumulatif-badge"></span>
+    </footer>
+  </article>
+</template>
 
-    <!-- LAYOUT 40/60 -->
-    <div class="layout">
-      <aside class="col-left panel-left">
-        <div id="rekapPanel"></div>
-      </aside>
+<script>
+  // ==========================================
+  // REKAPBA PRO - CORE LOGIC
+  // ==========================================
 
-      <section class="col-right panel-right">
-        <!-- FORM INPUT -->
-        <div class="card epic-card" style="padding:14px;">
-          <h2 style="margin-bottom:10px;font-size:15px;display:flex;align-items:center;justify-content:space-between;">
-            <span>➕ Input / Parse Entri BA</span>
-            <span id="dirtyIndicator" class="dirty-badge" style="display:none;">● Unsaved changes</span>
-          </h2>
-          <div class="grid3">
-            <div>
-              <label for="fDivisi">Divisi</label>
-              <input type="text" id="fDivisi" list="dlDivisi" placeholder="Ketik / pilih divisi..." autocomplete="off"
-                style="padding:7px 9px;">
-              <datalist id="dlDivisi"></datalist>
-            </div>
-            <div>
-              <label for="fMandor">Mandor</label>
-              <input type="text" id="fMandor" list="dlMandor" placeholder="Ketik / pilih mandor..." autocomplete="off"
-                style="padding:7px 9px;">
-              <datalist id="dlMandor"></datalist>
-            </div>
-            <div>
-              <label for="fPekerjaan">Jenis Pekerjaan</label>
-              <input type="text" id="fPekerjaan" list="dlPekerjaan" placeholder="Ketik / pilih pekerjaan..."
-                autocomplete="off" style="padding:7px 9px;">
-              <datalist id="dlPekerjaan"></datalist>
-            </div>
-          </div>
+  // 1. STATE MANAGEMENT
+  let records = [];
+  let settings = {
+    theme: 'auto',
+    customRegex: '',
+    tempatKeywords: ['Dapur', 'Kitchen', 'Kamar', 'Room', 'Toilet', 'Fasad', 'Lobby', 'Koridor', 'Roof', 'Luar']
+  };
 
-          <div style="margin-top:8px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <label style="margin-bottom:0">Paste baris BA <span class="muted"
-                  style="font-weight:normal">(opsional)</span></label>
-              <button class="btn-soft epic-btn btn-sm" id="btnParse" type="button"
-                style="padding:3px 10px;font-size:11.5px">🔍 Parse Baris</button>
-            </div>
-            <textarea id="fPaste"
-              style="min-height:36px;height:36px;padding:6px 9px;font-size:12px;transition:height 0.2s ease"
-              placeholder="Tohir Pekerjaan Sekatan, Plafon... 67,133% x Rp 47.909.204 = 32.162.886"
-              onfocus="this.style.height='54px'" onblur="if(!this.value)this.style.height='36px'"></textarea>
-          </div>
+  // LocalStorage Keys
+  const LS_DATA = 'rekapba_data_v2';
+  const LS_SETTINGS = 'rekapba_settings_v2';
 
-          <div class="grid-5" style="margin-top:8px">
-            <div>
-              <label>Tanggal</label>
-              <input type="date" id="fTgl" style="padding:6px 8px;font-size:13px">
-            </div>
-            <div>
-              <label>Progres (%)</label>
-              <input type="text" id="fPersen" placeholder="67,133" style="padding:6px 8px;font-size:13px">
-            </div>
-            <div>
-              <label>Kontrak (Rp)</label>
-              <input type="text" id="fKontrak" placeholder="47.909.204" style="padding:6px 8px;font-size:13px">
-            </div>
-            <div>
-              <label>Kumulatif (Rp)</label>
-              <input type="text" id="fKum" placeholder="32.162.886" style="padding:6px 8px;font-size:13px">
-            </div>
-            <div>
-              <label
-                title="Otomatis = kumulatif terakhir (edit hanya bila BA pakai baseline lain setelah adendum)">Sebelumnya
-                (Rp)</label>
-              <input type="text" id="fPrev" placeholder="otomatis" style="padding:6px 8px;font-size:13px">
-            </div>
-          </div>
-
-          <div id="prevBox" class="prevbox" style="display:none;margin-top:8px;padding:8px 10px;">
-            <div class="ttl" style="font-size:12px">📌 Progres Sebelumnya (entri terakhir kelompok ini) — referensi
-            </div>
-            <div class="nums" id="prevNums" style="font-size:12px"></div>
-            <div class="acts" style="margin-top:6px">
-              <button class="btn-ghost btn-sm epic-btn" id="copyPrevXY" type="button">📋 Copy "Rp … = …"</button>
-              <button class="btn-ghost btn-sm epic-btn" id="copyPrevFull" type="button">📋 Copy baris lengkap</button>
-              <button class="btn-soft btn-sm epic-btn" id="usePrev" type="button">⬇ Pakai kumulatif ini sbg
-                "Sebelumnya"</button>
-            </div>
-          </div>
-          <div id="adendumWarn" class="warn" style="display:none;margin-top:6px;padding:6px 9px;"></div>
-          <div id="inlineValidationWarn" class="warn" style="display:none;margin-top:6px;padding:6px 9px;background:#fffbebf0;border:1px solid #fde047;color:#854d0e;border-radius:8px;"></div>
-          <div id="editNotice" class="warn" style="display:none;margin-top:8px;padding:8px 12px;background:var(--soft);border-color:#c7d2fe;color:var(--brand-d);display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-            <span id="editNoticeText">✏️ <b>Mode Edit Entri</b></span>
-            <button class="btn-ghost btn-sm epic-btn" id="btnCancelEdit" type="button" style="padding:3px 10px;font-size:11.5px;">✖ Batal Edit</button>
-          </div>
-          <div id="status" class="status" style="margin-top:6px;padding:6px 9px;"></div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn epic-btn" id="btnSave" type="button" style="padding:8px 14px;">💾 Simpan Entri</button>
-            <button class="btn-ghost epic-btn" id="btnReset" type="button" style="padding:8px 14px;">🧹 Reset
-              Form</button>
-            <button class="btn-soft epic-btn" id="btnSample" type="button" style="padding:8px 14px;">🎯 Isi Contoh BA
-              Tohir (8 termin)</button>
-          </div>
-        </div>
-
-        <div id="groups"></div>
-      </section>
-    </div>
-
-    <!-- DATA -->
-    <div class="card epic-card">
-      <h2>💾 Data &amp; Backup</h2>
-      <div class="acts">
-        <button class="btn-soft epic-btn" id="btnExport" type="button">⬇ Export JSON</button>
-        <button class="btn-soft epic-btn" id="btnImport" type="button">⬆ Import JSON</button>
-        <input type="file" id="fileImport" accept="application/json" style="display:none">
-        <button class="btn epic-btn" id="btnPushGistMain" type="button" title="Upload data &amp; setting ke GitHub Gist">☁️ Push ke Gist</button>
-        <button class="btn-ghost epic-btn" id="btnPullGistMain" type="button" title="Download data dari GitHub Gist">☁️ Pull dari Gist</button>
-        <button class="btn-danger epic-btn" id="btnClear" type="button">🗑 Hapus Semua Data</button>
-      </div>
-      <div id="gistStatusBadge" style="margin-top:10px;font-size:12.5px;color:var(--muted)"></div>
-      <p class="help" style="margin-top:8px">Data &amp; setting tersimpan otomatis di browser ini (localStorage).
-        Gunakan GitHub Gist untuk sinkronisasi antar perangkat (HP/Laptop) atau Export JSON untuk backup manual.</p>
-    </div>
-
-    <!-- BANTUAN -->
-    <div class="card epic-card">
-      <h2>❓ Cara Pakai &amp; Arti Kolom</h2>
-      <ul class="help">
-        <li><b>⚙️ Setting</b> (pojok kanan atas): atur <b>tema</b> (terang/gelap/otomatis) &amp; <b>aturan parsing</b>
-          (cara ambil mandor, kata kunci tempat, format angka, regex kustom).</li>
-        <li><b>Mandor &amp; Pekerjaan</b>: pilih dari dropdown, atau <span class="kbd">+ Tambah baru…</span>. Kalau
-          paste baris, keduanya terisi otomatis sesuai aturan di Setting.</li>
-        <li><b>Nilai Kumulatif</b> = persen × kontrak. <b>Termin</b> = Kumulatif − Sebelumnya = uang yg dicairkan di BA
-          ini. <b>Jumlah semua termin = Grand Total</b>.</li>
-        <li><b>Nilai Sebelumnya</b>: otomatis = kumulatif terakhir. <b>WAJIB diedit</b> bila ada adendum &amp; BA
-          menulis baseline berbeda (cth BA‑5 Tohir = 19.080.776).</li>
-        <li><b>Rekap kiri</b>: total termin per <b>Pekerjaan / Mandor / Tempat</b>. Tempat diambil dari kata kunci di
-          Setting (default: Dapur, Gedung, Blok, …).</li>
-        <li>Baris tabel: <span style="background:var(--yellow);padding:1px 6px;border-radius:4px">kuning</span> =
-          override "sebelumnya"; <span style="background:var(--err-bg);padding:1px 6px;border-radius:4px">merah</span> =
-          termin negatif.</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- ===== MODAL SETTING (tambahan) ===== -->
-  <div class="overlay" id="settingsOverlay">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modal-head">
-        <h3>⚙️ Setting</h3>
-        <button class="x" id="settingsClose" type="button" aria-label="Tutup">×</button>
-      </div>
-      <div class="modal-body">
-
-        <div class="set-grp">
-          <label>Tema tampilan</label>
-          <div class="seg" id="segTheme">
-            <button type="button" data-v="light">☀️ Terang</button>
-            <button type="button" data-v="dark">🌙 Gelap</button>
-            <button type="button" data-v="auto">🖥 Otomatis</button>
-          </div>
-          <div class="set-hint">"Otomatis" mengikuti setting gelap/terang di perangkatmu.</div>
-        </div>
-
-        <div class="set-grp">
-          <label for="sMandorParse">Cara ambil MANDOR dari baris paste</label>
-          <select id="sMandorParse">
-            <option value="auto">Otomatis (cocokkan dgn daftar mandor yg ada)</option>
-            <option value="first">Ambil 1 kata pertama sebagai mandor</option>
-            <option value="none">Jangan pisahkan (mandor pakai dropdown; semua teks = pekerjaan)</option>
-          </select>
-          <div class="set-hint">Pilih "Jangan pisahkan" kalau baris paste-mu tidak memuat nama mandor, atau kamu mau
-            mandor ditentukan dari dropdown saja.</div>
-        </div>
-
-        <div class="set-grp">
-          <label for="sLocale">Format angka (uang &amp; persen)</label>
-          <select id="sLocale">
-            <option value="auto">Otomatis (cocok utk data BA Indonesia)</option>
-            <option value="id">Indonesia — ribu pakai titik, desimal pakai koma (47.909.204 / 67,133)</option>
-            <option value="en">Inggris — ribu pakai koma, desimal pakai titik (47,909,204 / 67.133)</option>
-          </select>
-          <div class="set-hint">Ganti ke "Inggris" hanya kalau kamu copy angka dari Excel ber‑locale Inggris sehingga
-            parse meleset.</div>
-        </div>
-
-        <div class="set-grp">
-          <label for="sTempat">Kata kunci TEMPAT (satu per baris) — utk rekap per Tempat</label>
-          <textarea id="sTempat" style="min-height:96px"></textarea>
-          <div class="set-hint">Sistem mencari kata ini di nama pekerjaan lalu mengambil 1 kata sesudahnya (cth "Dapur"
-            → "Dapur Randusari"). Tambah istilahmu sendiri, misal nama proyek/gedung.</div>
-        </div>
-
-        <div class="set-grp">
-          <label for="sRegex">Regex kustom (opsional / advanced)</label>
-          <textarea id="sRegex" style="min-height:70px"
-            placeholder="Kosongkan = pakai parser bawaan.&#10;Contoh 3 grup: (\d+[.,]?\d*)%\s*x\s*Rp\s*([\d.,]+)\s*=\s*([\d.,]+)"></textarea>
-          <div class="set-hint">Kalau diisi, parser memakai regex ini. Urutan grup <span class="kbd">(...)</span> dari
-            kiri:
-            <b>3 grup</b> = (persen)(kontrak)(kumulatif) · <b>4 grup</b> = (pekerjaan)(persen)(kontrak)(kumulatif) ·
-            <b>5 grup</b> = (mandor)(pekerjaan)(persen)(kontrak)(kumulatif). Persen tanpa %, uang tanpa "Rp".
-          </div>
-          <div class="row" style="margin-top:8px">
-            <button class="btn-soft btn-sm epic-btn" id="btnTestRegex" type="button" style="flex:0 0 auto">🧪 Uji regex
-              (pakai isi kotak paste)</button>
-          </div>
-          <div id="sRegexOut"></div>
-        </div>
-
-        <!-- GITHUB GIST SYNC SETTINGS -->
-        <div class="set-grp" style="border-top:1px dashed var(--line);padding-top:14px;margin-top:14px;">
-          <label style="font-size:13.5px;color:var(--brand);margin-bottom:8px;display:flex;align-items:center;gap:6px">
-            <span>☁️ Sync GitHub Gist (Backup &amp; Sync Cloud)</span>
-          </label>
-
-          <div style="margin-bottom:12px;">
-            <label for="sGhToken">GitHub Personal Access Token (PAT)</label>
-            <div style="display:flex;gap:6px;">
-              <input type="password" id="sGhToken" placeholder="ghp_xxxxxxxxxxxx atau github_pat_..." autocomplete="off">
-              <button class="btn-soft epic-btn btn-sm" id="btnToggleTokenVis" type="button" style="flex:0 0 auto;padding:0 10px;" title="Tampilkan/Sembunyikan Token">👁️</button>
-            </div>
-            <div class="set-hint">Token disimpan aman di <b>localStorage browser lokal</b>. Butuh scope <code>gist</code> (buat di <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--brand)">GitHub Settings → Personal Access Tokens</a>).</div>
-          </div>
-
-          <div style="margin-bottom:12px;">
-            <label for="sGhGistId">GitHub Gist ID</label>
-            <input type="text" id="sGhGistId" placeholder="Kosongkan jika ingin buat Gist baru otomatis saat Push" autocomplete="off">
-            <div class="set-hint">ID Gist (contoh: <code>3a1f9b2...</code>). Kosongkan saat Push pertama kali untuk membuat Gist rahasia baru secara otomatis.</div>
-          </div>
-
-          <div class="row" style="margin-top:8px;gap:6px;">
-            <button class="btn-soft btn-sm epic-btn" id="btnTestGithub" type="button">🧪 Tes Token</button>
-            <button class="btn btn-sm epic-btn" id="btnPushGistModal" type="button">☁️ Push ke Gist</button>
-            <button class="btn-ghost btn-sm epic-btn" id="btnPullGistModal" type="button">☁️ Pull dari Gist</button>
-          </div>
-          <div id="sGhOut" style="margin-top:8px;font-size:12px;display:none;padding:8px;border-radius:8px;white-space:pre-wrap;"></div>
-        </div>
-
-      </div>
-      <div class="modal-foot">
-        <button class="btn-ghost epic-btn" id="settingsCancel" type="button">Batal</button>
-        <button class="btn epic-btn" id="settingsSave" type="button">💾 Simpan Setting</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== BATCH PARSE PREVIEW MODAL ===== -->
-  <div class="overlay" id="batchOverlay">
-    <div class="modal" style="max-width:900px;width:95%" role="dialog" aria-modal="true">
-      <div class="modal-head">
-        <h3>⚡ Preview Batch Parse BA (<span id="batchCount">0</span> Baris Ditemukan)</h3>
-        <button class="x" id="batchClose" type="button" aria-label="Tutup">×</button>
-      </div>
-      <div class="modal-body">
-        <p style="font-size:13px;color:var(--muted);margin-top:0;">Periksa dan sesuaikan hasil parse sebelum disimpan bersamaan ke dalam sistem.</p>
-        <div class="tblwrap" style="max-height:360px;overflow-y:auto;">
-          <table id="batchTable">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Divisi</th>
-                <th>Mandor</th>
-                <th>Pekerjaan</th>
-                <th>Progres (%)</th>
-                <th>Kontrak (Rp)</th>
-                <th>Kumulatif (Rp)</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="batchTbody"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="modal-foot" style="justify-content:space-between;">
-        <span id="batchValidSummary" style="font-size:13px;font-weight:600;color:var(--brand-d);"></span>
-        <div>
-          <button class="btn-ghost epic-btn" id="batchCancel" type="button">Batalkan</button>
-          <button class="btn epic-btn" id="batchConfirm" type="button">✅ Simpan Semua Entri Valid</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== HISTORY / AUDIT TRAIL MODAL ===== -->
-  <div class="overlay" id="historyOverlay">
-    <div class="modal" style="max-width:640px;width:95%" role="dialog" aria-modal="true">
-      <div class="modal-head">
-        <h3>📜 Audit Trail / Riwayat Perubahan</h3>
-        <button class="x" id="historyClose" type="button" aria-label="Tutup">×</button>
-      </div>
-      <div class="modal-body">
-        <div id="historyTargetTitle" style="font-weight:700;font-size:14.5px;margin-bottom:12px;color:var(--brand-d);"></div>
-        <div id="historyTimeline" style="display:flex;flex-direction:column;gap:12px;max-height:400px;overflow-y:auto;padding-right:4px;"></div>
-      </div>
-      <div class="modal-foot">
-        <button class="btn epic-btn" id="historyDone" type="button">Tutup</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast"></div>
-
-  <script>
-    // --- EPIC ANIMATION CONTROLLER ---
-
-    // 1. Ripple Effect untuk semua tombol dengan class 'epic-btn'
-    document.addEventListener('click', function (e) {
-      const btn = e.target.closest('.epic-btn');
-      if (!btn) return;
-      const rect = btn.getBoundingClientRect();
-      const ripple = document.createElement('span');
-      ripple.classList.add('ripple');
-      ripple.style.left = `${e.clientX - rect.left}px`;
-      ripple.style.top = `${e.clientY - rect.top}px`;
-      btn.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 600);
-    });
-
-    // 2. Epic Number Counter (Odometer Effect)
-    let lastGrandTotalValue = 0;
-    function animateGrandTotal(elementId, endValue, duration = 1000) {
-      const el = document.getElementById(elementId) || document.getElementById('grandTotal');
-      if (!el) return;
-      el.classList.add('updating');
-      const startValue = lastGrandTotalValue;
-      lastGrandTotalValue = endValue;
-      let startTimestamp = null;
-
-      const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        const easeProgress = 1 - Math.pow(1 - progress, 4); // Ease out quart
-        const currentVal = Math.floor(easeProgress * (endValue - startValue) + startValue);
-
-        el.textContent = 'Rp ' + currentVal.toLocaleString('id-ID');
-
-        if (progress < 1) {
-          window.requestAnimationFrame(step);
-        } else {
-          el.classList.remove('updating');
-          el.textContent = 'Rp ' + endValue.toLocaleString('id-ID');
-        }
-      };
-      window.requestAnimationFrame(step);
-    }
-
-    // 3. Parse Field Highlight Sequence (Efek Scanning)
-    function triggerParseAnimation() {
-      const fieldIds = ['fDivisi', 'fMandor', 'fPekerjaan', 'fTgl', 'fPersen', 'fKontrak', 'fKum', 'fPrev', 'divisi', 'mandor', 'pekerjaan', 'tanggal', 'progres', 'nilai_kontrak', 'nilai_kumulatif', 'nilai_sebelumnya'];
-      fieldIds.forEach((id, index) => {
-        const el = document.getElementById(id);
-        if (el) {
-          setTimeout(() => {
-            el.classList.add('field-highlight');
-            setTimeout(() => el.classList.remove('field-highlight'), 800);
-          }, index * 80);
-        }
-      });
-    }
-
-    // 9. Haptic Feedback Helper
-    function triggerHaptic(type = 'light') {
-      if (navigator && navigator.vibrate) {
-        try {
-          if (type === 'light') navigator.vibrate(12);
-          else if (type === 'success') navigator.vibrate([15, 30, 15]);
-          else if (type === 'error') navigator.vibrate([40, 60, 40]);
-        } catch (e) {}
+  function loadData() {
+    try {
+      // Coba load v2 dulu
+      const dataStr = localStorage.getItem(LS_DATA);
+      if (dataStr) {
+        records = JSON.parse(dataStr);
+      } else {
+        // Fallback coba migrasi dari v1
+        const v1Data = localStorage.getItem('progres_mandor_data');
+        if (v1Data) records = JSON.parse(v1Data);
       }
-    }
-
-    // 2. Skeleton Loading Shimmer Helper
-    function triggerSkeletonLoading(fieldIds = []) {
-      fieldIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.classList.add('skeleton-shimmer');
-          setTimeout(() => el.classList.remove('skeleton-shimmer'), 650);
-        }
-      });
-    }
-
-    // 5. Scroll-Triggered Reveal Observer
-    const scrollRevealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
-          scrollRevealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    function observeCardReveals() {
-      document.querySelectorAll('#groups > .card-entry').forEach(card => {
-        scrollRevealObserver.observe(card);
-      });
-    }
-
-    // 3. Physics-Based 3D Confetti Upgrade (Gravity, Air Resistance & 3D Rotations)
-    function triggerEpicBurst(x, y) {
-      triggerHaptic('success');
-      if (x === undefined || y === undefined) {
-        x = window.innerWidth / 2;
-        y = window.innerHeight / 2;
-      }
-      const colors = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#a855f7', '#06b6d4', '#f97316'];
-      const shapes = ['rect', 'circle', 'star', 'ribbon'];
-      const particleCount = 45;
-
-      for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        const shape = shapes[Math.floor(Math.random() * shapes.length)];
-        const color = colors[Math.floor(Math.random() * colors.length)];
-
-        particle.style.position = 'fixed';
-        particle.style.left = x + 'px';
-        particle.style.top = y + 'px';
-        particle.style.pointerEvents = 'none';
-        particle.style.zIndex = '99999';
-
-        if (shape === 'circle') {
-          const size = 6 + Math.random() * 8;
-          particle.style.width = size + 'px';
-          particle.style.height = size + 'px';
-          particle.style.backgroundColor = color;
-          particle.style.borderRadius = '50%';
-        } else if (shape === 'star') {
-          particle.style.width = '0';
-          particle.style.height = '0';
-          particle.style.borderLeft = '6px solid transparent';
-          particle.style.borderRight = '6px solid transparent';
-          particle.style.borderBottom = `10px solid ${color}`;
-        } else if (shape === 'ribbon') {
-          particle.style.width = (4 + Math.random() * 4) + 'px';
-          particle.style.height = (14 + Math.random() * 12) + 'px';
-          particle.style.backgroundColor = color;
-          particle.style.borderRadius = '2px';
-        } else {
-          particle.style.width = (6 + Math.random() * 6) + 'px';
-          particle.style.height = (6 + Math.random() * 6) + 'px';
-          particle.style.backgroundColor = color;
-          particle.style.borderRadius = '2px';
-        }
-
-        document.body.appendChild(particle);
-
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 70 + Math.random() * 140;
-        let vx = Math.cos(angle) * speed;
-        let vy = Math.sin(angle) * speed - 40;
-        let rx = Math.random() * 360;
-        let ry = Math.random() * 360;
-        let rz = Math.random() * 360;
-        let opacity = 1;
-
-        let startTime = null;
-        const duration = 900 + Math.random() * 500;
-
-        const animatePhysics = (timestamp) => {
-          if (!startTime) startTime = timestamp;
-          const elapsed = timestamp - startTime;
-          const progress = elapsed / duration;
-
-          vy += 0.35; // gravity acceleration
-          vx *= 0.98; // air resistance
-          vy *= 0.98;
-          rx += 8;
-          ry += 10;
-          rz += 6;
-          opacity = Math.max(0, 1 - progress);
-
-          particle.style.transform = `translate3d(${vx * (elapsed / 25)}px, ${vy * (elapsed / 25)}px, 0) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${opacity})`;
-          particle.style.opacity = opacity;
-
-          if (progress < 1) {
-            requestAnimationFrame(animatePhysics);
-          } else {
-            particle.remove();
-          }
-        };
-
-        requestAnimationFrame(animatePhysics);
-      }
-    }
-
-    // 5. Glassmorphism Toast Notification with Action / Undo support
-    function showEpicToast(message, type = 'success', actionText = null, actionFn = null) {
-      const toastEl = document.createElement('div');
-      toastEl.className = `toast-epic ${type === 'error' ? 'error' : ''}`;
       
-      let actionBtnHtml = '';
-      if (actionText) {
-        actionBtnHtml = `<button class="btn-undo-toast" style="margin-top:8px;padding:4px 10px;font-size:12px;background:var(--brand);color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:4px;">${esc(actionText)}</button>`;
+      const setStr = localStorage.getItem(LS_SETTINGS);
+      if (setStr) settings = { ...settings, ...JSON.parse(setStr) };
+      else {
+        const v1Set = localStorage.getItem('progres_mandor_settings');
+        if (v1Set) settings = { ...settings, ...JSON.parse(v1Set) };
       }
+    } catch (e) {
+      console.error('Error loading data:', e);
+    }
+  }
 
-      toastEl.innerHTML = `
-    <div style="font-weight: 700; margin-bottom: 4px; font-size: 1.05em;">
-      ${type === 'error' ? '⚠️ Perhatian' : '✅ Berhasil!'}
-    </div>
-    <div style="font-size: 0.9em; opacity: 0.9; line-height: 1.4;">${esc(message)}</div>
-    ${actionBtnHtml}
-  `;
-      document.body.appendChild(toastEl);
-      void toastEl.offsetWidth;
-      toastEl.classList.add('show');
+  function saveData() {
+    localStorage.setItem(LS_DATA, JSON.stringify(records));
+  }
+  function saveSettings() {
+    localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
+  }
 
-      if (actionText && typeof actionFn === 'function') {
-        const btn = toastEl.querySelector('.btn-undo-toast');
-        if (btn) {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            actionFn();
-            toastEl.classList.remove('show');
-            setTimeout(() => toastEl.remove(), 300);
-          });
+  // 2. UTILS
+  const fmtMoney = (num) => new Intl.NumberFormat('id-ID').format(num || 0);
+  const fmtPercent = (num) => (num || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+  const generateId = () => Math.random().toString(36).substr(2, 9);
+  
+  // Toast Notification
+  function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = message;
+    if (type === 'success') toast.style.borderLeft = '4px solid var(--success)';
+    if (type === 'error') toast.style.borderLeft = '4px solid var(--danger)';
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(16px) scale(0.95)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // Confetti
+  function triggerConfetti() {
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const particles = Array.from({length: 50}, () => ({
+      x: window.innerWidth / 2, y: window.innerHeight / 2,
+      vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 1) * 20,
+      color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+      size: Math.random() * 8 + 4
+    }));
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let active = false;
+      particles.forEach(p => {
+        p.vy += 0.5; // gravity
+        p.x += p.vx; p.y += p.vy;
+        if (p.y < canvas.height) active = true;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+      });
+      if (active) requestAnimationFrame(render);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    render();
+  }
+
+  // 3. UI INTERACTIONS
+  // Theme Toggle
+  const btnTheme = document.getElementById('btnTheme');
+  function applyTheme(theme) {
+    if (theme === 'auto') {
+      delete document.documentElement.dataset.theme;
+      btnTheme.textContent = '🌙';
+    } else {
+      document.documentElement.dataset.theme = theme;
+      btnTheme.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+  }
+  btnTheme.addEventListener('click', () => {
+    settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
+    saveSettings(); applyTheme(settings.theme);
+  });
+
+  // Scroll Progress
+  window.addEventListener('scroll', () => {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    document.getElementById('scrollProgress').style.width = scrolled + '%';
+  });
+
+  // Command Palette
+  const cmdPalette = document.getElementById('cmdPalette');
+  const cmdInput = document.getElementById('cmdInput');
+  
+  function toggleCmd() {
+    const isActive = cmdPalette.classList.contains('active');
+    if (isActive) {
+      cmdPalette.classList.remove('active');
+      cmdInput.blur();
+    } else {
+      cmdPalette.classList.add('active');
+      cmdInput.value = '';
+      cmdInput.focus();
+    }
+  }
+  document.getElementById('btnCmdK').addEventListener('click', toggleCmd);
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault(); toggleCmd();
+    }
+    if (e.key === 'Escape' && cmdPalette.classList.contains('active')) toggleCmd();
+  });
+  
+  cmdPalette.addEventListener('click', (e) => {
+    if (e.target === cmdPalette) toggleCmd();
+  });
+
+  // 4. PARSING ENGINE (from v1)
+  function parseLine(line) {
+    if (!line) return null;
+    let fallbackPattern = /(?:(?:[^-]+-\s*)?(.*?)\s+)?(.*?)\s+(\d+(?:\.\d+)?)\s*%\s*=\s*(?:Rp\s*)?([\d.,]+)\s*(?:\/\s*(?:Rp\s*)?([\d.,]+))?/;
+    let regex = settings.customRegex ? new RegExp(settings.customRegex) : fallbackPattern;
+    let match = line.match(regex);
+    
+    if (!match) return null;
+
+    let mandor = '', pekerjaan = '', persen = 0, kontrak = 0, kumulatif = 0;
+
+    if (match.length >= 6) {
+      mandor = (match[1] || '').trim();
+      pekerjaan = (match[2] || '').trim();
+      persen = parseFloat(match[3]) || 0;
+      kumulatif = parseFloat((match[4] || '0').replace(/[^\d]/g, '')) || 0;
+      kontrak = parseFloat((match[5] || '0').replace(/[^\d]/g, '')) || 0;
+    } else {
+      return { error: 'Grup tangkapan regex tidak sesuai (butuh 5 grup)' };
+    }
+    
+    // Auto detect Divisi
+    let divisi = 'Umum';
+    if (pekerjaan.toLowerCase().includes('sipil') || pekerjaan.toLowerCase().includes('plafon')) divisi = 'Sipil';
+    if (pekerjaan.toLowerCase().includes('listrik') || pekerjaan.toLowerCase().includes('mep')) divisi = 'MEP';
+    
+    return { divisi, mandor, pekerjaan, persen, kontrak, kumulatif };
+  }
+
+  document.getElementById('btnParse').addEventListener('click', () => {
+    const txt = document.getElementById('parseInput').value.trim();
+    if (!txt) { showToast('Textarea kosong', 'error'); return; }
+    
+    const lines = txt.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    let successCount = 0;
+    
+    lines.forEach(line => {
+      const res = parseLine(line);
+      if (res && !res.error) {
+        // Find previous termin
+        let prev = 0;
+        const existings = records.filter(r => r.mandor === res.mandor && r.pekerjaan === res.pekerjaan);
+        if (existings.length > 0) {
+          prev = existings[existings.length - 1].kumulatif;
         }
-      }
-
-      setTimeout(() => {
-        if (toastEl.parentNode) {
-          toastEl.classList.remove('show');
-          setTimeout(() => toastEl.remove(), 500);
-        }
-      }, actionText ? 7000 : 3500);
-    }
-
-    const KEY = 'mandorProgresRecords_v1';
-    const SKEY = 'mandorProgresSettings_v1';
-    const SCHEMA_VER_KEY = 'mandorProgresVersion_v1';
-    const APP_SCHEMA_VERSION = 2;
-
-    /* ---------- UNIQUE ID GENERATOR (No Race Condition) ---------- */
-    let _idCounter = 0;
-    function generateId() {
-      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-        return crypto.randomUUID();
-      }
-      _idCounter = (_idCounter + 1) % 10000;
-      return 'r_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8) + '_' + _idCounter;
-    }
-
-    /* ---------- DATE VALIDATOR & TIMEZONE HELPERS ---------- */
-    function getTodayISO() {
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}`;
-    }
-
-    function validateDate(dStr) {
-      if (!dStr || typeof dStr !== 'string') return getTodayISO();
-      const trimmed = dStr.trim();
-      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-        const d = new Date(trimmed);
-        if (!isNaN(d.getTime())) return trimmed;
-      }
-      return getTodayISO();
-    }
-
-    /* ---------- UNDO & REDO STACK SYSTEM ---------- */
-    const undoStack = [];
-    const redoStack = [];
-
-    function pushUndoState(actionMsg) {
-      undoStack.push({
-        records: JSON.parse(JSON.stringify(records)),
-        editingId: editingId,
-        msg: actionMsg
-      });
-      if (undoStack.length > 15) undoStack.shift();
-      redoStack.length = 0;
-    }
-
-    function doUndo() {
-      if (!undoStack.length) {
-        showEpicToast('Tidak ada aksi yang bisa di-undo', 'error');
-        return;
-      }
-      redoStack.push({
-        records: JSON.parse(JSON.stringify(records)),
-        editingId: editingId,
-        msg: 'Redo state'
-      });
-      const state = undoStack.pop();
-      records = state.records;
-      editingId = state.editingId;
-      save();
-      refreshSelects();
-      renderGroups();
-      updatePrevBox();
-      showEpicToast(`↩️ Undo Berhasil: ${state.msg}`);
-    }
-
-    function doRedo() {
-      if (!redoStack.length) {
-        showEpicToast('Tidak ada aksi yang bisa di-redo', 'error');
-        return;
-      }
-      undoStack.push({
-        records: JSON.parse(JSON.stringify(records)),
-        editingId: editingId,
-        msg: 'Undo state'
-      });
-      const state = redoStack.pop();
-      records = state.records;
-      editingId = state.editingId;
-      save();
-      refreshSelects();
-      renderGroups();
-      updatePrevBox();
-      showEpicToast(`↪️ Redo Berhasil`);
-    }
-
-    /* ---------- DIRTY STATE INDICATOR & BEFOREUNLOAD ---------- */
-    let isFormDirty = false;
-    function setFormDirty(dirty = true) {
-      isFormDirty = dirty;
-      const badge = document.getElementById('dirtyIndicator');
-      if (badge) badge.style.display = dirty ? 'inline-flex' : 'none';
-    }
-
-    window.addEventListener('beforeunload', (e) => {
-      if (isFormDirty) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    });
-
-    /* ---------- BATCH PARSE PREVIEW MODAL LOGIC ---------- */
-    let currentBatchItems = [];
-
-    function openBatchModal(lines) {
-      currentBatchItems = [];
-      const tbody = document.getElementById('batchTbody');
-      if (!tbody) return;
-
-      lines.forEach((line) => {
-        const parsed = parseLine(line);
-        const isValid = Boolean(parsed && !parsed.error);
-
-        currentBatchItems.push({
-          id: generateId(),
-          raw: line,
-          divisi: parsed && parsed.divisi ? parsed.divisi : 'Umum',
-          mandor: parsed && parsed.mandor ? parsed.mandor : '',
-          pekerjaan: parsed && parsed.pekerjaan ? parsed.pekerjaan : line,
-          persen: parsed && !isNaN(parsed.persen) ? parsed.persen : 0,
-          kontrak: parsed && !isNaN(parsed.kontrak) ? parsed.kontrak : 0,
-          kumulatif: parsed && !isNaN(parsed.kumulatif) ? parsed.kumulatif : 0,
-          isValid: isValid,
-          error: parsed && parsed.error ? parsed.error : (isValid ? '' : 'Format tidak pas')
-        });
-      });
-
-      renderBatchTable();
-      document.getElementById('batchCount').textContent = lines.length;
-      document.getElementById('batchOverlay').classList.add('show');
-    }
-
-    function renderBatchTable() {
-      const tbody = document.getElementById('batchTbody');
-      if (!tbody) return;
-
-      let validCount = 0;
-      tbody.innerHTML = currentBatchItems.map((item, idx) => {
-        if (item.isValid) validCount++;
-        const statusBadge = item.isValid ?
-          '<span class="badge badge-ok" style="background:var(--ok-bg);color:var(--ok-ink);padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700;">✅ OK</span>' :
-          `<span class="badge badge-err" style="background:var(--err-bg);color:var(--err-ink);padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700;" title="${esc(item.error)}">⚠️ ${esc(item.error)}</span>`;
-
-        return `<tr>
-          <td>${idx + 1}</td>
-          <td><input type="text" value="${esc(item.divisi)}" onchange="updateBatchField('${item.id}', 'divisi', this.value)" style="padding:4px;font-size:12px;"></td>
-          <td><input type="text" value="${esc(item.mandor)}" onchange="updateBatchField('${item.id}', 'mandor', this.value)" style="padding:4px;font-size:12px;"></td>
-          <td><input type="text" value="${esc(item.pekerjaan)}" onchange="updateBatchField('${item.id}', 'pekerjaan', this.value)" style="padding:4px;font-size:12px;"></td>
-          <td><input type="text" value="${fmtPercent(item.persen)}" onchange="updateBatchField('${item.id}', 'persen', this.value)" style="padding:4px;font-size:12px;width:60px;">%</td>
-          <td><input type="text" value="${fmtMoney(item.kontrak)}" onchange="updateBatchField('${item.id}', 'kontrak', this.value)" style="padding:4px;font-size:12px;width:90px;"></td>
-          <td><input type="text" value="${fmtMoney(item.kumulatif)}" onchange="updateBatchField('${item.id}', 'kumulatif', this.value)" style="padding:4px;font-size:12px;width:90px;"></td>
-          <td>${statusBadge}</td>
-          <td><button class="btn-danger btn-sm epic-btn" onclick="removeBatchRow('${item.id}')" style="padding:2px 6px;">✕</button></td>
-        </tr>`;
-      }).join('');
-
-      const summaryEl = document.getElementById('batchValidSummary');
-      if (summaryEl) summaryEl.textContent = `Siap disimpan: ${validCount} dari ${currentBatchItems.length} entri`;
-    }
-
-    function updateBatchField(id, field, val) {
-      const item = currentBatchItems.find(x => x.id === id);
-      if (!item) return;
-      if (field === 'persen') item.persen = parsePercent(val);
-      else if (field === 'kontrak') item.kontrak = parseMoney(val);
-      else if (field === 'kumulatif') item.kumulatif = parseMoney(val);
-      else item[field] = norm(val);
-
-      item.isValid = Boolean(item.mandor && item.pekerjaan && !isNaN(item.persen) && !isNaN(item.kontrak) && !isNaN(item.kumulatif));
-      renderBatchTable();
-    }
-
-    function removeBatchRow(id) {
-      currentBatchItems = currentBatchItems.filter(x => x.id !== id);
-      renderBatchTable();
-    }
-
-    function closeBatchModal() {
-      document.getElementById('batchOverlay').classList.remove('show');
-    }
-
-    function confirmBatchSave() {
-      const validItems = currentBatchItems.filter(x => x.isValid);
-      if (!validItems.length) {
-        showEpicToast('Tidak ada entri valid untuk disimpan', 'error');
-        return;
-      }
-
-      pushUndoState(`Batch parse ${validItems.length} entri dipulihkan`);
-      const nowTgl = getTodayISO();
-
-      validItems.forEach(item => {
-        const last = lastOf(item.divisi, item.mandor, item.pekerjaan);
-        const prev = last ? Number(last.kumulatif) : 0;
-        const termin = item.kumulatif - prev;
+        
         records.push({
           id: generateId(),
-          divisi: item.divisi || 'Umum',
-          mandor: item.mandor,
-          pekerjaan: item.pekerjaan,
-          tanggal: nowTgl,
-          persen: item.persen,
-          kontrak: item.kontrak,
-          kumulatif: item.kumulatif,
+          tanggal: new Date().toISOString().slice(0,10),
+          divisi: res.divisi,
+          mandor: res.mandor,
+          pekerjaan: res.pekerjaan,
+          persen: res.persen,
+          kontrak: res.kontrak,
+          kumulatif: res.kumulatif,
           prev: prev,
-          termin: termin,
-          _overridePrev: false,
-          history: [{ action: 'create', timestamp: new Date().toISOString(), details: 'Entri dibuat via Batch Parse' }]
+          termin: res.kumulatif - prev
         });
-      });
-
-      save();
-      refreshSelects();
-      renderGroups();
-      updatePrevBox();
-      closeBatchModal();
-      document.getElementById('fPaste').value = '';
-      setFormDirty(false);
-      showEpicToast(`✅ Berhasil menyimpan ${validItems.length} entri BA!`);
-    }
-
-    /* ---------- HISTORY / AUDIT TRAIL MODAL LOGIC ---------- */
-    function openHistoryModal(recordId) {
-      const r = records.find(x => x.id === recordId);
-      if (!r) return;
-      const titleEl = document.getElementById('historyTargetTitle');
-      const timelineEl = document.getElementById('historyTimeline');
-      if (!titleEl || !timelineEl) return;
-
-      titleEl.innerHTML = `[${esc(r.divisi || 'Umum')}] ${esc(r.mandor)} - ${esc(r.pekerjaan)}`;
-
-      const historyList = r.history || [
-        { action: 'create', timestamp: r.tanggal || new Date().toISOString(), details: 'Entri awal dibuat' }
-      ];
-
-      timelineEl.innerHTML = historyList.map(h => {
-        const timeStr = h.timestamp ? new Date(h.timestamp).toLocaleString('id-ID') : '-';
-        const badgeColor = h.action === 'create' ? 'var(--brand)' : 'var(--yellow-b)';
-        return `<div class="timeline-item">
-          <div style="font-weight:700;display:flex;justify-content:space-between;align-items:center;">
-            <span style="color:${badgeColor};text-transform:uppercase;font-size:11px;letter-spacing:0.5px;">${esc(h.action)}</span>
-            <span style="color:var(--muted);font-size:11px;">${esc(timeStr)}</span>
-          </div>
-          <div style="margin-top:4px;color:var(--ink);">${esc(h.details || 'Perubahan disimpan')}</div>
-        </div>`;
-      }).join('');
-
-      document.getElementById('historyOverlay').classList.add('show');
-    }
-
-    function closeHistoryModal() {
-      document.getElementById('historyOverlay').classList.remove('show');
-    }
-
-    /* ---------- QUICK DUPLICATE & DRAG REORDER HELPERS ---------- */
-    function duplicateEntryToForm(recordId) {
-      const r = records.find(x => x.id === recordId);
-      if (!r) return;
-
-      document.getElementById('fDivisi').value = r.divisi || 'Umum';
-      document.getElementById('fMandor').value = r.mandor || '';
-      document.getElementById('fPekerjaan').value = r.pekerjaan || '';
-      document.getElementById('fTgl').value = getTodayISO();
-      document.getElementById('fKontrak').value = fmtMoney(r.kontrak);
-      document.getElementById('fKum').value = fmtMoney(r.kumulatif);
-      document.getElementById('fPrev').value = fmtMoney(r.kumulatif);
-      document.getElementById('fPersen').value = '';
-
-      cancelEditEntry();
-      refreshSelects();
-      updatePrevBox();
-      setFormDirty(true);
-      triggerParseAnimation();
-
-      const pInput = document.getElementById('fPersen');
-      if (pInput) {
-        pInput.focus();
-        pInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        successCount++;
       }
-      showEpicToast(`📋 Duplikat entri ${r.mandor}! Masukkan % progres baru.`, 'success');
-    }
-
-    function reorderGroups(srcKey, targetKey) {
-      const srcRecords = records.filter(r => keyOf(r) === srcKey);
-      const otherRecords = records.filter(r => keyOf(r) !== srcKey);
-      const targetIdx = otherRecords.findIndex(r => keyOf(r) === targetKey);
-
-      if (targetIdx !== -1) {
-        pushUndoState('Reorder kelompok mandor dipulihkan');
-        otherRecords.splice(targetIdx, 0, ...srcRecords);
-        records = otherRecords;
-        save();
-        renderGroups();
-        showEpicToast('📌 Urutan kelompok mandor berhasil diubah!');
-      }
-    }
-
-    /* ---------- KEYBOARD TABLE ROW NAVIGATION ---------- */
-    let selectedRowIndex = -1;
-    function navigateTableRows(direction) {
-      const visibleRows = Array.from(document.querySelectorAll('#groups table tbody tr'));
-      if (!visibleRows.length) return;
-
-      visibleRows.forEach(r => r.classList.remove('kb-selected'));
-
-      if (direction === 'down') {
-        selectedRowIndex = Math.min(selectedRowIndex + 1, visibleRows.length - 1);
-      } else if (direction === 'up') {
-        selectedRowIndex = Math.max(selectedRowIndex - 1, 0);
-      }
-
-      const activeRow = visibleRows[selectedRowIndex];
-      if (activeRow) {
-        activeRow.classList.add('kb-selected');
-        activeRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }
-
-    let records = load();
-
-    /* ---------- SETTINGS (tambahan) ---------- */
-    const defaultSettings = {
-      theme: 'light', mandorParse: 'auto', numLocale: 'auto',
-      tempatKeywords: ['Dapur', 'Gedung', 'Blok', 'Gudang', 'Ruko', 'Lantai', 'LT'], customRegex: '',
-      ghToken: '', ghGistId: ''
-    };
-    let settings = loadSettings();
-    function loadSettings() {
-      try {
-        const o = JSON.parse(localStorage.getItem(SKEY));
-        const m = Object.assign({}, defaultSettings, o || {});
-        if (!Array.isArray(m.tempatKeywords)) m.tempatKeywords = defaultSettings.tempatKeywords.slice();
-        return m;
-      } catch (e) {
-        return Object.assign({}, defaultSettings, { tempatKeywords: defaultSettings.tempatKeywords.slice() });
-      }
-    }
-    function saveSettings() {
-      try {
-        localStorage.setItem(SKEY, JSON.stringify(settings));
-      } catch (err) {
-        console.error('Save settings error:', err);
-        showEpicToast('⚠️ Gagal menyimpan pengaturan ke localStorage', 'error');
-      }
-    }
-    function applyTheme() {
-      let mode = settings.theme;
-      if (mode === 'auto') mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', mode);
-    }
-    applyTheme();
-    try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (settings.theme === 'auto') applyTheme(); }); } catch (e) { }
-
-    /* ---------- STORAGE & SCHEMA MIGRATION ---------- */
-    function migrateData(rawRecords) {
-      if (!Array.isArray(rawRecords)) return [];
-      return rawRecords.map(r => {
-        if (!r || typeof r !== 'object') return null;
-        const persen = parsePercent(r.persen);
-        const kontrak = parseMoney(r.kontrak);
-        const kumulatif = parseMoney(r.kumulatif);
-        const prev = parseMoney(r.prev);
-        const termin = !isNaN(r.termin) ? parseMoney(r.termin) : ((!isNaN(kumulatif) && !isNaN(prev)) ? (kumulatif - prev) : 0);
-        return {
-          id: r.id || generateId(),
-          divisi: norm(r.divisi || 'Umum'),
-          mandor: norm(r.mandor || ''),
-          pekerjaan: norm(r.pekerjaan || ''),
-          tanggal: validateDate(r.tanggal),
-          persen: isNaN(persen) ? 0 : persen,
-          kontrak: isNaN(kontrak) ? 0 : kontrak,
-          kumulatif: isNaN(kumulatif) ? 0 : kumulatif,
-          prev: isNaN(prev) ? 0 : prev,
-          termin: isNaN(termin) ? 0 : termin,
-          _overridePrev: Boolean(r._overridePrev),
-          catatan: norm(r.catatan || '')
-        };
-      }).filter(Boolean);
-    }
-
-    function load() {
-      try {
-        const raw = localStorage.getItem(KEY);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        const currentVer = parseInt(localStorage.getItem(SCHEMA_VER_KEY) || '1', 10);
-        const migrated = migrateData(parsed);
-        if (currentVer < APP_SCHEMA_VERSION) {
-          try {
-            localStorage.setItem(SCHEMA_VER_KEY, String(APP_SCHEMA_VERSION));
-            localStorage.setItem(KEY, JSON.stringify(migrated));
-          } catch (e) { }
-        }
-        return migrated;
-      } catch (e) {
-        console.error('Storage load error:', e);
-        return [];
-      }
-    }
-
-    function save() {
-      try {
-        localStorage.setItem(KEY, JSON.stringify(records));
-      } catch (err) {
-        console.error('Storage save error:', err);
-        showEpicToast('⚠️ Kuota localStorage Penuh! Menyimpan data gagal.', 'error');
-        if (err && (err.name === 'QuotaExceededError' || err.code === 22 || err.code === 1014)) {
-          showEpicToast('💾 Mendownload backup otomatis file JSON...', 'success');
-          setTimeout(() => doExport(), 800);
-        }
-      }
-    }
-
-    /* ---------- util ---------- */
-    function norm(s) { return String(s == null ? '' : s).trim().replace(/\s+/g, ' '); }
-    function escapeRe(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-    function extractTempat(p) {
-      p = String(p || '');
-      for (const kw of (settings.tempatKeywords || [])) {
-        const k = String(kw).trim(); if (!k) continue;
-        const re = new RegExp(escapeRe(k) + '\\s+([\\w\\-]+)', 'i');
-        const m = p.match(re); if (m) return (k + ' ' + m[1]).replace(/\s+/g, ' ').trim();
-      }
-      const w = p.trim().split(/\s+/); return w.length >= 2 ? w.slice(-2).join(' ') : (w[0] || '-');
-    }
-    function parseMoney(s) {
-      if (s == null) return NaN;
-      let t = String(s).trim().replace(/\s/g, '').replace(/Rp/i, '');
-      if (t === '') return NaN;
-      const mode = settings.numLocale;
-      if (mode === 'id') { t = t.replace(/\./g, '').replace(',', '.'); }
-      else if (mode === 'en') { t = t.replace(/,/g, ''); }
-      else {
-        const hc = t.includes(','), hd = t.includes('.');
-        if (hc && hd) { if (t.lastIndexOf(',') > t.lastIndexOf('.')) t = t.replace(/\./g, '').replace(',', '.'); else t = t.replace(/,/g, ''); }
-        else if (hc) { t = t.replace(',', '.'); }
-        else if (hd) { t = t.replace(/\./g, ''); }
-      }
-      return parseFloat(t);
-    }
-    function parsePercent(s) {
-      if (s == null) return NaN;
-      let t = String(s).trim().replace(/%/g, '').replace(/\s/g, '');
-      if (t === '') return NaN;
-      t = t.replace(',', '.');   // persen: koma maupun titik = desimal (tidak ada pemisah ribu)
-      return parseFloat(t);
-    }
-    function fmtMoney(n) { n = Number(n) || 0; return Math.round(n).toLocaleString('id-ID'); }
-    function fmtPercent(n) { n = Number(n) || 0; return n.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 3 }); }
-    function fmtFull(r) { return `[${r.divisi || 'Umum'}] ${r.mandor} ${r.pekerjaan} ${fmtPercent(r.persen)}%\tx\tRp ${fmtMoney(r.kontrak)}\t=\t${fmtMoney(r.kumulatif)}`; }
-    function fmtXY(r) { return `Rp ${fmtMoney(r.kontrak)}\t=\t${fmtMoney(r.kumulatif)}`; }
-    function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-    function keyOf(r) { return norm(r.divisi || 'Umum') + '||' + r.mandor + '||' + r.pekerjaan; }
-
-    /* ---------- toast & copy ---------- */
-    function toast(msg, type = 'success') { showEpicToast(msg, type); }
-    function copyText(t) {
-      if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(t).then(() => toast('Tersalin ✅')).catch(() => fallbackCopy(t)); }
-      else fallbackCopy(t);
-    }
-    function fallbackCopy(t) {
-      const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); toast('Tersalin ✅'); } catch (e) { toast('Gagal menyalin'); }
-      document.body.removeChild(ta);
-    }
-
-    /* ---------- status ---------- */
-    function setStatus(msg, isErr) { const s = document.getElementById('status'); s.textContent = msg; s.className = 'status show' + (isErr ? ' err' : ''); }
-    function clearStatus() { const s = document.getElementById('status'); s.className = 'status'; s.textContent = ''; }
-
-    /* ---------- auto suggestion / datalist ---------- */
-    function uniqueDivisi() { return [...new Set(records.map(r => norm(r.divisi || 'Umum')).filter(Boolean))]; }
-    function uniqueMandors(selectedDivisi) {
-      const d = norm(selectedDivisi);
-      if (!d) {
-        return [...new Set(records.map(r => r.mandor).filter(Boolean))];
-      }
-      const filtered = records.filter(r => norm(r.divisi || 'Umum') === d).map(r => r.mandor);
-      if (filtered.length === 0) {
-        return [...new Set(records.map(r => r.mandor).filter(Boolean))];
-      }
-      return [...new Set(filtered)];
-    }
-    function uniquePekerjaan(selectedMandor, selectedDivisi) {
-      const m = norm(selectedMandor);
-      const d = norm(selectedDivisi);
-      let filtered = records;
-      if (d) filtered = filtered.filter(r => norm(r.divisi || 'Umum') === d);
-      if (m) filtered = filtered.filter(r => norm(r.mandor) === m);
-      const jobs = filtered.map(r => r.pekerjaan).filter(Boolean);
-      if (jobs.length === 0) {
-        return [...new Set(records.map(r => r.pekerjaan).filter(Boolean))];
-      }
-      return [...new Set(jobs)];
-    }
-
-    function fillDatalist(dl, items) {
-      if (!dl) return;
-      dl.innerHTML = items.map(it => `<option value="${esc(it)}"></option>`).join('');
-    }
-    function refreshSelects() {
-      const dEl = document.getElementById('fDivisi');
-      const mEl = document.getElementById('fMandor');
-      const curDivisi = dEl ? dEl.value : '';
-      const curMandor = mEl ? mEl.value : '';
-      fillDatalist(document.getElementById('dlDivisi'), uniqueDivisi());
-      fillDatalist(document.getElementById('dlMandor'), uniqueMandors(curDivisi));
-      fillDatalist(document.getElementById('dlPekerjaan'), uniquePekerjaan(curMandor, curDivisi));
-      populateFilterOptions();
-    }
-
-    /* ---------- kelompok helpers ---------- */
-    function groupRecords(divisi, mandor, pekerjaan) {
-      const d = norm(divisi || 'Umum');
-      return records.filter(r => norm(r.divisi || 'Umum') === d && r.mandor === mandor && r.pekerjaan === pekerjaan);
-    }
-    function lastOf(divisi, mandor, pekerjaan) { const g = groupRecords(divisi, mandor, pekerjaan); return g.length ? g[g.length - 1] : null; }
-
-    /* ---------- progres sebelumnya + warning ---------- */
-    function updatePrevBox() {
-      const d = document.getElementById('fDivisi') ? document.getElementById('fDivisi').value : 'Umum';
-      const m = document.getElementById('fMandor').value;
-      const p = document.getElementById('fPekerjaan').value;
-      const box = document.getElementById('prevBox');
-      const warn = document.getElementById('adendumWarn');
-      warn.style.display = 'none';
-      if (!m || !p) { box.style.display = 'none'; return; }
-      const last = lastOf(d, m, p);
-      if (!last) { box.style.display = 'none'; return; }
-      box.style.display = 'block';
-      document.getElementById('prevNums').innerHTML =
-        `Divisi <b>${esc(last.divisi || 'Umum')}</b> &nbsp;|&nbsp; Tgl <b>${esc(last.tanggal || '-')}</b> &nbsp;|&nbsp; Progres <b>${fmtPercent(last.persen)}%</b> &nbsp;|&nbsp; ` +
-        `Kontrak <b>Rp ${fmtMoney(last.kontrak)}</b> &nbsp;|&nbsp; Kumulatif <b>Rp ${fmtMoney(last.kumulatif)}</b> &nbsp;|&nbsp; ` +
-        `Termin <b>Rp ${fmtMoney(last.termin)}</b>`;
-      const prevInput = document.getElementById('fPrev');
-      if (prevInput.value.trim() === '') prevInput.value = fmtMoney(last.kumulatif);
-      const kNow = parseMoney(document.getElementById('fKontrak').value);
-      if (!isNaN(kNow) && Math.round(kNow) !== Math.round(last.kontrak)) {
-        warn.style.display = 'block';
-        warn.innerHTML = '⚠️ <b>Nilai kontrak berubah</b> (Rp ' + fmtMoney(last.kontrak) + ' → Rp ' + fmtMoney(kNow) +
-          '). Kemungkinan <b>adendum</b>. Periksa field <b>"Nilai Sebelumnya"</b> — pada BA setelah adendum, baseline rupiah sering TIDAK sama dgn kumulatif terakhir (cth BA‑5 Tohir = 19.080.776).';
-      }
-    }
-
-    /* ---------- parse baris (baca settings) ---------- */
-    function parseLine(line) {
-      const curDiv = norm(document.getElementById('fDivisi') ? document.getElementById('fDivisi').value : '') || 'Umum';
-      const reStr = (settings.customRegex || '').trim();
-      if (reStr) {
-        let re; try { re = new RegExp(reStr); } catch (e) { return { error: 'Regex kustom tidak valid: ' + e.message }; }
-        const m = line.match(re);
-        if (!m) return { error: 'Regex kustom tidak cocok dengan baris.' };
-        const g = m.slice(1);
-        let divisi = curDiv, mandor = '', pekerjaan = '', persen = NaN, kontrak = NaN, kumulatif = NaN;
-        if (g.length >= 6) { divisi = g[0]; mandor = g[1]; pekerjaan = g[2]; persen = parsePercent(g[3]); kontrak = parseMoney(g[4]); kumulatif = parseMoney(g[5]); }
-        else if (g.length === 5) { mandor = g[0]; pekerjaan = g[1]; persen = parsePercent(g[2]); kontrak = parseMoney(g[3]); kumulatif = parseMoney(g[4]); }
-        else if (g.length === 4) { pekerjaan = g[0]; persen = parsePercent(g[1]); kontrak = parseMoney(g[2]); kumulatif = parseMoney(g[3]); }
-        else if (g.length === 3) { persen = parsePercent(g[0]); kontrak = parseMoney(g[1]); kumulatif = parseMoney(g[2]); }
-        else return { error: 'Regex kustom harus punya 3, 4, 5, atau 6 grup tangkap.' };
-        divisi = norm(divisi) || curDiv; mandor = norm(mandor); pekerjaan = norm(pekerjaan);
-        if ([persen, kontrak, kumulatif].some(isNaN)) return { error: 'Grup tangkap tidak menghasilkan angka valid (cek urutan grup & format angka).' };
-        return { divisi, mandor, pekerjaan, persen, kontrak, kumulatif };
-      }
-      const mPct = line.match(/(\d+(?:[.,]\d+)?)\s*%/);
-      const mKon = line.match(/Rp\s*([\d.,]+)/i);
-      const mKum = line.match(/=\s*(?:Rp\s*)?([\d.,]+)\s*$/i);
-      if (!mPct || !mKon || !mKum) return null;
-      const persen = parsePercent(mPct[1]);
-      const kontrak = parseMoney(mKon[1]);
-      const kumulatif = parseMoney(mKum[1]);
-      const prefix = line.slice(0, mPct.index).trim();
-      let mandor = '', pekerjaan = '';
-      const mode = settings.mandorParse;
-      if (mode === 'none') { mandor = ''; pekerjaan = prefix; }
-      else if (mode === 'first') { const parts = prefix.split(/\s+/); mandor = parts[0] || ''; pekerjaan = parts.slice(1).join(' '); }
-      else {
-        const existing = uniqueMandors(curDiv).sort((a, b) => b.length - a.length);
-        const low = prefix.toLowerCase(); let matched = null;
-        for (const m of existing) { const ml = m.toLowerCase(); if (low === ml || low.startsWith(ml + ' ')) { matched = m; break; } }
-        if (matched) { mandor = matched; pekerjaan = prefix.slice(matched.length).trim(); }
-        else { const parts = prefix.split(/\s+/); mandor = parts[0] || ''; pekerjaan = parts.slice(1).join(' '); }
-      }
-      mandor = norm(mandor); pekerjaan = norm(pekerjaan);
-      return { divisi: curDiv, mandor, pekerjaan, persen, kontrak, kumulatif };
-    }
-
-    /* ---------- MULTI FILTER & CHIPS FUNCTIONS ---------- */
-    function renderFilterChips() {
-      const chipContainer = document.getElementById('filterChipContainer');
-      if (!chipContainer) return;
-
-      const fDiv = document.getElementById('filterDivisi') ? document.getElementById('filterDivisi').value : '';
-      const fMan = document.getElementById('filterMandor') ? document.getElementById('filterMandor').value : '';
-      const fTmp = document.getElementById('filterTempat') ? document.getElementById('filterTempat').value : '';
-
-      const divList = [...new Set(records.map(r => norm(r.divisi || 'Umum')).filter(Boolean))].sort();
-      const tmpList = [...new Set(records.map(r => extractTempat(r.pekerjaan)).filter(Boolean))].sort();
-
-      let html = '<span style="opacity:0.8;font-weight:600;display:flex;align-items:center;margin-right:4px;">Chip Filter Cepat:</span>';
-      
-      html += `<span class="filter-chip ${(!fDiv && !fMan && !fTmp) ? 'active' : ''}" onclick="resetAllFilters()">✕ Semua</span>`;
-
-      divList.forEach(d => {
-        const isAct = (fDiv === d);
-        html += `<span class="filter-chip ${isAct ? 'active' : ''}" onclick="toggleFilterChip('divisi', '${esc(d)}')">🏢 ${esc(d)}</span>`;
-      });
-
-      tmpList.forEach(t => {
-        const isAct = (fTmp === t);
-        html += `<span class="filter-chip ${isAct ? 'active' : ''}" onclick="toggleFilterChip('tempat', '${esc(t)}')">📍 ${esc(t)}</span>`;
-      });
-
-      chipContainer.innerHTML = html;
-    }
-
-    function toggleFilterChip(type, val) {
-      if (type === 'divisi') {
-        const f = document.getElementById('filterDivisi');
-        if (f) f.value = (f.value === val) ? '' : val;
-      } else if (type === 'mandor') {
-        const f = document.getElementById('filterMandor');
-        if (f) f.value = (f.value === val) ? '' : val;
-      } else if (type === 'tempat') {
-        const f = document.getElementById('filterTempat');
-        if (f) f.value = (f.value === val) ? '' : val;
-      }
-      applyFilters();
-    }
-
-    function populateFilterOptions() {
-      const fDiv = document.getElementById('filterDivisi');
-      const fMan = document.getElementById('filterMandor');
-      const fTmp = document.getElementById('filterTempat');
-      if (!fDiv || !fMan || !fTmp) return;
-
-      const curDiv = fDiv.value;
-      const curMan = fMan.value;
-      const curTmp = fTmp.value;
-
-      const divList = [...new Set(records.map(r => norm(r.divisi || 'Umum')).filter(Boolean))].sort();
-      const manList = [...new Set(records.map(r => norm(r.mandor)).filter(Boolean))].sort();
-      const tmpList = [...new Set(records.map(r => extractTempat(r.pekerjaan)).filter(Boolean))].sort();
-
-      fDiv.innerHTML = '<option value="">Semua Divisi</option>' + divList.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
-      fMan.innerHTML = '<option value="">Semua Mandor</option>' + manList.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
-      fTmp.innerHTML = '<option value="">Semua Tempat Proyek</option>' + tmpList.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
-
-      if (divList.includes(curDiv)) fDiv.value = curDiv;
-      if (manList.includes(curMan)) fMan.value = curMan;
-      if (tmpList.includes(curTmp)) fTmp.value = curTmp;
-
-      renderFilterChips();
-    }
-
-    function getFilteredRecords() {
-      const fDiv = document.getElementById('filterDivisi') ? document.getElementById('filterDivisi').value : '';
-      const fMan = document.getElementById('filterMandor') ? document.getElementById('filterMandor').value : '';
-      const fTmp = document.getElementById('filterTempat') ? document.getElementById('filterTempat').value : '';
-      const fSearch = document.getElementById('filterSearch') ? document.getElementById('filterSearch').value.trim().toLowerCase() : '';
-
-      return records.filter(r => {
-        if (fDiv && norm(r.divisi || 'Umum') !== fDiv) return false;
-        if (fMan && norm(r.mandor) !== fMan) return false;
-        if (fTmp && extractTempat(r.pekerjaan) !== fTmp) return false;
-        if (fSearch) {
-          const haystack = (norm(r.divisi || 'Umum') + ' ' + r.mandor + ' ' + r.pekerjaan + ' ' + (r.tanggal || '') + ' ' + r.persen + ' ' + r.kontrak + ' ' + r.kumulatif).toLowerCase();
-          if (!haystack.includes(fSearch)) return false;
-        }
-        return true;
-      });
-    }
-
-    function applyFilters() {
-      renderGroups();
-      updateFilterCountBadge();
-      renderRekap();
-      renderFilterChips();
-    }
-
-    function updateFilterCountBadge() {
-      const badge = document.getElementById('filterCountBadge');
-      if (!badge) return;
-
-      const fDiv = document.getElementById('filterDivisi') ? document.getElementById('filterDivisi').value : '';
-      const fMan = document.getElementById('filterMandor') ? document.getElementById('filterMandor').value : '';
-      const fTmp = document.getElementById('filterTempat') ? document.getElementById('filterTempat').value : '';
-      const fSearch = document.getElementById('filterSearch') ? document.getElementById('filterSearch').value.trim() : '';
-
-      const active = Boolean(fDiv || fMan || fTmp || fSearch);
-      const filtered = getFilteredRecords();
-
-      if (!active) {
-        badge.className = 'pill green';
-        badge.textContent = `Menampilkan semua (${records.length} entri)`;
-      } else {
-        const tot = filtered.reduce((sum, r) => sum + (Number(r.termin) || 0), 0);
-        badge.className = 'pill red';
-        badge.innerHTML = `Filter Aktif: <b>${filtered.length} dari ${records.length} entri</b> (Rp ${fmtMoney(tot)})`;
-      }
-    }
-
-    function checkRealtimeValidation() {
-      const valWarn = document.getElementById('inlineValidationWarn');
-      const pInput = document.getElementById('fPersen');
-      const kInput = document.getElementById('fKum');
-      const sInput = document.getElementById('fPrev');
-      if (!valWarn || !pInput || !kInput || !sInput) return;
-
-      const pct = parsePercent(pInput.value);
-      const kum = parseMoney(kInput.value);
-      const prev = parseMoney(sInput.value);
-
-      let msgs = [];
-      if (!isNaN(pct) && pct > 100) {
-        msgs.push('⚠️ <b>Progres > 100%</b>: Pastikan adendum atau akumulasi persen BA sudah sesuai.');
-        pInput.style.borderColor = 'var(--red-b)';
-      } else {
-        pInput.style.borderColor = '';
-      }
-
-      if (!isNaN(kum) && !isNaN(prev) && kum < prev && sInput.value.trim() !== '') {
-        msgs.push('⚠️ <b>Kumulatif < Progres Sebelumnya</b>: Nilai termin akan bernilai negatif!');
-        kInput.style.borderColor = 'var(--yellow-b)';
-      } else {
-        kInput.style.borderColor = '';
-      }
-
-      if (msgs.length > 0) {
-        valWarn.innerHTML = msgs.join('<br>');
-        valWarn.style.display = 'block';
-      } else {
-        valWarn.style.display = 'none';
-      }
-    }
-
-    function resetAllFilters() {
-      if (document.getElementById('filterDivisi')) document.getElementById('filterDivisi').value = '';
-      if (document.getElementById('filterMandor')) document.getElementById('filterMandor').value = '';
-      if (document.getElementById('filterTempat')) document.getElementById('filterTempat').value = '';
-      if (document.getElementById('filterSearch')) document.getElementById('filterSearch').value = '';
-      applyFilters();
-      toast('Filter dibersihkan');
-    }
-
-    /* ---------- REKAP KIRI ---------- */
-    function cardRekap(title, type, list, labelFn, valFn) {
-      const total = list.reduce((a, [, d]) => a + valFn(d), 0);
-      const activeVal = type === 'divisi' ? (document.getElementById('filterDivisi') ? document.getElementById('filterDivisi').value : '') :
-                        type === 'mandor' ? (document.getElementById('filterMandor') ? document.getElementById('filterMandor').value : '') :
-                        type === 'tempat' ? (document.getElementById('filterTempat') ? document.getElementById('filterTempat').value : '') : '';
-
-      const items = list.length ? list.map(([k, d]) => {
-        const isAct = (activeVal && activeVal === k);
-        return `<li class="rk-item-clickable ${isAct ? 'active-filter' : ''}" data-rk-type="${type}" data-rk-val="${esc(k)}" title="Klik untuk filter ${type}: ${esc(k)}">
-          <div class="rk-label">${labelFn([k, d])}</div>
-          <div class="rk-val">Rp ${fmtMoney(valFn(d))}</div>
-        </li>`;
-      }).join('') : `<li><span class="rk-empty">—</span></li>`;
-
-      return `<div class="card rekap"><h2>${title}</h2>
-     <div class="rk-total">Total termin: <b>Rp ${fmtMoney(total)}</b></div>
-     <ul>${items}</ul></div>`;
-    }
-    function renderRekap() {
-      const panel = document.getElementById('rekapPanel');
-      if (!panel) return;
-      if (!records.length) { panel.innerHTML = '<div class="card rekap"><h2>📊 Rekap</h2><p class="rk-empty">Belum ada data. Rekap per Divisi / Pekerjaan / Mandor / Tempat muncul otomatis setelah ada entri.</p></div>'; return; }
-      
-      const sourceRecords = getFilteredRecords();
-      const byD = {}, byP = {}, byM = {}, byT = {};
-      sourceRecords.forEach(r => {
-        const dName = norm(r.divisi || 'Umum');
-        const t = Number(r.termin) || 0;
-        (byD[dName] ??= { termin: 0, n: 0, man: new Set(), pek: new Set() }); byD[dName].termin += t; byD[dName].n++; byD[dName].man.add(r.mandor); byD[dName].pek.add(r.pekerjaan);
-        (byP[r.pekerjaan] ??= { termin: 0, n: 0, man: new Set() }); byP[r.pekerjaan].termin += t; byP[r.pekerjaan].n++; byP[r.pekerjaan].man.add(r.mandor);
-        (byM[r.mandor] ??= { termin: 0, n: 0, pek: new Set() }); byM[r.mandor].termin += t; byM[r.mandor].n++; byM[r.mandor].pek.add(r.pekerjaan);
-        const tp = extractTempat(r.pekerjaan);
-        (byT[tp] ??= { termin: 0, n: 0 }); byT[tp].termin += t; byT[tp].n++;
-      });
-      const sD = Object.entries(byD).sort((a, b) => b[1].termin - a[1].termin);
-      const sP = Object.entries(byP).sort((a, b) => b[1].termin - a[1].termin);
-      const sM = Object.entries(byM).sort((a, b) => b[1].termin - a[1].termin);
-      const sT = Object.entries(byT).sort((a, b) => b[1].termin - a[1].termin);
-      panel.innerHTML =
-        cardRekap('🏢 Rekap per Divisi', 'divisi', sD, ([d, data]) => `<div class="rk-t">${esc(d)}</div><div class="rk-s">${data.man.size} mandor · ${data.pek.size} pekerjaan · ${data.n} entri</div>`, data => data.termin) +
-        cardRekap('🔧 Rekap per Pekerjaan', 'pekerjaan', sP, ([p, d]) => `<div class="rk-t">${esc(p)}</div><div class="rk-s">Mandor: ${esc([...d.man].join(', '))} · ${d.n} entri</div>`, d => d.termin) +
-        cardRekap('👷 Rekap per Mandor', 'mandor', sM, ([m, d]) => `<div class="rk-t">${esc(m)}</div><div class="rk-s">${d.pek.size} pekerjaan · ${d.n} entri</div>`, d => d.termin) +
-        cardRekap('📍 Rekap per Tempat', 'tempat', sT, ([t, d]) => `<div class="rk-t">${esc(t)}</div><div class="rk-s">${d.n} entri</div>`, d => d.termin);
-
-      panel.querySelectorAll('.rk-item-clickable').forEach(el => {
-        el.addEventListener('click', () => {
-          const type = el.getAttribute('data-rk-type');
-          const val = el.getAttribute('data-rk-val');
-          if (type === 'divisi') {
-            const f = document.getElementById('filterDivisi');
-            if (f) f.value = (f.value === val) ? '' : val;
-          } else if (type === 'mandor') {
-            const f = document.getElementById('filterMandor');
-            if (f) f.value = (f.value === val) ? '' : val;
-          } else if (type === 'tempat') {
-            const f = document.getElementById('filterTempat');
-            if (f) f.value = (f.value === val) ? '' : val;
-          }
-          applyFilters();
-          toast(`Filter ${type} disesuaikan: ${val}`);
-        });
-      });
-    }
-
-    /* ---------- render kelompok ---------- */
-    const collapsedGroups = new Set();
-
-    /* ---------- EDIT ENTRY STATE & HELPERS ---------- */
-    let editingId = null;
-
-    function startEditEntry(r) {
-      editingId = r.id;
-      document.getElementById('fDivisi').value = r.divisi || 'Umum';
-      document.getElementById('fMandor').value = r.mandor || '';
-      document.getElementById('fPekerjaan').value = r.pekerjaan || '';
-      document.getElementById('fTgl').value = r.tanggal || new Date().toISOString().slice(0, 10);
-      document.getElementById('fPersen').value = fmtPercent(r.persen);
-      document.getElementById('fKontrak').value = fmtMoney(r.kontrak);
-      document.getElementById('fKum').value = fmtMoney(r.kumulatif);
-      document.getElementById('fPrev').value = fmtMoney(r.prev);
-
-      const btnSave = document.getElementById('btnSave');
-      if (btnSave) {
-        btnSave.textContent = '✏️ Update Entri';
-        btnSave.style.background = '#eab308';
-        btnSave.style.color = '#000';
-      }
-
-      const notice = document.getElementById('editNotice');
-      const noticeText = document.getElementById('editNoticeText');
-      if (notice && noticeText) {
-        noticeText.innerHTML = `✏️ <b>Mode Edit Entri</b>: [${esc(r.divisi || 'Umum')}] ${esc(r.mandor)} - ${esc(r.pekerjaan)} (${esc(r.tanggal || 'No date')})`;
-        notice.style.display = 'flex';
-      }
-
-      const formCard = document.querySelector('.card.epic-card');
-      if (formCard) formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      updatePrevBox();
-      triggerParseAnimation();
-      toast(`Mode Edit aktif untuk entri ${r.mandor}`);
-    }
-
-    function cancelEditEntry() {
-      editingId = null;
-      const btnSave = document.getElementById('btnSave');
-      if (btnSave) {
-        btnSave.textContent = '💾 Simpan Entri';
-        btnSave.style.background = 'var(--brand)';
-        btnSave.style.color = '#fff';
-      }
-      const notice = document.getElementById('editNotice');
-      if (notice) notice.style.display = 'none';
-    }
-
-    function renderGroups() {
-      const filteredRecords = getFilteredRecords();
-      const wrap = document.getElementById('groups');
-      
-      // 1. FLIP Animation: Record initial card rects
-      const firstRects = new Map();
-      wrap.querySelectorAll('.card-entry').forEach(c => {
-        const key = c.getAttribute('data-group-key');
-        if (key) firstRects.set(key, c.getBoundingClientRect());
-      });
-
-      wrap.innerHTML = '';
-
-      if (!records.length) {
-        wrap.innerHTML = `<div class="card epic-card" style="padding:36px 20px;text-align:center;color:var(--muted);margin-top:16px;">
-          <div style="font-size:48px;margin-bottom:12px;filter:drop-shadow(0 4px 12px rgba(37,99,235,0.2));">📋</div>
-          <h3 style="font-size:18px;margin:0 0 8px 0;color:var(--ink);font-weight:700;">Belum Ada Data Progres Mandor</h3>
-          <p style="font-size:13.5px;max-width:440px;margin:0 auto 16px auto;line-height:1.5;color:var(--muted);">
-            Tempel baris teks Berita Acara (BA) di kotak input atas untuk parse otomatis, atau isi formulir secara manual.
-          </p>
-          <button class="btn epic-btn" type="button" onclick="document.getElementById('fPaste').focus();document.getElementById('fPaste').scrollIntoView({behavior:'smooth'})" style="padding:10px 20px;font-weight:600;">
-            ⚡ Mulai Input Data BA
-          </button>
-        </div>`;
-        animateGrandTotal('grand-total-display', 0);
-        const divBdEl = document.getElementById('grand-divisi-breakdown');
-        if (divBdEl) divBdEl.style.display = 'none';
-        return;
-      }
-
-      if (!filteredRecords.length) {
-        wrap.innerHTML = `<div class="card epic-card" style="padding:24px;text-align:center;color:var(--muted)">
-          <div style="font-size:32px;margin-bottom:8px">🔍</div>
-          <div style="font-weight:700;font-size:15px;color:var(--ink)">Tidak ada entri yang cocok dengan filter.</div>
-          <div style="font-size:12.5px;margin-top:4px">Coba ubah atau reset pilihan filter Anda.</div>
-          <button class="btn-soft epic-btn btn-sm" id="btnResetNoData" type="button" style="margin-top:12px">🧹 Reset Semua Filter</button>
-        </div>`;
-        const resetBtn = document.getElementById('btnResetNoData');
-        if (resetBtn) resetBtn.addEventListener('click', resetAllFilters);
-        animateGrandTotal('grand-total-display', 0);
-        const divBdEl = document.getElementById('grand-divisi-breakdown');
-        if (divBdEl) divBdEl.style.display = 'none';
-        return;
-      }
-
-      const map = {};
-      const lastIndexMap = {};
-      const divisiTotals = {};
-
-      filteredRecords.forEach((r, idx) => {
-        const k = keyOf(r);
-        if (!map[k]) map[k] = [];
-        map[k].push(r);
-        lastIndexMap[k] = idx;
-
-        const divName = norm(r.divisi || 'Umum');
-        const tVal = Number(r.termin) || 0;
-        divisiTotals[divName] = (divisiTotals[divName] || 0) + tVal;
-      });
-
-      // Sort groups by newest entry index descending so the group with latest progress activity is at the TOP!
-      const order = Object.keys(map).sort((a, b) => lastIndexMap[b] - lastIndexMap[a]);
-
-      let grand = 0;
-      order.forEach(k => {
-        const list = map[k];
-        const last = list[list.length - 1];
-        const totalTermin = list.reduce((a, r) => a + (Number(r.termin) || 0), 0);
-        grand += totalTermin;
-        const sisa = Number(last.kontrak) - Number(last.kumulatif);
-        const isCollapsed = collapsedGroups.has(k);
-
-        const card = document.createElement('div');
-        card.className = 'card epic-card card-entry';
-        card.setAttribute('data-group-key', k);
-        card.setAttribute('draggable', 'true');
-        card.addEventListener('dragstart', (e) => {
-          card.classList.add('dragging');
-          e.dataTransfer.setData('text/plain', k);
-          e.dataTransfer.effectAllowed = 'move';
-        });
-        card.addEventListener('dragend', () => {
-          card.classList.remove('dragging');
-          wrap.querySelectorAll('.card-entry').forEach(c => c.classList.remove('drag-over'));
-        });
-        card.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-          card.classList.add('drag-over');
-        });
-        card.addEventListener('dragleave', () => {
-          card.classList.remove('drag-over');
-        });
-        card.addEventListener('drop', (e) => {
-          e.preventDefault();
-          card.classList.remove('drag-over');
-          const srcKey = e.dataTransfer.getData('text/plain');
-          const targetKey = k;
-          if (srcKey && targetKey && srcKey !== targetKey) {
-            reorderGroups(srcKey, targetKey);
-          }
-        });
-
-        let rows = '';
-        list.forEach((r, i) => {
-          const overridden = r._overridePrev === true;
-          const neg = (Number(r.termin) || 0) < 0;
-          const cls = neg ? 'hl-r' : (overridden ? 'hl-y' : '');
-          const isEditingThis = (editingId === r.id);
-          rows += `<tr class="${cls}" style="${isEditingThis ? 'outline:2px solid var(--yellow-b);background:var(--yellow);' : ''}">
-        <td>${i + 1}</td>
-        <td class="l">${esc(r.tanggal || '-')}</td>
-        <td>${fmtPercent(r.persen)}%</td>
-        <td>${fmtMoney(r.kontrak)}</td>
-        <td>${fmtMoney(r.kumulatif)}</td>
-        <td>${fmtMoney(r.prev)}</td>
-        <td><b>${fmtMoney(r.termin)}</b></td>
-        <td>
-          <button class="btn-soft btn-sm epic-btn" data-edit="${r.id}" title="Edit entri ini">✏️ Edit</button>
-          <button class="btn-soft btn-sm epic-btn" data-dup="${r.id}" title="Duplikat ke form (update progres baru)">📋 Duplikat</button>
-          <button class="btn-soft btn-sm epic-btn" data-hist="${r.id}" title="Lihat riwayat audit trail">📜 Audit</button>
-          <button class="btn-soft btn-sm epic-btn" data-xy="${esc(fmtXY(r))}">Rp =</button>
-          <button class="btn-ghost btn-sm epic-btn" data-full="${esc(fmtFull(r))}">baris</button>
-          <button class="btn-danger btn-sm epic-btn" data-del="${r.id}">✕</button>
-        </td></tr>`;
-        });
-
-        // 8. Circular SVG Progress Ring
-        const radius = 18;
-        const circ = 2 * Math.PI * radius;
-        const pctVal = Math.min(100, Math.max(0, Number(last.persen) || 0));
-        const offset = circ - (circ * pctVal) / 100;
-        const ringColor = pctVal >= 100 ? 'var(--green-b)' : (pctVal >= 50 ? 'var(--brand)' : 'var(--yellow-b)');
-
-        const progressRingHtml = `
-          <div class="progress-ring-box" title="Progres Kumulatif: ${fmtPercent(last.persen)}%">
-            <svg class="progress-ring" width="42" height="42" viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="18" fill="none" stroke="var(--line)" stroke-width="4" />
-              <circle class="progress-ring-circle" cx="24" cy="24" r="18" fill="none"
-                stroke="${ringColor}" stroke-width="4"
-                stroke-dasharray="${circ.toFixed(2)}"
-                stroke-dashoffset="${offset.toFixed(2)}"
-                stroke-linecap="round"/>
-            </svg>
-            <span class="progress-ring-text">${Math.round(pctVal)}%</span>
-          </div>`;
-
-        card.innerHTML = `
-      <div class="grp-head" data-toggle="${esc(k)}">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span class="drag-handle" title="Tarik untuk urutkan posisi kelompok">☰</span>
-          ${progressRingHtml}
-          <div>
-            <div class="t grp-head-title">
-              <span class="toggle-icon ${isCollapsed ? 'rotated' : ''}">▼</span>
-              <span class="pill" style="padding:2px 8px;font-size:11.5px;background:var(--soft);color:var(--brand-d);border:1px solid #c7d2fe;font-weight:700;">🏢 ${esc(last.divisi || 'Umum')}</span>
-              👷 ${esc(last.mandor)}
-            </div>
-            <div class="s">🔧 ${esc(last.pekerjaan)}</div>
-          </div>
-        </div>
-        <div class="stat">
-          <span class="pill">Kontrak terakhir <b>Rp ${fmtMoney(last.kontrak)}</b></span>
-          <span class="pill">Kumulatif <b>Rp ${fmtMoney(last.kumulatif)}</b></span>
-          <span class="pill green">Total Termin <b>Rp ${fmtMoney(totalTermin)}</b></span>
-          <span class="pill red">Sisa <b>Rp ${fmtMoney(sisa)}</b></span>
-          <button class="btn-ghost btn-sm epic-btn btn-collapse-toggle" type="button" style="padding:4px 8px;font-size:11.5px;margin-left:4px;">
-            ${isCollapsed ? '▶ Buka (' + list.length + ' baris)' : '▲ Ciutkan'}
-          </button>
-        </div>
-      </div>
-      <div class="tblwrap tblwrap-collapsible ${isCollapsed ? 'collapsed' : ''}"><table>
-        <thead><tr>
-          <th>#</th><th class="l">Tanggal</th><th>Progres</th><th>Kontrak</th>
-          <th>Kumulatif</th><th>Sebelumnya</th><th>Termin</th><th>Aksi</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table></div>`;
-        wrap.appendChild(card);
-      });
-
-      // FLIP Invert & Play Animation
-      wrap.querySelectorAll('.card-entry').forEach(c => {
-        const key = c.getAttribute('data-group-key');
-        if (key && firstRects.has(key)) {
-          const first = firstRects.get(key);
-          const lastRect = c.getBoundingClientRect();
-          const deltaY = first.top - lastRect.top;
-          if (deltaY !== 0) {
-            c.style.transform = `translate3d(0, ${deltaY}px, 0)`;
-            c.style.transition = 'none';
-            requestAnimationFrame(() => {
-              c.style.transition = 'transform 0.5s var(--ease-epic), opacity 0.5s var(--ease-epic)';
-              c.style.transform = 'translate3d(0, 0, 0)';
-            });
-          }
-        }
-      });
-
-      observeCardReveals();
-
-      animateGrandTotal('grand-total-display', grand);
-
-      // Update Grand Total Mini Dashboard Metrics & Progress Bar
-      const totalContractSum = Object.values(map).reduce((sum, list) => sum + (Number(list[list.length - 1].kontrak) || 0), 0);
-      const uniqueMandorsCount = new Set(filteredRecords.map(r => r.mandor)).size;
-      const uniquePekerjaanCount = new Set(filteredRecords.map(r => r.pekerjaan)).size;
-      const pctOfContract = totalContractSum > 0 ? Math.min(100, (grand / totalContractSum) * 100) : 0;
-
-      const metricsEl = document.getElementById('grand-dash-metrics');
-      if (metricsEl) {
-        metricsEl.innerHTML = `
-          <span class="grand-div-pill">👷 <b>${uniqueMandorsCount}</b> Mandor</span>
-          <span class="grand-div-pill">🔧 <b>${uniquePekerjaanCount}</b> Pekerjaan</span>
-          <span class="grand-div-pill">📋 <b>${filteredRecords.length}</b> Entri BA</span>`;
-      }
-
-      const barEl = document.getElementById('grand-progress-bar');
-      const valEl = document.getElementById('grand-pct-val');
-      if (barEl) barEl.style.width = pctOfContract.toFixed(1) + '%';
-      if (valEl) valEl.textContent = `${pctOfContract.toFixed(1)}% dari Total Nilai Kontrak (Rp ${fmtMoney(totalContractSum)})`;
-
-      // Render Divisi Breakdown in Grand Total card
-      const divBdEl = document.getElementById('grand-divisi-breakdown');
-      if (divBdEl) {
-        const divEntries = Object.entries(divisiTotals).sort((a, b) => b[1] - a[1]);
-        if (divEntries.length > 0) {
-          divBdEl.innerHTML = '<span style="opacity:0.85;font-weight:600;margin-right:4px;display:flex;align-items:center;">Total per Divisi:</span>' +
-            divEntries.map(([d, tot]) => `<span class="grand-div-pill">🏢 ${esc(d)}: <b>Rp ${fmtMoney(tot)}</b></span>`).join('');
-          divBdEl.style.display = 'flex';
-        } else {
-          divBdEl.innerHTML = '';
-          divBdEl.style.display = 'none';
-        }
-      }
-
-      // Collapse toggle event listeners
-      wrap.querySelectorAll('[data-toggle]').forEach(el => {
-        el.addEventListener('click', (e) => {
-          if (e.target.closest('button[data-edit], button[data-dup], button[data-hist], button[data-xy], button[data-full], button[data-del]')) return;
-          const key = el.getAttribute('data-toggle');
-          if (collapsedGroups.has(key)) {
-            collapsedGroups.delete(key);
-          } else {
-            collapsedGroups.add(key);
-          }
-          renderGroups();
-        });
-      });
-
-      wrap.querySelectorAll('[data-edit]').forEach(b => {
-        b.onclick = (e) => {
-          e.stopPropagation();
-          const id = b.getAttribute('data-edit');
-          const r = records.find(x => x.id === id);
-          if (r) startEditEntry(r);
-        };
-      });
-      wrap.querySelectorAll('[data-dup]').forEach(b => {
-        b.onclick = (e) => {
-          e.stopPropagation();
-          const id = b.getAttribute('data-dup');
-          duplicateEntryToForm(id);
-        };
-      });
-      wrap.querySelectorAll('[data-hist]').forEach(b => {
-        b.onclick = (e) => {
-          e.stopPropagation();
-          const id = b.getAttribute('data-hist');
-          openHistoryModal(id);
-        };
-      });
-      wrap.querySelectorAll('[data-xy]').forEach(b => b.onclick = (e) => { e.stopPropagation(); copyText(b.getAttribute('data-xy')); });
-      wrap.querySelectorAll('[data-del]').forEach(b => b.onclick = (e) => {
-        e.stopPropagation();
-        const delId = b.getAttribute('data-del');
-        const targetRec = records.find(r => r.id === delId);
-        if (confirm('Hapus entri ini?')) {
-          pushUndoState(`Entri ${targetRec ? esc(targetRec.mandor) : ''} dipulihkan`);
-          records = records.filter(r => r.id !== delId);
-          if (editingId === delId) cancelEditEntry();
-          save(); refreshSelects(); renderGroups(); updatePrevBox();
-          toast('Entri dihapus', 'success', '↩️ Undo', () => doUndo());
-        }
-      });
-
-      renderRekap();
-    }
-
-    /* ---------- simpan ---------- */
-    function doSave(e) {
-      clearStatus();
-      let divisi = norm(document.getElementById('fDivisi').value) || 'Umum';
-      let mandor = norm(document.getElementById('fMandor').value);
-      let pekerjaan = norm(document.getElementById('fPekerjaan').value);
-      if (!mandor || !pekerjaan) {
-        setStatus('Mandor dan Pekerjaan wajib diisi.', true);
-        triggerHaptic('error');
-        const mEl = document.getElementById('fMandor');
-        const pEl = document.getElementById('fPekerjaan');
-        if (!mandor && mEl) { mEl.classList.add('form-shake'); setTimeout(() => mEl.classList.remove('form-shake'), 450); }
-        if (!pekerjaan && pEl) { pEl.classList.add('form-shake'); setTimeout(() => pEl.classList.remove('form-shake'), 450); }
-        return;
-      }
-      const persen = parsePercent(document.getElementById('fPersen').value);
-      const kontrak = parseMoney(document.getElementById('fKontrak').value);
-      const kumulatif = parseMoney(document.getElementById('fKum').value);
-      if ([persen, kontrak, kumulatif].some(isNaN)) {
-        setStatus('Persen / Kontrak / Kumulatif tidak valid.', true);
-        triggerHaptic('error');
-        ['fPersen', 'fKontrak', 'fKum'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el && isNaN(parseMoney(el.value))) { el.classList.add('form-shake'); setTimeout(() => el.classList.remove('form-shake'), 450); }
-        });
-        return;
-      }
-
-      const rawTgl = document.getElementById('fTgl').value;
-      const validTgl = validateDate(rawTgl);
-
-      const last = lastOf(divisi, mandor, pekerjaan);
-      let prevRaw = document.getElementById('fPrev').value.trim();
-      let prev, override = false;
-      if (prevRaw === '') { prev = last ? Number(last.kumulatif) : 0; }
-      else { prev = parseMoney(prevRaw); if (isNaN(prev)) { setStatus('"Nilai Sebelumnya" tidak valid.', true); return; } override = true; }
-
-      const termin = kumulatif - prev;
-
-      if (editingId) {
-        const idx = records.findIndex(r => r.id === editingId);
-        if (idx !== -1) {
-          pushUndoState(`Perubahan entri ${records[idx].mandor} dipulihkan`);
-          records[idx] = {
-            ...records[idx],
-            divisi, mandor, pekerjaan,
-            tanggal: validTgl,
-            persen, kontrak, kumulatif, prev, termin,
-            _overridePrev: override
-          };
-          save();
-          refreshSelects();
-          cancelEditEntry();
-          renderGroups();
-          setStatus(`✅ Entri berhasil diperbarui! Termin = Rp ${fmtMoney(termin)} (Kumulatif ${fmtMoney(kumulatif)} − Sebelumnya ${fmtMoney(prev)}).`, termin < 0);
-          toast(`Entri (${divisi} - ${mandor}) berhasil diperbarui!`);
-
-          document.getElementById('fPersen').value = '';
-          document.getElementById('fKontrak').value = '';
-          document.getElementById('fKum').value = '';
-          document.getElementById('fPrev').value = '';
-          document.getElementById('fPaste').value = '';
-          updatePrevBox();
-          return;
-        }
-      }
-
-      pushUndoState(`Entri baru ${mandor} dipulihkan`);
-      const rec = {
-        id: generateId(),
-        divisi, mandor, pekerjaan,
-        tanggal: validTgl,
-        persen, kontrak, kumulatif, prev, termin,
-        _overridePrev: override
-      };
-      records.push(rec); save();
-      refreshSelects();
-      renderGroups();
-      setStatus(`✅ Tersimpan. Termin = Rp ${fmtMoney(termin)} (Kumulatif ${fmtMoney(kumulatif)} − Sebelumnya ${fmtMoney(prev)}).`, termin < 0);
-
-      // Epic Animation Effects
-      const clickX = e && e.clientX ? e.clientX : undefined;
-      const clickY = e && e.clientY ? e.clientY : undefined;
-      triggerEpicBurst(clickX, clickY);
-      toast(`Data (${divisi} - ${mandor}) berhasil disimpan!`);
-
-      document.getElementById('fPersen').value = '';
-      document.getElementById('fKontrak').value = '';
-      document.getElementById('fKum').value = '';
-      document.getElementById('fPrev').value = '';
-      document.getElementById('fPaste').value = '';
-      updatePrevBox();
-    }
-
-    /* ---------- contoh data ---------- */
-    function loadSample() {
-      if (records.length && !confirm('Data saat ini akan DITIMPA contoh BA. Lanjut?')) return;
-      pushUndoState('Data lama sebelum sampel dipulihkan');
-      const D1 = 'Sipil & Plafon', M1 = 'Tohir', P1 = 'Pekerjaan Sekatan, Plafon Dan Repair Dinding Dapur Randusari';
-      const D2 = 'MEP & Listrik', M2 = 'Budi', P2 = 'Instalasi Listrik & Lighting Dapur Randusari';
-      const raw1 = [
-        ['2026-01-13', 21.101, 30948658, 6530476, 0],
-        ['2026-01-22', 35.396, 30948658, 10954587, 6530476],
-        ['2026-01-28', 61.283, 30948658, 18966266, 10954587],
-        ['2026-02-04', 82.552, 30948658, 25548736, 18966266],
-        ['2026-02-11', 58.235, 41439939, 24132548, 19080776],
-        ['2026-02-25', 69.130, 41439939, 28647430, 24132548],
-        ['2026-03-06', 74.509, 41439939, 30876484, 28647430],
-        ['2026-03-16', 67.133, 47909204, 32162886, 30876484],
-      ];
-      const raw2 = [
-        ['2026-02-01', 40.000, 15000000, 6000000, 0],
-        ['2026-02-20', 100.000, 15000000, 15000000, 6000000],
-      ];
-      const recs1 = raw1.map((r, i) => ({
-        id: generateId(),
-        divisi: D1, mandor: M1, pekerjaan: P1, tanggal: r[0], persen: r[1], kontrak: r[2], kumulatif: r[3], prev: r[4],
-        termin: r[3] - r[4], _overridePrev: (i === 4)
-      }));
-      const recs2 = raw2.map((r, i) => ({
-        id: generateId(),
-        divisi: D2, mandor: M2, pekerjaan: P2, tanggal: r[0], persen: r[1], kontrak: r[2], kumulatif: r[3], prev: r[4],
-        termin: r[3] - r[4], _overridePrev: false
-      }));
-      records = [...recs1, ...recs2];
-      save(); refreshSelects(); renderGroups(); updatePrevBox();
-      toast('Contoh dimuat — cek Grand Total & Breakdown Divisi', 'success', '↩️ Undo', () => doUndo());
-    }
-
-    /* ---------- export / import ---------- */
-    function doExport() {
-      const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = 'progres-mandor-' + new Date().toISOString().slice(0, 10) + '.json'; a.click();
-      URL.revokeObjectURL(a.href); toast('JSON di-export');
-    }
-    function doImport(file) {
-      const rd = new FileReader();
-      rd.onload = () => {
-        try {
-          const d = JSON.parse(rd.result); if (!Array.isArray(d)) throw 0;
-          records = migrateData(d); save(); refreshSelects(); renderGroups(); updatePrevBox(); toast('Import berhasil: ' + records.length + ' entri');
-        } catch (e) { toast('File JSON tidak valid'); }
-      };
-      rd.readAsText(file);
-    }
-
-    /* ---------- MODAL SETTING handlers (tambahan) ---------- */
-    function openSettings() {
-      document.getElementById('sMandorParse').value = settings.mandorParse;
-      document.getElementById('sLocale').value = settings.numLocale;
-      document.getElementById('sTempat').value = (settings.tempatKeywords || []).join('\n');
-      document.getElementById('sRegex').value = settings.customRegex || '';
-      document.getElementById('sGhToken').value = settings.ghToken || '';
-      document.getElementById('sGhGistId').value = settings.ghGistId || '';
-      setThemeSeg(settings.theme);
-      const out = document.getElementById('sRegexOut'); if (out) { out.className = ''; out.textContent = ''; }
-      const ghOut = document.getElementById('sGhOut'); if (ghOut) { ghOut.style.display = 'none'; ghOut.textContent = ''; }
-      document.getElementById('settingsOverlay').classList.add('show');
-    }
-    function closeSettings() { document.getElementById('settingsOverlay').classList.remove('show'); }
-    function setThemeSeg(v) { document.querySelectorAll('#segTheme button').forEach(b => b.classList.toggle('on', b.getAttribute('data-v') === v)); }
-    function readSettingsFromModal() {
-      settings.mandorParse = document.getElementById('sMandorParse').value;
-      settings.numLocale = document.getElementById('sLocale').value;
-      settings.tempatKeywords = document.getElementById('sTempat').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-      settings.customRegex = document.getElementById('sRegex').value;
-      settings.ghToken = (document.getElementById('sGhToken').value || '').trim();
-      settings.ghGistId = (document.getElementById('sGhGistId').value || '').trim();
-      const on = document.querySelector('#segTheme button.on');
-      settings.theme = on ? on.getAttribute('data-v') : 'light';
-    }
-    function testCustomRegex() {
-      const out = document.getElementById('sRegexOut');
-      const reStr = document.getElementById('sRegex').value.trim();
-      const line = document.getElementById('fPaste').value.trim();
-      if (!reStr) { out.className = 'show err'; out.textContent = 'Regex masih kosong.'; return; }
-      if (!line) { out.className = 'show err'; out.textContent = 'Isi dulu kotak "Paste baris BA" sebagai sampel uji.'; return; }
-      let re; try { re = new RegExp(reStr); } catch (e) { out.className = 'show err'; out.textContent = '❌ Regex tidak valid: ' + e.message; return; }
-      const m = line.match(re);
-      if (!m) { out.className = 'show err'; out.textContent = '❌ Tidak cocok (match = null).'; return; }
-      const g = m.slice(1);
-      let map;
-      if (g.length >= 6) map = ['divisi', 'mandor', 'pekerjaan', 'persen', 'kontrak', 'kumulatif'];
-      else if (g.length === 5) map = ['mandor', 'pekerjaan', 'persen', 'kontrak', 'kumulatif'];
-      else if (g.length === 4) map = ['pekerjaan', 'persen', 'kontrak', 'kumulatif'];
-      else if (g.length === 3) map = ['persen', 'kontrak', 'kumulatif'];
-      else { out.className = 'show err'; out.textContent = '❌ Jumlah grup tangkap = ' + g.length + '. Harus 3, 4, 5, atau 6.'; return; }
-      let txt = '✅ Cocok! Grup tangkap:\n';
-      map.forEach((k, i) => { txt += `  ${k} = "${g[i]}"\n`; });
-      out.className = 'show'; out.textContent = txt;
-    }
-
-    /* ---------- GITHUB GIST SYNC FUNCTIONS ---------- */
-    async function testGithubToken(tokenOverride) {
-      const token = (tokenOverride !== undefined ? tokenOverride : settings.ghToken || '').trim();
-      if (!token) return { ok: false, message: 'Token GitHub masih kosong. Isi Token Personal Access Token (PAT) dulu.' };
-      try {
-        const res = await fetch('https://api.github.com/user', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        });
-        if (!res.ok) {
-          if (res.status === 401) return { ok: false, message: 'Token tidak valid / kadaluarsa (HTTP 401 Unauthorized).' };
-          return { ok: false, message: `Gagal verifikasi token (HTTP ${res.status}).` };
-        }
-        const u = await res.json();
-        return { ok: true, user: u.login, name: u.name || u.login };
-      } catch (err) {
-        return { ok: false, message: 'Gagal menghubungi API GitHub: ' + err.message };
-      }
-    }
-
-    async function pushToGist() {
-      if (document.getElementById('settingsOverlay')?.classList.contains('show')) {
-        readSettingsFromModal();
-        saveSettings();
-      }
-      const token = settings.ghToken;
-      let gistId = settings.ghGistId;
-
-      if (!token) {
-        toast('Token GitHub belum diisi di Setting ⚙️', 'error');
-        openSettings();
-        return false;
-      }
-
-      toast('Mengunggah data ke GitHub Gist...', 'success');
-
-      const payload = {
-        description: 'Backup Data & Setting Pencatat Progres Mandor (BA)',
-        public: false,
-        files: {
-          'progres-mandor.json': {
-            content: JSON.stringify(records, null, 2)
-          },
-          'progres-mandor-settings.json': {
-            content: JSON.stringify({
-              tempatKeywords: settings.tempatKeywords,
-              customRegex: settings.customRegex,
-              mandorParse: settings.mandorParse,
-              numLocale: settings.numLocale,
-              theme: settings.theme,
-              updatedAt: new Date().toISOString()
-            }, null, 2)
-          }
-        }
-      };
-
-      try {
-        let url = 'https://api.github.com/gists';
-        let method = 'POST';
-        if (gistId) {
-          url += '/' + gistId;
-          method = 'PATCH';
-        }
-
-        const res = await fetch(url, {
-          method,
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-          const errJson = await res.json().catch(() => ({}));
-          const msg = errJson.message || `HTTP ${res.status}`;
-          toast(`Gagal Push ke Gist: ${msg}`, 'error');
-          return false;
-        }
-
-        const gistData = await res.json();
-        if (!gistId && gistData.id) {
-          settings.ghGistId = gistData.id;
-          saveSettings();
-          const inputGist = document.getElementById('sGhGistId');
-          if (inputGist) inputGist.value = gistData.id;
-        }
-
-        updateGistStatusBadge();
-        toast(`✅ Data & Setting berhasil di-Push ke Gist (${(gistData.id || gistId).slice(0, 8)}...)`);
-        return true;
-      } catch (err) {
-        toast('Gagal Push: ' + err.message, 'error');
-        return false;
-      }
-    }
-
-    async function pullFromGist() {
-      if (document.getElementById('settingsOverlay')?.classList.contains('show')) {
-        readSettingsFromModal();
-        saveSettings();
-      }
-      const token = settings.ghToken;
-      const gistId = settings.ghGistId;
-
-      if (!gistId) {
-        toast('Gist ID belum diisi di Setting ⚙️', 'error');
-        openSettings();
-        return false;
-      }
-
-      toast('Mengambil data dari GitHub Gist...', 'success');
-
-      try {
-        const headers = { 'Accept': 'application/vnd.github.v3+json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
-        if (!res.ok) {
-          if (res.status === 404) toast('Gist ID tidak ditemukan di GitHub (HTTP 404).', 'error');
-          else toast(`Gagal Pull dari Gist (HTTP ${res.status}).`, 'error');
-          return false;
-        }
-
-        const gist = await res.json();
-        const files = gist.files || {};
-        const dataFile = files['progres-mandor.json'] || Object.values(files).find(f => f.filename && f.filename.endsWith('.json'));
-
-        if (!dataFile || !dataFile.content) {
-          toast('File data progres-mandor.json tidak ditemukan di Gist ini.', 'error');
-          return false;
-        }
-
-        const importedRecords = JSON.parse(dataFile.content);
-        if (!Array.isArray(importedRecords)) {
-          toast('Format data di Gist bukan array entri yang valid.', 'error');
-          return false;
-        }
-
-        if (records.length > 0 && !confirm(`Gist memuat ${importedRecords.length} entri. Timpa data lokal saat ini (${records.length} entri)?`)) {
-          return false;
-        }
-
-        records = importedRecords;
-        save();
-
-        const setFile = files['progres-mandor-settings.json'];
-        if (setFile && setFile.content) {
-          try {
-            const sData = JSON.parse(setFile.content);
-            if (sData.tempatKeywords) settings.tempatKeywords = sData.tempatKeywords;
-            if (sData.customRegex !== undefined) settings.customRegex = sData.customRegex;
-            if (sData.mandorParse) settings.mandorParse = sData.mandorParse;
-            if (sData.numLocale) settings.numLocale = sData.numLocale;
-            if (sData.theme) settings.theme = sData.theme;
-            saveSettings();
-            applyTheme();
-          } catch (e) {}
-        }
-
-        refreshSelects();
-        renderGroups();
-        updatePrevBox();
-        updateGistStatusBadge();
-        toast(`✅ Sukses! ${records.length} entri dimuat dari Gist (${gistId.slice(0, 8)}...)`);
-        return true;
-      } catch (err) {
-        toast('Gagal Pull: ' + err.message, 'error');
-        return false;
-      }
-    }
-
-    function updateGistStatusBadge() {
-      const badge = document.getElementById('gistStatusBadge');
-      if (!badge) return;
-      if (settings.ghGistId) {
-        const shortId = settings.ghGistId.slice(0, 8);
-        badge.innerHTML = `☁️ GitHub Gist: <b>Terhubung</b> (<a href="https://gist.github.com/${esc(settings.ghGistId)}" target="_blank" style="color:var(--brand);font-weight:600;">Gist #${esc(shortId)}</a>)`;
-      } else if (settings.ghToken) {
-        badge.innerHTML = '☁️ GitHub Gist: <b>Token Siap</b> (Gist ID akan dibuat otomatis saat Push)';
-      } else {
-        badge.innerHTML = '☁️ GitHub Gist: <b>Belum Dikonfigurasi</b> (Atur Token &amp; Gist di ⚙️ Setting)';
-      }
-    }
-
-    /* ---------- events ---------- */
-    document.addEventListener('DOMContentLoaded', () => {
-      refreshSelects();
-      populateFilterOptions();
-      applyFilters();
-      updateGistStatusBadge();
-
-      ['filterDivisi', 'filterMandor', 'filterTempat'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', applyFilters);
-      });
-
-      const searchEl = document.getElementById('filterSearch');
-      if (searchEl) searchEl.addEventListener('input', applyFilters);
-
-      const btnResetF = document.getElementById('btnResetFilter');
-      if (btnResetF) btnResetF.addEventListener('click', resetAllFilters);
-
-      document.getElementById('fTgl').value = new Date().toISOString().slice(0, 10);
-
-      const divisiEl = document.getElementById('fDivisi');
-      if (divisiEl) {
-        const updateDivisiDatalists = (e) => {
-          const curDiv = e.target.value;
-          const curMandor = document.getElementById('fMandor') ? document.getElementById('fMandor').value : '';
-          fillDatalist(document.getElementById('dlMandor'), uniqueMandors(curDiv));
-          fillDatalist(document.getElementById('dlPekerjaan'), uniquePekerjaan(curMandor, curDiv));
-          updatePrevBox();
-        };
-        divisiEl.addEventListener('input', updateDivisiDatalists);
-        divisiEl.addEventListener('change', updateDivisiDatalists);
-      }
-
-      const mandorEl = document.getElementById('fMandor');
-      if (mandorEl) {
-        const updateJobDatalist = (e) => {
-          const curDiv = document.getElementById('fDivisi') ? document.getElementById('fDivisi').value : '';
-          fillDatalist(document.getElementById('dlPekerjaan'), uniquePekerjaan(e.target.value, curDiv));
-          updatePrevBox();
-        };
-        mandorEl.addEventListener('input', updateJobDatalist);
-        mandorEl.addEventListener('change', updateJobDatalist);
-      }
-
-      ['fDivisi', 'fMandor', 'fPekerjaan', 'fPersen', 'fKontrak', 'fKum', 'fPrev', 'fTgl', 'fPaste'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.addEventListener('input', () => { updatePrevBox(); checkRealtimeValidation(); setFormDirty(true); });
-          el.addEventListener('change', () => { updatePrevBox(); checkRealtimeValidation(); setFormDirty(true); });
-        }
-      });
-
-      document.getElementById('btnParse').addEventListener('click', () => {
-        clearStatus();
-        const line = document.getElementById('fPaste').value.trim();
-        if (!line) { setStatus('Tempel baris BA dulu.', true); triggerHaptic('error'); return; }
-
-        const lines = line.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-        if (lines.length > 1) {
-          openBatchModal(lines);
-          return;
-        }
-
-        triggerSkeletonLoading(['fDivisi', 'fMandor', 'fPekerjaan', 'fTgl', 'fPersen', 'fKontrak', 'fKum', 'fPrev']);
-        const r = parseLine(line);
-        if (r && r.error) { setStatus('⚠️ ' + r.error, true); triggerHaptic('error'); return; }
-        if (!r) { setStatus('Format tidak dikenali. Pastikan ada: persen%, "Rp …", dan "= …" (atau sesuaikan regex di ⚙️ Setting).', true); triggerHaptic('error'); return; }
-        if (r.divisi) ensureOption('fDivisi', r.divisi);
-        if (r.mandor) ensureOption('fMandor', r.mandor);
-        ensureOption('fPekerjaan', r.pekerjaan);
-        document.getElementById('fDivisi').value = r.divisi || document.getElementById('fDivisi').value || 'Umum';
-        document.getElementById('fMandor').value = r.mandor || '';
-        fillDatalist(document.getElementById('dlPekerjaan'), uniquePekerjaan(r.mandor, r.divisi));
-        document.getElementById('fPekerjaan').value = r.pekerjaan;
-        document.getElementById('fPersen').value = fmtPercent(r.persen);
-        document.getElementById('fKontrak').value = fmtMoney(r.kontrak);
-        document.getElementById('fKum').value = fmtMoney(r.kumulatif);
-        document.getElementById('fPrev').value = '';
-        updatePrevBox();
-        setFormDirty(true);
-        triggerParseAnimation();
-        const noteDiv = r.divisi ? `Divisi: ${r.divisi} | ` : '';
-        const noteMan = r.mandor ? `Mandor: ${r.mandor} | ` : 'Mandor: (pilih di dropdown) | ';
-        setStatus(`✅ Ter-parse → ${noteDiv}${noteMan}Pekerjaan: ${r.pekerjaan} | ${fmtPercent(r.persen)}% × Rp ${fmtMoney(r.kontrak)} = Rp ${fmtMoney(r.kumulatif)}`);
-      });
-
-      document.getElementById('btnSave').addEventListener('click', (e) => {
-        doSave(e);
-        setFormDirty(false);
-      });
-      const btnCancelEditEl = document.getElementById('btnCancelEdit');
-      if (btnCancelEditEl) btnCancelEditEl.addEventListener('click', cancelEditEntry);
-      document.getElementById('btnReset').addEventListener('click', () => {
-        ['fPaste', 'fPersen', 'fKontrak', 'fKum', 'fPrev'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('fDivisi').value = ''; document.getElementById('fMandor').value = ''; document.getElementById('fPekerjaan').value = '';
-        cancelEditEntry();
-        refreshSelects();
-        document.getElementById('fTgl').value = getTodayISO();
-        clearStatus(); updatePrevBox(); setFormDirty(false);
-      });
-      document.getElementById('btnSample').addEventListener('click', loadSample);
-
-      document.getElementById('copyPrevXY').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtXY(l)); else toast('Belum ada entri sebelumnya', 'error'); });
-      document.getElementById('copyPrevFull').addEventListener('click', () => { const l = getLastFromForm(); if (l) copyText(fmtFull(l)); else toast('Belum ada entri sebelumnya', 'error'); });
-      document.getElementById('usePrev').addEventListener('click', () => { const l = getLastFromForm(); if (l) { document.getElementById('fPrev').value = fmtMoney(l.kumulatif); toast('Sebelumnya diisi'); setFormDirty(true); } else toast('Belum ada entri sebelumnya', 'error'); });
-
-      document.getElementById('btnExport').addEventListener('click', doExport);
-      document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
-      document.getElementById('fileImport').addEventListener('change', e => { if (e.target.files[0]) doImport(e.target.files[0]); e.target.value = ''; });
-      document.getElementById('btnClear').addEventListener('click', () => {
-        if (confirm('Hapus SEMUA data? Anda masih bisa membatalkan aksi ini melalui tombol Undo.')) {
-          pushUndoState('Semua data dipulihkan');
-          records = [];
-          save(); refreshSelects(); renderGroups(); updatePrevBox(); updateGistStatusBadge();
-          toast('Semua data dihapus', 'error', '↩️ Undo', () => doUndo());
-        }
-      });
-
-      // BATCH MODAL BUTTONS
-      const batchCloseEl = document.getElementById('batchClose');
-      if (batchCloseEl) batchCloseEl.addEventListener('click', closeBatchModal);
-      const batchCancelEl = document.getElementById('batchCancel');
-      if (batchCancelEl) batchCancelEl.addEventListener('click', closeBatchModal);
-      const batchConfirmEl = document.getElementById('batchConfirm');
-      if (batchConfirmEl) batchConfirmEl.addEventListener('click', confirmBatchSave);
-      const batchOverlayEl = document.getElementById('batchOverlay');
-      if (batchOverlayEl) batchOverlayEl.addEventListener('click', e => { if (e.target.id === 'batchOverlay') closeBatchModal(); });
-
-      // HISTORY MODAL BUTTONS
-      const histCloseEl = document.getElementById('historyClose');
-      if (histCloseEl) histCloseEl.addEventListener('click', closeHistoryModal);
-      const histDoneEl = document.getElementById('historyDone');
-      if (histDoneEl) histDoneEl.addEventListener('click', closeHistoryModal);
-      const histOverlayEl = document.getElementById('historyOverlay');
-      if (histOverlayEl) histOverlayEl.addEventListener('click', e => { if (e.target.id === 'historyOverlay') closeHistoryModal(); });
-
-      // FULL KEYBOARD SHORTCUTS CONTROLLER
-      document.addEventListener('keydown', (e) => {
-        const active = document.activeElement;
-        const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable);
-
-        // Esc: Close any active modal or cancel edit mode
-        if (e.key === 'Escape') {
-          closeSettings();
-          closeBatchModal();
-          closeHistoryModal();
-          cancelEditEntry();
-          return;
-        }
-
-        // Ctrl + Enter: Save entry
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-          e.preventDefault();
-          doSave(e);
-          setFormDirty(false);
-          return;
-        }
-
-        // Ctrl + P: Focus Paste & Parse BA input
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p' && !e.shiftKey) {
-          e.preventDefault();
-          const pasteEl = document.getElementById('fPaste');
-          if (pasteEl) {
-            pasteEl.focus();
-            pasteEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-          return;
-        }
-
-        // Ctrl + E: Export JSON
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
-          e.preventDefault();
-          doExport();
-          return;
-        }
-
-        // Ctrl + Shift + Z or Ctrl + Y: Redo
-        if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
-          if (!isInput) {
-            e.preventDefault();
-            doRedo();
-          }
-          return;
-        }
-
-        // Ctrl + Z: Undo
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
-          if (!isInput) {
-            e.preventDefault();
-            doUndo();
-          }
-          return;
-        }
-
-        // Arrow Up / Arrow Down: Table Row Keyboard Navigation
-        if (!isInput && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
-          e.preventDefault();
-          navigateTableRows(e.key === 'ArrowDown' ? 'down' : 'up');
-        }
-      });
-
-      // GitHub Gist main buttons
-      const btnPushMain = document.getElementById('btnPushGistMain');
-      if (btnPushMain) btnPushMain.addEventListener('click', pushToGist);
-      const btnPullMain = document.getElementById('btnPullGistMain');
-      if (btnPullMain) btnPullMain.addEventListener('click', pullFromGist);
-
-      // GitHub Gist modal buttons
-      const btnPushModal = document.getElementById('btnPushGistModal');
-      if (btnPushModal) btnPushModal.addEventListener('click', pushToGist);
-      const btnPullModal = document.getElementById('btnPullGistModal');
-      if (btnPullModal) btnPullModal.addEventListener('click', pullFromGist);
-
-      const btnToggleVis = document.getElementById('btnToggleTokenVis');
-      if (btnToggleVis) {
-        btnToggleVis.addEventListener('click', () => {
-          const inp = document.getElementById('sGhToken');
-          if (inp) inp.type = inp.type === 'password' ? 'text' : 'password';
-        });
-      }
-
-      const btnTestGh = document.getElementById('btnTestGithub');
-      if (btnTestGh) {
-        btnTestGh.addEventListener('click', async () => {
-          const tokenVal = document.getElementById('sGhToken').value;
-          const out = document.getElementById('sGhOut');
-          if (!out) return;
-          out.style.display = 'block';
-          out.style.background = 'var(--soft)';
-          out.style.color = 'var(--brand-d)';
-          out.textContent = '⏳ Memeriksa token GitHub...';
-          const res = await testGithubToken(tokenVal);
-          if (res.ok) {
-            out.style.background = 'var(--ok-bg)';
-            out.style.color = 'var(--ok-ink)';
-            out.textContent = `✅ Token Valid! Terhubung sebagai: ${res.name} (@${res.user})`;
-          } else {
-            out.style.background = 'var(--err-bg)';
-            out.style.color = 'var(--err-ink)';
-            out.textContent = '❌ ' + res.message;
-          }
-        });
-      }
-
-      // setting modal
-      document.getElementById('btnSettings').addEventListener('click', openSettings);
-      document.getElementById('settingsClose').addEventListener('click', closeSettings);
-      document.getElementById('settingsCancel').addEventListener('click', closeSettings);
-      document.getElementById('settingsOverlay').addEventListener('click', e => { if (e.target.id === 'settingsOverlay') closeSettings(); });
-      document.querySelectorAll('#segTheme button').forEach(b => b.addEventListener('click', () => setThemeSeg(b.getAttribute('data-v'))));
-      document.getElementById('btnTestRegex').addEventListener('click', testCustomRegex);
-      document.getElementById('settingsSave').addEventListener('click', () => {
-        readSettingsFromModal();
-        saveSettings();
-        applyTheme();
-        renderRekap();
-        updateGistStatusBadge();
-        closeSettings();
-        toast('Setting tersimpan ✅');
-      });
     });
 
-    function getLastFromForm() {
-      const d = document.getElementById('fDivisi') ? document.getElementById('fDivisi').value : 'Umum';
-      const m = document.getElementById('fMandor').value, p = document.getElementById('fPekerjaan').value;
-      return lastOf(d, m, p);
+    if (successCount > 0) {
+      saveData();
+      renderApp();
+      document.getElementById('parseInput').value = '';
+      showToast(`Berhasil menyimpan ${successCount} BA!`, 'success');
+      triggerConfetti();
+    } else {
+      showToast('Gagal mem-parse teks BA', 'error');
     }
-    function ensureOption(id, val) {
-      val = norm(val);
-      if (!val) return;
-      const dlId = id === 'fDivisi' ? 'dlDivisi' : (id === 'fMandor' ? 'dlMandor' : (id === 'fPekerjaan' ? 'dlPekerjaan' : null));
-      if (dlId) {
-        const dl = document.getElementById(dlId);
-        if (dl && ![...dl.options].some(o => o.value === val)) {
-          const opt = document.createElement('option');
-          opt.value = val;
-          dl.appendChild(opt);
-        }
-      }
-    }
-  </script>
-</body>
+  });
 
+  // 5. RENDER ENGINE
+  function renderApp() {
+    renderGrandTotal();
+    renderMandorCards();
+  }
+
+  function renderGrandTotal() {
+    const total = records.reduce((sum, r) => sum + r.termin, 0);
+    document.getElementById('odometerValue').textContent = 'Rp ' + fmtMoney(total);
+    
+    // Animate ring (dummy logic for visual)
+    const ring = document.getElementById('grandProgressRing');
+    const offset = 251.2 - (251.2 * Math.min(100, (total / 100000000) * 100) / 100);
+    ring.style.strokeDashoffset = offset;
+  }
+
+  function renderMandorCards() {
+    const container = document.getElementById('mandorCards');
+    container.innerHTML = '';
+    const tpl = document.getElementById('tplMandorCard');
+    
+    // Group by Mandor
+    const grouped = {};
+    records.forEach(r => {
+      if(!grouped[r.mandor]) grouped[r.mandor] = { divisi: r.divisi, history: [] };
+      grouped[r.mandor].history.push(r);
+    });
+
+    Object.keys(grouped).forEach(m => {
+      const g = grouped[m];
+      const clone = tpl.content.cloneNode(true);
+      clone.querySelector('.mandor-name').textContent = m || 'Tanpa Nama';
+      clone.querySelector('.mandor-divisi').textContent = g.divisi;
+      
+      const tbody = clone.querySelector('.tbl-detail');
+      let totalKumulatif = 0;
+      let totalTermin = 0;
+      
+      // Just show last 3 entries for the card
+      const recent = g.history.slice(-3);
+      recent.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.pekerjaan.length > 20 ? r.pekerjaan.substring(0,20)+'...' : r.pekerjaan}</td>
+          <td style="color:var(--success)">+${fmtMoney(r.termin)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      
+      // Aggregate totals
+      const latestJobs = {};
+      g.history.forEach(r => {
+        latestJobs[r.pekerjaan] = r;
+      });
+      Object.values(latestJobs).forEach(r => {
+        totalKumulatif += r.kumulatif;
+      });
+      g.history.forEach(r => { totalTermin += r.termin; });
+      
+      clone.querySelector('.termin-badge').textContent = `Total Termin: Rp ${fmtMoney(totalTermin)}`;
+      clone.querySelector('.kumulatif-badge').textContent = `Kumulatif: Rp ${fmtMoney(totalKumulatif)}`;
+      
+      container.appendChild(clone);
+    });
+  }
+
+  // 6. INITIALIZATION
+  function init() {
+    loadData();
+    applyTheme(settings.theme);
+    renderApp();
+  }
+  
+  init();
+</script>
+
+</body>
 </html>
