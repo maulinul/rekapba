@@ -1537,70 +1537,6 @@ body {
 
     function renderRekap() {
       if (!records.length) return;
-      const sourceRecords = getFilteredRecords();
-      const byD = {}, byP = {}, byM = {}, byT = {};
-      sourceRecords.forEach(r => {
-        const dName = norm(r.divisi || 'Umum');
-        const t = Number(r.termin) || 0;
-        (byD[dName] ??= { termin: 0, n: 0, man: new Set() }); byD[dName].termin += t; byD[dName].n++; byD[dName].man.add(r.mandor);
-        (byP[r.pekerjaan] ??= { termin: 0, n: 0 }); byP[r.pekerjaan].termin += t; byP[r.pekerjaan].n++;
-        (byM[r.mandor] ??= { termin: 0, n: 0 }); byM[r.mandor].termin += t; byM[r.mandor].n++;
-      });
-      
-      const sD = Object.entries(byD).sort((a, b) => b[1].termin - a[1].termin);
-      const sP = Object.entries(byP).sort((a, b) => b[1].termin - a[1].termin);
-      const sM = Object.entries(byM).sort((a, b) => b[1].termin - a[1].termin);
-
-      const dEl = document.getElementById('listRekapDivisi');
-      const pEl = document.getElementById('listRekapPekerjaan');
-      const mEl = document.getElementById('listRekapMandor');
-
-      if (dEl) dEl.innerHTML = getRekapListHtml(sD, 'divisi', ([k,d]) => `<b>${esc(k)}</b><br><span class="muted" style="font-size:11px;">${d.n} entri</span>`, d => d.termin);
-      if (pEl) pEl.innerHTML = getRekapListHtml(sP, 'pekerjaan', ([k,d]) => `${esc(k)}`, d => d.termin);
-      if (mEl) mEl.innerHTML = getRekapListHtml(sM, 'mandor', ([k,d]) => `${esc(k)}`, d => d.termin);
-    }
-
-      const sourceRecords = getFilteredRecords();
-      const byD = {}, byP = {}, byM = {}, byT = {};
-      sourceRecords.forEach(r => {
-        const dName = norm(r.divisi || 'Umum');
-        const t = Number(r.termin) || 0;
-        (byD[dName] ??= { termin: 0, n: 0, man: new Set(), pek: new Set() }); byD[dName].termin += t; byD[dName].n++; byD[dName].man.add(r.mandor); byD[dName].pek.add(r.pekerjaan);
-        (byP[r.pekerjaan] ??= { termin: 0, n: 0, man: new Set() }); byP[r.pekerjaan].termin += t; byP[r.pekerjaan].n++; byP[r.pekerjaan].man.add(r.mandor);
-        (byM[r.mandor] ??= { termin: 0, n: 0, pek: new Set() }); byM[r.mandor].termin += t; byM[r.mandor].n++; byM[r.mandor].pek.add(r.pekerjaan);
-        const tp = extractTempat(r.pekerjaan);
-        (byT[tp] ??= { termin: 0, n: 0 }); byT[tp].termin += t; byT[tp].n++;
-      });
-      const sD = Object.entries(byD).sort((a, b) => b[1].termin - a[1].termin);
-      const sP = Object.entries(byP).sort((a, b) => b[1].termin - a[1].termin);
-      const sM = Object.entries(byM).sort((a, b) => b[1].termin - a[1].termin);
-      const sT = Object.entries(byT).sort((a, b) => b[1].termin - a[1].termin);
-      panel.innerHTML =
-        cardRekap('🏢 Rekap per Divisi', 'divisi', sD, ([d, data]) => `<div class="rk-t">${esc(d)}</div><div class="rk-s">${data.man.size} mandor · ${data.pek.size} pekerjaan · ${data.n} entri</div>`, data => data.termin) +
-        cardRekap('🔧 Rekap per Pekerjaan', 'pekerjaan', sP, ([p, d]) => `<div class="rk-t">${esc(p)}</div><div class="rk-s">Mandor: ${esc([...d.man].join(', '))} · ${d.n} entri</div>`, d => d.termin) +
-        cardRekap('👷 Rekap per Mandor', 'mandor', sM, ([m, d]) => `<div class="rk-t">${esc(m)}</div><div class="rk-s">${d.pek.size} pekerjaan · ${d.n} entri</div>`, d => d.termin) +
-        cardRekap('📍 Rekap per Tempat', 'tempat', sT, ([t, d]) => `<div class="rk-t">${esc(t)}</div><div class="rk-s">${d.n} entri</div>`, d => d.termin);
-
-      panel.querySelectorAll('.rk-item-clickable').forEach(el => {
-        el.addEventListener('click', () => {
-          const type = el.getAttribute('data-rk-type');
-          const val = el.getAttribute('data-rk-val');
-          if (type === 'divisi') {
-            const f = document.getElementById('filterDivisi');
-            if (f) f.value = (f.value === val) ? '' : val;
-          } else if (type === 'mandor') {
-            const f = document.getElementById('filterMandor');
-            if (f) f.value = (f.value === val) ? '' : val;
-          } else if (type === 'tempat') {
-            const f = document.getElementById('filterTempat');
-            if (f) f.value = (f.value === val) ? '' : val;
-          }
-          applyFilters();
-          toast(`Filter ${type} disesuaikan: ${val}`);
-        });
-      });
-    }
-
     /* ---------- render kelompok ---------- */
     const collapsedGroups = new Set();
 
@@ -2761,4 +2697,6 @@ body {
     
     // Connect old buttons to new IDs
     if(document.getElementById('btnSettingsNav')) document.getElementById('btnSettingsNav').addEventListener('click', openSettings);
-\n</script>\n</body>\n</html>
+</script>
+</body>
+</html>
