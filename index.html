@@ -77,13 +77,33 @@
     }
 
     header {
-      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(30, 58, 138, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       color: #fff;
-      padding: 18px 20px;
+      padding: 14px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #scrollProgress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #fde047, #10b981, #3b82f6);
+      z-index: 1001;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
     }
 
     header h1 {
@@ -1160,10 +1180,259 @@
       border-radius: 50%;
       background: var(--brand);
     }
+
+    /* ===== BENTO GRID LAYOUT ===== */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .bento-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      contain: layout paint;
+    }
+    .bento-card:hover {
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1);
+      transform: translateY(-2px);
+    }
+    .bento-hero { grid-column: span 12; }
+    .bento-span-7 { grid-column: span 7; }
+    .bento-span-5 { grid-column: span 5; }
+    .bento-span-4 { grid-column: span 4; }
+    .bento-span-8 { grid-column: span 8; }
+
+    @media (max-width: 1024px) {
+      .bento-span-7, .bento-span-5, .bento-span-4, .bento-span-8 { grid-column: span 12; }
+    }
+
+    /* ===== COMMAND PALETTE (Ctrl+K) ===== */
+    .cmd-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 80px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .cmd-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .cmd-dialog {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 620px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transform: scale(0.95) translateY(-10px);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .cmd-backdrop.active .cmd-dialog {
+      transform: scale(1) translateY(0);
+    }
+    .cmd-input-wrap {
+      display: flex;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      gap: 10px;
+    }
+    .cmd-input-wrap input {
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+    }
+    .cmd-list {
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .cmd-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 6px 10px;
+    }
+    .cmd-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13.5px;
+      color: var(--ink);
+      transition: background 0.15s ease;
+    }
+    .cmd-item:hover, .cmd-item.selected {
+      background: var(--soft);
+      color: var(--brand-d);
+    }
+    .cmd-kbd {
+      background: var(--line);
+      color: var(--muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: monospace;
+    }
+
+    /* ===== SKELETON SHIMMER EFFECT ===== */
+    .skeleton {
+      background: linear-gradient(90deg, var(--line) 25%, var(--soft) 50%, var(--line) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+      border-radius: 6px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ===== VIRTUAL SCROLLING TABLE ===== */
+    .virtual-scroll-container {
+      position: relative;
+      overflow-y: auto;
+      max-height: 480px;
+      contain: layout size;
+    }
+    .virtual-scroll-spacer {
+      width: 100%;
+    }
+    .virtual-scroll-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    /* ===== DATA VISUALIZATIONS (Pure SVG) ===== */
+    .sparkline-svg {
+      overflow: visible;
+      filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.2));
+    }
+    .donut-chart-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .progress-ring-circle {
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* ===== GESTURES & CONTEXT MENU ===== */
+    .swipeable-row {
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      touch-action: pan-y;
+    }
+    .custom-ctx-menu {
+      position: fixed;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      padding: 6px;
+      z-index: 10000;
+      display: none;
+      animation: menuPop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes menuPop {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .ctx-item {
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ctx-item:hover {
+      background: var(--soft);
+      color: var(--brand-d);
+    }
+
+    /* ===== PARTICLE CURSOR CANVAS ===== */
+    #particleCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* ===== SUCCESS SEQUENCE MORPH & RIPPLE ===== */
+    .btn-morphing {
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-morphing.success {
+      background: #10b981 !important;
+      color: #fff !important;
+      transform: scale(1.04);
+    }
+    .ripple-effect {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ===== VIEW TRANSITION FIXES ===== */
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.3s;
+    }
+
+    /* ===== ACCESSIBILITY: PREFERS REDUCED MOTION ===== */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .skeleton { animation: none !important; }
+      #particleCanvas { display: none !important; }
+    }
   </style>
 </head>
 
 <body>
+  <div id="scrollProgress"></div>
+  <canvas id="particleCanvas"></canvas>
+
   <header>
     <div>
       <h1 style="display:flex;align-items:center;gap:12px">
@@ -1210,7 +1479,10 @@
       </h1>
       <p>Kelompokkan per mandor &amp; pekerjaan · akumulasi otomatis · cegah salah hitung adendum</p>
     </div>
-    <button class="gear epic-btn" id="btnSettings" type="button" title="Setting parsing & tema">⚙️ Setting</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="gear epic-btn" id="btnCmdPalette" type="button" title="Buka Command Palette (Ctrl+K)">🔍 <span style="font-size:12px;opacity:0.8;margin-left:2px">Ctrl+K</span></button>
+      <button class="gear epic-btn" id="btnSettings" type="button" title="Setting parsing & tema">⚙️ Setting</button>
+    </div>
   </header>
 
   <div class="wrap">
@@ -1598,32 +1870,37 @@
       setTimeout(() => ripple.remove(), 600);
     });
 
-    // 2. Epic Number Counter (Odometer Effect)
-    let lastGrandTotalValue = 0;
-    function animateGrandTotal(elementId, endValue, duration = 1000) {
+    // 2. Spring Physics Number Counter (Overshoot + Settle)
+    let currentSpringVal = 0;
+    let springVelocity = 0;
+    let springRafId = null;
+
+    function animateGrandTotal(elementId, targetValue) {
       const el = document.getElementById(elementId) || document.getElementById('grandTotal');
       if (!el) return;
-      el.classList.add('updating');
-      const startValue = lastGrandTotalValue;
-      lastGrandTotalValue = endValue;
-      let startTimestamp = null;
 
-      const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        const easeProgress = 1 - Math.pow(1 - progress, 4); // Ease out quart
-        const currentVal = Math.floor(easeProgress * (endValue - startValue) + startValue);
+      if (springRafId) cancelAnimationFrame(springRafId);
+      el.style.willChange = 'transform, contents';
+      el.style.contain = 'layout paint';
 
-        el.textContent = 'Rp ' + currentVal.toLocaleString('id-ID');
+      const stiffness = 0.08;
+      const damping = 0.7;
 
-        if (progress < 1) {
-          window.requestAnimationFrame(step);
-        } else {
-          el.classList.remove('updating');
-          el.textContent = 'Rp ' + endValue.toLocaleString('id-ID');
+      function tick() {
+        const force = (targetValue - currentSpringVal) * stiffness;
+        springVelocity = (springVelocity + force) * damping;
+        currentSpringVal += springVelocity;
+
+        if (Math.abs(targetValue - currentSpringVal) < 1 && Math.abs(springVelocity) < 0.1) {
+          currentSpringVal = targetValue;
+          el.textContent = 'Rp ' + Math.round(targetValue).toLocaleString('id-ID');
+          el.style.willChange = 'auto';
+          return;
         }
-      };
-      window.requestAnimationFrame(step);
+        el.textContent = 'Rp ' + Math.round(currentSpringVal).toLocaleString('id-ID');
+        springRafId = requestAnimationFrame(tick);
+      }
+      tick();
     }
 
     // 3. Parse Field Highlight Sequence (Efek Scanning)
@@ -1804,6 +2081,422 @@
           setTimeout(() => toastEl.remove(), 500);
         }
       }, actionText ? 7000 : 3500);
+    }
+
+    /* ===== SCROLL PROGRESS INDICATOR ===== */
+    function initScrollProgress() {
+      window.addEventListener('scroll', () => {
+        const progressEl = document.getElementById('scrollProgress');
+        if (!progressEl) return;
+        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPct = totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
+        progressEl.style.width = scrollPct + '%';
+      }, { passive: true });
+    }
+
+    /* ===== PARTICLE CURSOR TRAIL & CANVAS ===== */
+    let isParseModeActive = false;
+    function initParticleCanvas() {
+      const canvas = document.getElementById('particleCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isParseModeActive && Math.random() > 0.4) return;
+        particles.push({
+          x: e.clientX,
+          y: e.clientY,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: (Math.random() - 0.5) * 1.5 - 0.5,
+          size: Math.random() * 4 + 2,
+          color: Math.random() > 0.5 ? '#3b82f6' : '#10b981',
+          alpha: 1
+        });
+      }, { passive: true });
+
+      function renderParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, idx) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= 0.02;
+          if (p.alpha <= 0) {
+            particles.splice(idx, 1);
+            return;
+          }
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+        requestAnimationFrame(renderParticles);
+      }
+      renderParticles();
+    }
+
+    /* ===== PURE SVG SPARKLINE GENERATOR ===== */
+    function renderSparklineSVG(recordsGroup) {
+      if (!recordsGroup || recordsGroup.length < 2) return '';
+      const terminVals = recordsGroup.map(r => Number(r.termin) || 0);
+      const width = 74;
+      const height = 22;
+      const min = Math.min(...terminVals);
+      const max = Math.max(...terminVals);
+      const range = (max - min) || 1;
+      const points = terminVals.map((val, idx) => {
+        const x = (idx / (terminVals.length - 1)) * width;
+        const y = height - ((val - min) / range) * (height - 6) - 3;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+
+      return `
+        <div title="Tren Termin BA Mandor Ini" style="display:inline-flex;align-items:center;margin-left:6px;" class="sparkline-wrapper">
+          <svg class="sparkline-svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+            <polyline fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${points}" />
+          </svg>
+        </div>`;
+    }
+
+    /* ===== PURE SVG DONUT CHART GENERATOR ===== */
+    function renderDonutChartSVG(dataList) {
+      if (!dataList || !dataList.length) return '<div class="rk-empty">Belum ada data untuk Donut Chart</div>';
+      const total = dataList.reduce((acc, item) => acc + item.val, 0);
+      if (total <= 0) return '<div class="rk-empty">Total pencairan 0</div>';
+
+      const radius = 38;
+      const circ = 2 * Math.PI * radius;
+      let cumulativeAngle = 0;
+      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'];
+
+      const slices = dataList.slice(0, 6).map((item, idx) => {
+        const pct = item.val / total;
+        const strokeDasharray = `${(pct * circ).toFixed(2)} ${(circ * (1 - pct)).toFixed(2)}`;
+        const strokeDashoffset = (-cumulativeAngle * circ).toFixed(2);
+        cumulativeAngle += pct;
+        const color = colors[idx % colors.length];
+
+        return `<circle cx="50" cy="50" r="${radius}" fill="none" stroke="${color}" stroke-width="12"
+          stroke-dasharray="${strokeDasharray}" stroke-dashoffset="${strokeDashoffset}" stroke-linecap="round">
+          <title>${esc(item.label)}: Rp ${fmtMoney(item.val)} (${(pct * 100).toFixed(1)}%)</title>
+        </circle>`;
+      }).join('');
+
+      const legend = dataList.slice(0, 6).map((item, idx) => {
+        const pct = ((item.val / total) * 100).toFixed(1);
+        const color = colors[idx % colors.length];
+        return `<div style="display:flex;align-items:center;gap:6px;font-size:12px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:${color};display:inline-block;"></span>
+          <span style="font-weight:600;">${esc(item.label)}:</span>
+          <span style="color:var(--muted);">${pct}% (Rp ${fmtMoney(item.val)})</span>
+        </div>`;
+      }).join('');
+
+      return `
+        <div class="donut-chart-container" style="padding:10px 0;">
+          <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg);">
+            ${slices}
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+            ${legend}
+          </div>
+        </div>`;
+    }
+
+    /* ===== PURE SVG GANTT / TIMELINE VISUALIZATION ===== */
+    function renderGanttChartSVG(recordsGrouped) {
+      if (!recordsGrouped || !recordsGrouped.length) return '<div class="rk-empty">Belum ada data timeline</div>';
+      const items = recordsGrouped.slice(0, 8).map(g => {
+        const mandor = g.mandor;
+        const count = g.count;
+        const total = g.total;
+        const pct = Math.min(100, Math.max(15, count * 20));
+        return `
+          <div style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+              <span style="font-weight:700;">👷 ${esc(mandor)}</span>
+              <span style="color:var(--muted);">${count} BA · Rp ${fmtMoney(total)}</span>
+            </div>
+            <div style="height:8px;background:var(--soft);border-radius:4px;overflow:hidden;">
+              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg, #3b82f6, #10b981);border-radius:4px;transition:width 0.6s ease;"></div>
+            </div>
+          </div>`;
+      }).join('');
+
+      return `<div style="padding:10px 0;">${items}</div>`;
+    }
+
+    /* ===== COMMAND PALETTE (Ctrl+K) LOGIC ===== */
+    function initCommandPalette() {
+      const backdrop = document.getElementById('cmdPaletteBackdrop');
+      const input = document.getElementById('cmdInput');
+      const list = document.getElementById('cmdList');
+      const btnCmd = document.getElementById('btnCmdPalette');
+
+      if (!backdrop || !input || !list) return;
+
+      let selectedIndex = 0;
+
+      function openCmd() {
+        backdrop.classList.add('active');
+        input.value = '';
+        input.focus();
+        renderCmdItems('');
+        triggerHaptic('light');
+      }
+
+      function closeCmd() {
+        backdrop.classList.remove('active');
+      }
+
+      if (btnCmd) btnCmd.addEventListener('click', openCmd);
+
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) closeCmd();
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          if (backdrop.classList.contains('active')) closeCmd(); else openCmd();
+        } else if (e.key === 'Escape' && backdrop.classList.contains('active')) {
+          closeCmd();
+        }
+      });
+
+      input.addEventListener('input', (e) => {
+        renderCmdItems(e.target.value);
+      });
+
+      input.addEventListener('keydown', (e) => {
+        const items = list.querySelectorAll('.cmd-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectedIndex = (selectedIndex + 1) % items.length;
+          updateSelection(items);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+          updateSelection(items);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (items[selectedIndex]) items[selectedIndex].click();
+        }
+      });
+
+      function updateSelection(items) {
+        items.forEach((item, idx) => {
+          if (idx === selectedIndex) {
+            item.classList.add('selected');
+            item.scrollIntoView({ block: 'nearest' });
+          } else {
+            item.classList.remove('selected');
+          }
+        });
+      }
+
+      function renderCmdItems(query) {
+        const q = norm(query);
+        const cmdActions = [
+          { icon: '⚡', title: 'Input / Parse Entri BA', action: () => { document.getElementById('fPaste')?.focus(); document.getElementById('fPaste')?.scrollIntoView({ behavior: 'smooth' }); } },
+          { icon: '🧹', title: 'Reset Semua Filter', action: () => resetAllFilters() },
+          { icon: '🌙', title: 'Toggle Tema Gelap / Terang', action: () => toggleTheme() },
+          { icon: '⚙️', title: 'Buka Pengaturan / Backup', action: () => openSettingsModal() },
+          { icon: '📑', title: 'Export Rekap CSV', action: () => exportDataCSV() },
+        ];
+
+        const mandors = [...new Set(records.map(r => r.mandor).filter(Boolean))];
+        const divisions = [...new Set(records.map(r => r.divisi).filter(Boolean))];
+
+        let html = '';
+
+        const matchedActions = cmdActions.filter(a => !q || norm(a.title).includes(q));
+        if (matchedActions.length) {
+          html += '<div class="cmd-group-title">Aksi Aplikasi</div>';
+          matchedActions.forEach(a => {
+            html += `<div class="cmd-item" data-type="action">
+              <span>${a.icon} ${esc(a.title)}</span>
+              <span class="cmd-kbd">Enter</span>
+            </div>`;
+          });
+        }
+
+        const matchedMandors = mandors.filter(m => !q || norm(m).includes(q));
+        if (matchedMandors.length) {
+          html += '<div class="cmd-group-title">Filter Mandor</div>';
+          matchedMandors.forEach(m => {
+            html += `<div class="cmd-item" data-type="mandor" data-val="${esc(m)}">
+              <span>👷 Mandor: ${esc(m)}</span>
+              <span class="cmd-kbd">Filter</span>
+            </div>`;
+          });
+        }
+
+        const matchedDivs = divisions.filter(d => !q || norm(d).includes(q));
+        if (matchedDivs.length) {
+          html += '<div class="cmd-group-title">Filter Divisi</div>';
+          matchedDivs.forEach(d => {
+            html += `<div class="cmd-item" data-type="divisi" data-val="${esc(d)}">
+              <span>🏢 Divisi: ${esc(d)}</span>
+              <span class="cmd-kbd">Filter</span>
+            </div>`;
+          });
+        }
+
+        if (!html) {
+          html = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">Tidak ada hasil ditemukan</div>';
+        }
+
+        list.innerHTML = html;
+        selectedIndex = 0;
+        const items = list.querySelectorAll('.cmd-item');
+        updateSelection(items);
+
+        items.forEach((item, idx) => {
+          item.addEventListener('click', () => {
+            const type = item.getAttribute('data-type');
+            if (type === 'action') {
+              const matchedAction = matchedActions[idx];
+              if (matchedAction) matchedAction.action();
+            } else if (type === 'mandor') {
+              const val = item.getAttribute('data-val');
+              const f = document.getElementById('filterMandor');
+              if (f) { f.value = val; applyFilters(); }
+            } else if (type === 'divisi') {
+              const val = item.getAttribute('data-val');
+              const f = document.getElementById('filterDivisi');
+              if (f) { f.value = val; applyFilters(); }
+            }
+            closeCmd();
+          });
+        });
+      }
+    }
+
+    /* ===== MICRO-INTERACTIONS: SWIPE TO DELETE & LONG-PRESS CONTEXT MENU ===== */
+    let currentCtxRecordId = null;
+    function initMobileGesturesAndCtxMenu() {
+      const menu = document.getElementById('customCtxMenu');
+      if (!menu) return;
+
+      document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target)) menu.style.display = 'none';
+      });
+
+      document.getElementById('ctxEdit')?.addEventListener('click', () => {
+        menu.style.display = 'none';
+        if (currentCtxRecordId) {
+          const r = records.find(x => x.id === currentCtxRecordId);
+          if (r) startEditEntry(r);
+        }
+      });
+
+      document.getElementById('ctxCopy')?.addEventListener('click', () => {
+        menu.style.display = 'none';
+        if (currentCtxRecordId) {
+          const r = records.find(x => x.id === currentCtxRecordId);
+          if (r) {
+            if (navigator.clipboard) navigator.clipboard.writeText(fmtFull(r));
+            toast('Teks BA berhasil disalin ke clipboard');
+          }
+        }
+      });
+
+      document.getElementById('ctxDuplicate')?.addEventListener('click', () => {
+        menu.style.display = 'none';
+        if (currentCtxRecordId) {
+          const r = records.find(x => x.id === currentCtxRecordId);
+          if (r) duplicateToForm(r);
+        }
+      });
+
+      document.getElementById('ctxDelete')?.addEventListener('click', () => {
+        menu.style.display = 'none';
+        if (currentCtxRecordId) {
+          deleteRecord(currentCtxRecordId);
+        }
+      });
+    }
+
+    function attachRowGestures(rowElement, recordId) {
+      let touchTimer = null;
+      let startX = 0;
+      let currentX = 0;
+
+      rowElement.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        currentX = startX;
+        touchTimer = setTimeout(() => {
+          triggerHaptic('light');
+          currentCtxRecordId = recordId;
+          const menu = document.getElementById('customCtxMenu');
+          if (menu) {
+            menu.style.left = Math.min(e.touches[0].clientX, window.innerWidth - 180) + 'px';
+            menu.style.top = Math.min(e.touches[0].clientY, window.innerHeight - 200) + 'px';
+            menu.style.display = 'block';
+          }
+        }, 500);
+      }, { passive: true });
+
+      rowElement.addEventListener('touchmove', (e) => {
+        currentX = e.touches[0].clientX;
+        const diffX = currentX - startX;
+        if (Math.abs(diffX) > 10) clearTimeout(touchTimer);
+        if (diffX < -20) {
+          rowElement.style.transform = `translateX(${Math.max(diffX, -100)}px)`;
+        }
+      }, { passive: true });
+
+      rowElement.addEventListener('touchend', () => {
+        clearTimeout(touchTimer);
+        const diffX = currentX - startX;
+        if (diffX < -70) {
+          triggerHaptic('error');
+          rowElement.style.transform = 'translateX(-100%)';
+          rowElement.style.opacity = '0';
+          setTimeout(() => deleteRecord(recordId), 250);
+        } else {
+          rowElement.style.transform = 'none';
+        }
+      });
+    }
+
+    /* ===== SUCCESS SEQUENCE (Morph Button + Ripple + Particle Burst + Toast) ===== */
+    function triggerSuccessSequence(btnElement, toastMessage = 'Data berhasil disimpan!') {
+      triggerHaptic('success');
+      triggerEpicBurst(window.innerWidth / 2, window.innerHeight / 3);
+
+      if (btnElement) {
+        btnElement.classList.add('btn-morphing', 'success');
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = '✓ Berhasil!';
+
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple-effect';
+        const rect = btnElement.getBoundingClientRect();
+        ripple.style.width = ripple.style.height = Math.max(rect.width, rect.height) + 'px';
+        btnElement.appendChild(ripple);
+
+        setTimeout(() => {
+          btnElement.classList.remove('btn-morphing', 'success');
+          btnElement.innerHTML = originalText;
+          ripple.remove();
+        }, 1200);
+      }
+
+      showEpicToast(toastMessage, 'success');
     }
 
     const KEY = 'mandorProgresRecords_v1';
@@ -2592,7 +3285,16 @@
       const sP = Object.entries(byP).sort((a, b) => b[1].termin - a[1].termin);
       const sM = Object.entries(byM).sort((a, b) => b[1].termin - a[1].termin);
       const sT = Object.entries(byT).sort((a, b) => b[1].termin - a[1].termin);
+
+      const donutData = sP.slice(0, 6).map(([p, d]) => ({ label: p, val: d.termin }));
+      const donutHtml = `<div class="card rekap"><h2>🍩 Distribusi Termin (Donut Chart)</h2>${renderDonutChartSVG(donutData)}</div>`;
+
+      const ganttData = sM.map(([m, d]) => ({ mandor: m, count: d.n, total: d.termin }));
+      const ganttHtml = `<div class="card rekap"><h2>📊 Timeline BA per Mandor</h2>${renderGanttChartSVG(ganttData)}</div>`;
+
       panel.innerHTML =
+        donutHtml +
+        ganttHtml +
         cardRekap('🏢 Rekap per Divisi', 'divisi', sD, ([d, data]) => `<div class="rk-t">${esc(d)}</div><div class="rk-s">${data.man.size} mandor · ${data.pek.size} pekerjaan · ${data.n} entri</div>`, data => data.termin) +
         cardRekap('🔧 Rekap per Pekerjaan', 'pekerjaan', sP, ([p, d]) => `<div class="rk-t">${esc(p)}</div><div class="rk-s">Mandor: ${esc([...d.man].join(', '))} · ${d.n} entri</div>`, d => d.termin) +
         cardRekap('👷 Rekap per Mandor', 'mandor', sM, ([m, d]) => `<div class="rk-t">${esc(m)}</div><div class="rk-s">${d.pek.size} pekerjaan · ${d.n} entri</div>`, d => d.termin) +
@@ -2825,7 +3527,7 @@
             <div class="t grp-head-title">
               <span class="toggle-icon ${isCollapsed ? 'rotated' : ''}">▼</span>
               <span class="pill" style="padding:2px 8px;font-size:11.5px;background:var(--soft);color:var(--brand-d);border:1px solid #c7d2fe;font-weight:700;">🏢 ${esc(last.divisi || 'Umum')}</span>
-              👷 ${esc(last.mandor)}
+              👷 ${esc(last.mandor)} ${renderSparklineSVG(list)}
             </div>
             <div class="s">🔧 ${esc(last.pekerjaan)}</div>
           </div>
@@ -2848,6 +3550,11 @@
         <tbody>${rows}</tbody>
       </table></div>`;
         wrap.appendChild(card);
+
+        card.querySelectorAll('tbody tr').forEach((trEl, rIdx) => {
+          const recordItem = list[rIdx];
+          if (recordItem) attachRowGestures(trEl, recordItem.id);
+        });
       });
 
       // FLIP Invert & Play Animation
@@ -3425,10 +4132,20 @@
         setStatus(`✅ Ter-parse → ${noteDiv}${noteMan}Pekerjaan: ${r.pekerjaan} | ${fmtPercent(r.persen)}% × Rp ${fmtMoney(r.kontrak)} = Rp ${fmtMoney(r.kumulatif)}`);
       });
 
-      document.getElementById('btnSave').addEventListener('click', (e) => {
-        doSave(e);
-        setFormDirty(false);
-      });
+      const saveBtnEl = document.getElementById('btnSave');
+      if (saveBtnEl) {
+        saveBtnEl.addEventListener('click', (e) => {
+          doSave(e);
+          setFormDirty(false);
+          triggerSuccessSequence(saveBtnEl);
+        });
+      }
+
+      const pasteInput = document.getElementById('fPaste');
+      if (pasteInput) {
+        pasteInput.addEventListener('focus', () => { isParseModeActive = true; });
+        pasteInput.addEventListener('blur', () => { isParseModeActive = false; });
+      }
       const btnCancelEditEl = document.getElementById('btnCancelEdit');
       if (btnCancelEditEl) btnCancelEditEl.addEventListener('click', cancelEditEntry);
       document.getElementById('btnReset').addEventListener('click', () => {
@@ -3599,6 +4316,12 @@
         closeSettings();
         toast('Setting tersimpan ✅');
       });
+
+      // Initialize Upgrade Features
+      initScrollProgress();
+      initParticleCanvas();
+      initCommandPalette();
+      initMobileGesturesAndCtxMenu();
     });
 
     function getLastFromForm() {
@@ -3620,6 +4343,27 @@
       }
     }
   </script>
+  <!-- COMMAND PALETTE MODAL (Ctrl+K) -->
+  <div id="cmdPaletteBackdrop" class="cmd-backdrop">
+    <div class="cmd-dialog">
+      <div class="cmd-input-wrap">
+        <span style="font-size:18px">🔍</span>
+        <input type="text" id="cmdInput" placeholder="Ketik perintah atau cari mandor/pekerjaan... (Esc untuk menutup)" autocomplete="off">
+        <span class="cmd-kbd">ESC</span>
+      </div>
+      <div id="cmdList" class="cmd-list"></div>
+    </div>
+  </div>
+
+  <!-- CUSTOM CONTEXT MENU (Long-press / Mobile Context) -->
+  <div id="customCtxMenu" class="custom-ctx-menu">
+    <div class="ctx-item" id="ctxEdit">✏️ Edit Entri</div>
+    <div class="ctx-item" id="ctxCopy">📋 Salin Teks BA</div>
+    <div class="ctx-item" id="ctxDuplicate">📑 Duplikasi Entri</div>
+    <div style="height:1px;background:var(--line);margin:4px 0"></div>
+    <div class="ctx-item" id="ctxDelete" style="color:var(--red-b)">🗑️ Hapus Entri</div>
+  </div>
+
 </body>
 
 </html>
