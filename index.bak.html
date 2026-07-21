@@ -1,442 +1,1430 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="auto">
+<html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0f172a">
-<title>RekapBA Pro</title>
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pencatat Progres Mandor (BA)</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #fff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --brand: #2563eb;
+      --brand-d: #1d4ed8;
+      --yellow: #fff3a3;
+      --yellow-b: #eab308;
+      --red: #fca5a5;
+      --red-b: #dc2626;
+      --green: #bbf7d0;
+      --green-b: #16a34a;
+      --soft: #eef2ff;
+      --field: #fff;
+      --th: #f9fafb;
+      --ok-bg: #f0fdf4;
+      --ok-bd: #bbf7d0;
+      --ok-ink: #166534;
+      --err-bg: #fef2f2;
+      --err-bd: #fecaca;
+      --err-ink: #991b1b;
+      --warn-bg: #fff7ed;
+      --warn-bd: #fdba74;
+      --warn-ink: #9a3412;
+    }
 
-/* ═══════════════════════════════════════════
-   1. DESIGN TOKENS (CSS Custom Properties)
-   ═══════════════════════════════════════════ */
-:root {
-  /* Spacing scale */
-  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px;
-  --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+    /* ===== TEMA GELAP (tambahan) ===== */
+    [data-theme="dark"] {
+      --bg: #0b1220;
+      --card: #111a2e;
+      --ink: #e5e7eb;
+      --muted: #94a3b8;
+      --line: #1f2a44;
+      --brand: #3b82f6;
+      --brand-d: #60a5fa;
+      --yellow: #3a3410;
+      --yellow-b: #ca8a04;
+      --red: #f87171;
+      --red-b: #f87171;
+      --green: #0f3d24;
+      --green-b: #4ade80;
+      --soft: #16213d;
+      --field: #0f172a;
+      --th: #16213d;
+      --ok-bg: #06281b;
+      --ok-bd: #14532d;
+      --ok-ink: #86efac;
+      --err-bg: #2a0f0f;
+      --err-bd: #7f1d1d;
+      --err-ink: #fca5a5;
+      --warn-bg: #2a1605;
+      --warn-bd: #7c2d12;
+      --warn-ink: #fdba74;
+    }
 
-  /* Colors - Light */
-  --bg-primary: #f8fafc;
-  --bg-card: #ffffff;
-  --text-primary: #0f172a;
-  --accent: #6366f1;
-  --accent-glow: rgba(99,102,241,.35);
-  --danger: #ef4444;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  
-  --muted: #64748b;
+    * {
+      box-sizing: border-box
+    }
 
-  /* Glassmorphism */
-  --glass-bg: rgba(255,255,255,.72);
-  --glass-border: rgba(255,255,255,.3);
-  --glass-blur: 16px;
+    body {
+      margin: 0;
+      font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.45
+    }
 
-  /* Animation tokens */
-  --ease-spring: cubic-bezier(.34,1.56,.64,1);
-  --ease-smooth: cubic-bezier(.4,0,.2,1);
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-  --duration-slow: 600ms;
+    header {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: #fff;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px
+    }
 
-  /* Layout */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --shadow-card: 0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.04);
-}
+    header h1 {
+      margin: 0;
+      font-size: 20px
+    }
 
-/* Dark theme override */
-[data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-card: #1e293b;
-  --text-primary: #f1f5f9;
-  --muted: #94a3b8;
-  --glass-bg: rgba(30,41,59,.72);
-  --glass-border: rgba(255,255,255,.08);
-  --shadow-card: 0 1px 3px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.2);
-}
+    header p {
+      margin: 4px 0 0;
+      opacity: .9;
+      font-size: 13px
+    }
 
-/* ═══════════════════════════════════════════
-   2. BASE / RESET
-   ═══════════════════════════════════════════ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100dvh;
-  overflow-x: hidden;
-}
+    .gear {
+      flex: 0 0 auto;
+      background: rgba(255, 255, 255, .15);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, .35);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 15px;
+      cursor: pointer
+    }
 
-/* ═══════════════════════════════════════════
-   3. LAYOUT - BENTO GRID
-   ═══════════════════════════════════════════ */
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  grid-auto-rows: min-content;
-  gap: var(--sp-4);
-  padding: var(--sp-4);
-  max-width: 1400px;
-  margin: 0 auto;
-}
-.bento-grid .card--grand-total {
-  grid-column: 1 / -1; /* full width */
-  background: linear-gradient(135deg, #1e3a8a, var(--accent));
-  color: white;
-  border-radius: var(--radius-lg);
-  padding: var(--sp-5);
-  display: flex; justify-content: space-between; align-items: center;
-  box-shadow: var(--shadow-card);
-}
-.bento-grid .card--input {
-  grid-row: span 2;
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: var(--sp-5);
-  box-shadow: var(--shadow-card);
-}
-.bento-grid .card--rekap {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: var(--sp-4);
-  box-shadow: var(--shadow-card);
-}
+    .gear:hover {
+      background: rgba(255, 255, 255, .28)
+    }
 
-/* ═══════════════════════════════════════════
-   4. COMPONENTS
-   ═══════════════════════════════════════════ */
+    .wrap {
+      max-width: none;
+      margin: 0;
+      padding: 16px 24px
+    }
 
-/* 4a. Sticky Glass Navbar */
-.navbar {
-  position: sticky; top: 0; z-index: 100;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border-bottom: 1px solid var(--glass-border);
-  padding: var(--sp-3) var(--sp-5);
-  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4);
-}
-.navbar__progress {
-  position: absolute; bottom: 0; left: 0;
-  height: 2px; background: var(--accent);
-  transition: width var(--duration-normal) var(--ease-smooth);
-}
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .05)
+    }
 
-/* 4b. Command Palette (Ctrl+K) */
-.cmd-palette {
-  position: fixed; inset: 0; z-index: 999;
-  display: none; /* toggled via JS */
-  place-items: start center;
-  background: rgba(0,0,0,.5);
-  backdrop-filter: blur(4px);
-}
-.cmd-palette.active { display: grid; }
-.cmd-palette__box {
-  margin-top: 15vh; width: min(560px, 90vw);
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 24px 80px rgba(0,0,0,.25);
-  overflow: hidden;
-  animation: cmdSlideIn var(--duration-normal) var(--ease-spring);
-}
-@keyframes cmdSlideIn {
-  from { opacity: 0; transform: translateY(-12px) scale(.97); }
-}
-.cmd-palette__input { 
-    width: 100%; border: none; padding: 20px; font-size: 18px; outline: none; background: transparent; color: var(--text-primary);
-}
-.cmd-palette__results { list-style: none; max-height: 300px; overflow-y: auto; padding:0; margin:0; }
-.cmd-palette__results li { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid var(--glass-border); }
-.cmd-palette__results li:hover { background: var(--glass-bg); }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
 
-/* 4c. Mandor Card */
-.card-mandor {
-  background: var(--bg-card);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
-  margin-bottom: var(--sp-3);
-  contain: layout style;
-  content-visibility: auto;
-  contain-intrinsic-size: 0 280px;
-  overflow: hidden;
-  transition: transform var(--duration-fast) var(--ease-smooth),
-              box-shadow var(--duration-fast) var(--ease-smooth);
-}
-.card-mandor:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,.1), 0 16px 40px rgba(0,0,0,.08);
-}
-.card-mandor header {
-    display: flex; justify-content: space-between; padding: var(--sp-3) var(--sp-4);
-    background: var(--glass-bg); border-bottom: 1px solid var(--glass-border);
-    cursor: pointer; align-items: center;
-}
-.card-mandor .card-body {
-    padding: var(--sp-3);
-}
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px
+    }
 
-/* 4d. Sparkline (pure SVG) */
-.sparkline { width: 100px; height: 32px; }
-.sparkline polyline {
-  fill: none; stroke: var(--accent);
-  stroke-width: 2; stroke-linecap: round;
-  stroke-dasharray: 200; stroke-dashoffset: 200;
-  animation: sparkDraw 1s var(--ease-smooth) forwards;
-}
-@keyframes sparkDraw { to { stroke-dashoffset: 0; } }
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px
+    }
 
-/* 4e. Progress Ring (SVG) */
-.progress-ring-box {
-    position: relative; display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px;
-}
-.progress-ring { transform: rotate(-90deg); }
-.progress-ring-circle {
-  transition: stroke-dashoffset var(--duration-slow) var(--ease-spring);
-}
-.progress-ring-text { position: absolute; font-size: 10px; font-weight: 800; }
+    .grid-5 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.1fr 1.1fr 1.2fr;
+      gap: 8px
+    }
 
-/* 4f. Skeleton Loading */
-.skeleton {
-  background: linear-gradient(90deg,
-    var(--bg-card) 25%, rgba(255,255,255,.15) 50%, var(--bg-card) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: var(--radius-sm);
-}
-@keyframes shimmer { to { background-position: -200% 0; } }
+    @media(max-width:1100px) {
+      .grid-5 {
+        grid-template-columns: repeat(3, 1fr)
+      }
+    }
 
-/* 4h. Toast (Glassmorphism) */
-.toast-epic {
-  position: fixed; bottom: var(--sp-5); right: var(--sp-5);
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-left: 4px solid var(--success);
-  border-radius: var(--radius-md);
-  padding: var(--sp-3) var(--sp-5);
-  transform: translateY(100px); opacity:0;
-  transition: transform var(--duration-normal) var(--ease-spring), opacity var(--duration-normal);
-  z-index:9999;
-}
-.toast-epic.show { transform: translateY(0); opacity:1; }
-.toast-epic.error { border-left-color: var(--danger); }
+    @media(max-width:680px) {
 
-/* 5a. Staggered Entrance */
-.stagger-item {
-  opacity: 0; transform: translateY(20px);
-  animation: staggerIn var(--duration-slow) var(--ease-spring) forwards;
-}
-@keyframes staggerIn {
-  to { opacity: 1; transform: translateY(0); }
-}
+      .grid,
+      .grid3 {
+        grid-template-columns: 1fr
+      }
+    }
 
-/* 5c. Confetti Particle */
-.confetti-particle {
-  position: fixed; pointer-events: none; z-index: 9999;
-}
+    @media(max-width:640px) {
+      .grid-5 {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
 
-/* 5d. Parse Scanning Highlight */
-.field-highlight {
-  background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
-  background-size: 200% 100%;
-  animation: scanHighlight .8s var(--ease-smooth);
-}
-@keyframes scanHighlight {
-  from { background-position: -200% 0; }
-  to   { background-position: 200% 0; }
-}
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px
+    }
 
-    /* ===== MODAL SETTING & OLD CSS KEPT ===== */
-    .overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, .55); display: none; align-items: flex-start; justify-content: center; z-index: 150; padding: 24px; overflow: auto; }
-    .overlay.show { display: flex; }
-    .modal { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); width: 100%; max-width: 580px; box-shadow: var(--shadow-card); }
-    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--glass-border); }
-    .modal-head h3 { margin: 0; font-size: 16px; }
-    .modal-body { padding: 16px; }
-    .modal-foot { padding: 12px 16px; border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-end; gap: 8px; }
-    .x { background: transparent; border: none; color: var(--muted, #64748b); font-size: 20px; cursor: pointer; line-height: 1; }
-    .seg { display: inline-flex; border: 1px solid var(--glass-border); border-radius: 9px; overflow: hidden; }
-    .seg button { background: var(--bg-primary); color: var(--text-primary); border: none; border-right: 1px solid var(--glass-border); border-radius: 0; padding: 7px 12px; font-size: 12.5px; }
-    .seg button:last-child { border-right: none; }
-    .seg button.on { background: var(--accent); color: #fff; }
-    .set-grp { margin-bottom: 16px; }
-    .set-grp > label { font-size: 13px; font-weight: 700; margin-bottom: 6px; display:block; }
-    .set-hint { font-size: 11.5px; color: var(--muted, #64748b); margin-top: 4px; }
-    #sRegexOut { margin-top: 8px; font-size: 12px; font-family: ui-monospace, Consolas, monospace; white-space: pre-wrap; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px; padding: 8px; display: none; }
-    #sRegexOut.show { display: block; }
-    
-    /* Tables & Inputs inside modals/form */
-    input, select, textarea { width: 100%; padding: 9px 10px; border: 1px solid var(--glass-border); border-radius: 8px; font-size: 14px; background: var(--bg-primary); color: var(--text-primary); }
-    input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-glow); border-color: var(--accent); }
-    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-    th, td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--glass-border); white-space: nowrap; }
-    th:first-child, td:first-child { text-align: center; }
-    th { background: var(--glass-bg); font-size: 11.5px; color: var(--muted, #64748b); text-transform: uppercase; letter-spacing: .3px; }
-    td.l, th.l { text-align: left; }
-    .tblwrap { overflow-x: auto; border: 1px solid var(--glass-border); border-radius: 10px; }
-    
-    /* Epic buttons & ripples reused */
-    .epic-btn { position: relative; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s; cursor: pointer; user-select: none; border-radius: 8px; padding: 9px 14px; font-size: 13px; font-weight: 600; border: none; }
-    .epic-btn:hover { transform: translate3d(0, -2px, 0); }
-    .epic-btn:active { transform: translate3d(0, 1px, 0) scale(0.98); }
-    .btn { background: var(--accent); color: #fff; }
-    .btn-ghost { background: var(--bg-card); color: var(--accent); border: 1px solid var(--accent); }
-    .btn-soft { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent); }
-    .btn-danger { background: var(--bg-card); color: var(--danger); border: 1px solid var(--danger); }
-    .btn-sm { padding: 5px 9px; font-size: 12px; }
-    
-    .status { margin-top: 10px; font-size: 12.5px; padding: 8px 10px; border-radius: 8px; background: rgba(34,197,94,0.1); border: 1px solid var(--success); color: var(--success); display: none; }
-    .status.err { background: rgba(239,68,68,0.1); border-color: var(--danger); color: var(--danger); }
-    .status.show { display: block; }
-    .warn { margin-top: 8px; background: rgba(245,158,11,0.1); border: 1px solid var(--warning); color: var(--warning); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; }
-    .prevbox { margin-top: 12px; border: 1px dashed var(--warning); background: rgba(245,158,11,0.05); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
-    
-    /* Layout Helpers */
-    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .grid-5 { display: grid; grid-template-columns: 1fr 1fr 1.1fr 1.1fr 1.2fr; gap: 8px; }
-    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
-    .acts { display: flex; gap: 8px; flex-wrap: wrap; }
-    
-    /* Utility */
-    .muted { color: var(--muted, #64748b); }
-    .timeline-item { position: relative; padding-left: 20px; border-left: 2px solid var(--glass-border); padding-bottom: 12px; font-size: 12.5px; }
-    .timeline-item::before { content: ''; position: absolute; left: -5px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-    
-    /* Skeleton custom CSS for Rekap Lists */
-    .rekap-panel-list { list-style: none; padding: 0; margin: 0; }
-    .rekap-panel-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--glass-border); cursor:pointer; }
-    .rekap-panel-list li:last-child { border-bottom: none; }
-    .rekap-panel-list li:hover { background: var(--glass-bg); }
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--field);
+      color: var(--ink)
+    }
 
-</style>
+    textarea {
+      resize: vertical;
+      min-height: 54px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 12.5px
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid #bfdbfe;
+      border-color: var(--brand)
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: flex-end
+    }
+
+    .row>* {
+      flex: 1;
+      min-width: 140px
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .btn {
+      background: var(--brand);
+      color: #fff
+    }
+
+    .btn:hover {
+      background: var(--brand-d)
+    }
+
+    .btn-ghost {
+      background: var(--card);
+      color: var(--brand);
+      border: 1px solid var(--brand)
+    }
+
+    .btn-soft {
+      background: var(--soft);
+      color: var(--brand-d);
+      border: 1px solid #c7d2fe
+    }
+
+    .btn-danger {
+      background: var(--card);
+      color: var(--red-b);
+      border: 1px solid var(--red)
+    }
+
+    .btn-sm {
+      padding: 5px 9px;
+      font-size: 12px
+    }
+
+    .full {
+      grid-column: 1/-1
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 12.5px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--ok-bg);
+      border: 1px solid var(--ok-bd);
+      color: var(--ok-ink);
+      display: none
+    }
+
+    .status.err {
+      background: var(--err-bg);
+      border-color: var(--err-bd);
+      color: var(--err-ink)
+    }
+
+    .status.show {
+      display: block
+    }
+
+    .prevbox {
+      margin-top: 12px;
+      border: 1px dashed var(--yellow-b);
+      background: var(--yellow);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px
+    }
+
+    .prevbox .ttl {
+      font-weight: 700;
+      margin-bottom: 6px
+    }
+
+    .prevbox .nums {
+      font-family: ui-monospace, Consolas, monospace
+    }
+
+    .warn {
+      margin-top: 8px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-bd);
+      color: var(--warn-ink);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12.5px
+    }
+
+    .stat {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px
+    }
+
+    .pill {
+      background: var(--soft);
+      border: 1px solid #c7d2fe;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12.5px
+    }
+
+    .pill b {
+      color: var(--brand-d)
+    }
+
+    .pill.red {
+      background: var(--err-bg);
+      border-color: var(--err-bd)
+    }
+
+    .pill.red b {
+      color: var(--err-ink)
+    }
+
+    .pill.green {
+      background: var(--ok-bg);
+      border-color: var(--ok-bd)
+    }
+
+    .pill.green b {
+      color: var(--ok-ink)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px
+    }
+
+    th,
+    td {
+      padding: 7px 8px;
+      text-align: right;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: center
+    }
+
+    th {
+      background: var(--th);
+      font-size: 11.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .3px
+    }
+
+    td.l,
+    th.l {
+      text-align: left
+    }
+
+    .tblwrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px
+    }
+
+    tr.hl-y td {
+      background: var(--yellow)
+    }
+
+    tr.hl-r td {
+      background: var(--err-bg)
+    }
+
+    .grp-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px
+    }
+
+    .grp-head .t {
+      font-weight: 700
+    }
+
+    .grp-head .s {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .grand {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .grand .v {
+      font-size: 22px;
+      font-weight: 800
+    }
+
+    .acts {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .help {
+      font-size: 12.5px;
+      color: var(--muted)
+    }
+
+    .help li {
+      margin-bottom: 4px
+    }
+
+    .kbd {
+      font-family: ui-monospace, monospace;
+      background: var(--soft);
+      border: 1px solid #c7d2fe;
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-size: 11.5px;
+      color: var(--brand-d)
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #111827;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      opacity: 0;
+      transition: .25s;
+      pointer-events: none;
+      z-index: 200
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0)
+    }
+
+    .muted {
+      color: var(--muted)
+    }
+
+    .mono {
+      font-family: ui-monospace, Consolas, monospace
+    }
+
+    /* ===== LAYOUT 40/60 ===== */
+    .layout {
+      display: grid;
+      grid-template-columns: 40fr 60fr;
+      gap: 16px;
+      align-items: start
+    }
+
+    .col-left,
+    .col-right {
+      min-width: 0
+    }
+
+    @media(min-width:901px) {
+      .col-left {
+        position: sticky;
+        top: 12px;
+        max-height: calc(100vh - 24px);
+        overflow: auto;
+        padding-right: 2px
+      }
+    }
+
+    @media(max-width:900px) {
+      .layout {
+        grid-template-columns: 1fr
+      }
+    }
+
+    /* ===== REKAP KIRI ===== */
+    .rekap h2 {
+      font-size: 14px
+    }
+
+    .rekap ul {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 0
+    }
+
+    .rekap li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 7px 0;
+      border-bottom: 1px dashed var(--line)
+    }
+
+    .rekap li:last-child {
+      border-bottom: none
+    }
+
+    .rk-label {
+      font-size: 12.5px;
+      min-width: 0
+    }
+
+    .rk-t {
+      font-weight: 700;
+      word-break: break-word
+    }
+
+    .rk-s {
+      color: var(--muted);
+      font-size: 11.5px
+    }
+
+    .rk-val {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--brand-d);
+      white-space: nowrap
+    }
+
+    .rk-total {
+      font-size: 12.5px;
+      background: var(--soft);
+      border: 1px solid #c7d2fe;
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-bottom: 4px
+    }
+
+    .rk-total b {
+      color: var(--brand-d)
+    }
+
+    .rk-empty {
+      color: var(--muted);
+      font-size: 12.5px
+    }
+
+    /* ===== MODAL SETTING (tambahan) ===== */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, .55);
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      z-index: 150;
+      padding: 24px;
+      overflow: auto
+    }
+
+    .overlay.show {
+      display: flex
+    }
+
+    .modal {
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, .35)
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      font-size: 16px
+    }
+
+    .modal-body {
+      padding: 16px
+    }
+
+    .modal-foot {
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px
+    }
+
+    .x {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1
+    }
+
+    .seg {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      overflow: hidden
+    }
+
+    .seg button {
+      background: var(--field);
+      color: var(--ink);
+      border: none;
+      border-right: 1px solid var(--line);
+      border-radius: 0;
+      padding: 7px 12px;
+      font-size: 12.5px
+    }
+
+    .seg button:last-child {
+      border-right: none
+    }
+
+    .seg button.on {
+      background: var(--brand);
+      color: #fff
+    }
+
+    .set-grp {
+      margin-bottom: 16px
+    }
+
+    .set-grp>label {
+      font-size: 13px;
+      color: var(--ink);
+      font-weight: 700;
+      margin-bottom: 6px
+    }
+
+    .set-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 4px
+    }
+
+    #sRegexOut {
+      margin-top: 8px;
+      font-size: 12px;
+      font-family: ui-monospace, Consolas, monospace;
+      white-space: pre-wrap;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      display: none
+    }
+
+    #sRegexOut.show {
+      display: block
+    }
+
+    #sRegexOut.err {
+      background: var(--err-bg);
+      border-color: var(--err-bd);
+      color: var(--err-ink)
+    }
+
+    /* --- EPIC ANIMATION PACK (ULTRA-SMOOTH 60FPS) --- */
+    :root {
+      --primary: #3b82f6;
+      --success: #22c55e;
+      --glow-primary: rgba(59, 130, 246, 0.35);
+      --glow-success: rgba(34, 197, 94, 0.4);
+      --ease-epic: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Tabular figures to prevent horizontal layout jank during number counting */
+    #grand-total-display,
+    .v,
+    .rk-val,
+    .nums,
+    table td {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .grand-div-pill {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+    }
+
+    .grand-div-pill b {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* 1. Staggered Entrance */
+    @keyframes fadeInUpSmooth {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 24px, 0);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    .panel-left {
+      animation: fadeInUpSmooth 0.5s var(--ease-epic) 0.05s forwards;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .panel-right {
+      animation: fadeInUpSmooth 0.5s var(--ease-epic) 0.15s forwards;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .epic-card {
+      transition: transform 0.25s var(--ease-epic), box-shadow 0.25s var(--ease-epic);
+      will-change: transform, box-shadow;
+    }
+
+    .epic-card:hover {
+      transform: translate3d(0, -2px, 0);
+      box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-entry {
+      animation: fadeInUpSmooth 0.35s var(--ease-epic) forwards;
+      will-change: transform, opacity;
+    }
+
+    /* 2. Grand Total Glow & Pulse */
+    #grand-total-display {
+      display: inline-block;
+      transition: text-shadow 0.3s ease, color 0.3s ease, transform 0.3s var(--ease-bounce);
+      will-change: transform;
+    }
+
+    #grand-total-display.updating {
+      animation: pulseGlow 0.6s ease-in-out;
+      color: var(--success);
+    }
+
+    @keyframes pulseGlow {
+
+      0%,
+      100% {
+        text-shadow: 0 0 15px var(--glow-primary);
+        transform: scale(1);
+      }
+
+      50% {
+        text-shadow: 0 0 35px var(--glow-success);
+        transform: scale(1.03);
+      }
+    }
+
+    /* 3. Epic Buttons (Ripple + Hover) */
+    .epic-btn {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s var(--ease-epic), box-shadow 0.2s var(--ease-epic), background-color 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+      will-change: transform;
+      user-select: none;
+    }
+
+    .epic-btn:hover {
+      transform: translate3d(0, -2px, 0);
+      box-shadow: 0 6px 16px -3px var(--glow-primary);
+    }
+
+    .epic-btn:active {
+      transform: translate3d(0, 1px, 0) scale(0.98);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      transform: translate(-50%, -50%) scale(0);
+      animation: ripple-anim 0.5s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes ripple-anim {
+      to {
+        transform: translate(-50%, -50%) scale(3.5);
+        opacity: 0;
+      }
+    }
+
+    /* 4. Parse Field Highlight Sequence (No scale transform to prevent layout reflow) */
+    @keyframes fieldPopulate {
+      0% {
+        background-color: rgba(59, 130, 246, 0.18);
+        box-shadow: 0 0 0 3px var(--glow-primary);
+        border-color: var(--primary) !important;
+      }
+
+      50% {
+        background-color: rgba(59, 130, 246, 0.1);
+        box-shadow: 0 0 0 4px var(--glow-primary);
+      }
+
+      100% {
+        background-color: var(--field);
+        box-shadow: none;
+      }
+    }
+
+    .field-highlight {
+      animation: fieldPopulate 0.7s var(--ease-epic) forwards;
+    }
+
+    /* 5. Glassmorphism Toast Notification */
+    .toast-epic {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-left: 4px solid var(--success);
+      padding: 14px 20px;
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
+      transform: translate3d(120%, 0, 0);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+      opacity: 0;
+      z-index: 9999;
+      font-family: system-ui, -apple-system, sans-serif;
+      pointer-events: none;
+    }
+
+    .toast-epic.show {
+      transform: translate3d(0, 0, 0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .toast-epic.error {
+      border-left-color: #ef4444;
+    }
+
+    /* 6. Collapsible Group Cards */
+    .tblwrap-collapsible {
+      max-height: 3500px;
+      opacity: 1;
+      overflow: hidden;
+      transition: max-height 0.4s var(--ease-epic), opacity 0.3s ease, margin 0.3s ease;
+    }
+
+    .tblwrap-collapsible.collapsed {
+      max-height: 0 !important;
+      opacity: 0;
+      margin: 0 !important;
+      border: none !important;
+    }
+
+    .grp-head {
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .grp-head:hover {
+      opacity: 0.92;
+    }
+
+    .grp-head-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-icon {
+      font-size: 11px;
+      transition: transform 0.3s var(--ease-epic);
+      display: inline-block;
+      color: var(--brand);
+    }
+
+    .toggle-icon.rotated {
+      transform: rotate(-90deg);
+    }
+
+    /* ===== 8. CIRCULAR PROGRESS RING STYLES ===== */
+    .progress-ring-box {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+    }
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+    .progress-ring-circle {
+      transition: stroke-dashoffset 0.8s var(--ease-epic), stroke 0.3s ease;
+    }
+    .progress-ring-text {
+      position: absolute;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== 6. FORM SHAKE & MICRO-INTERACTION STYLES ===== */
+    @keyframes formShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .form-shake {
+      animation: formShake 0.4s ease-in-out;
+      border-color: var(--red-b) !important;
+    }
+
+    /* ===== 2. SKELETON LOADING SHIMMER STYLES ===== */
+    @keyframes shimmerAnim {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton-shimmer {
+      background: linear-gradient(90deg, var(--line) 25%, var(--soft) 50%, var(--line) 75%) !important;
+      background-size: 200% 100% !important;
+      animation: shimmerAnim 1.5s infinite linear !important;
+      border-radius: 6px;
+      color: transparent !important;
+      pointer-events: none !important;
+    }
+
+    /* ===== 5. SCROLL TRIGGERED REVEAL STYLES ===== */
+    .card-entry {
+      opacity: 0;
+      transform: translate3d(0, 24px, 0);
+      transition: opacity 0.45s var(--ease-epic), transform 0.45s var(--ease-epic);
+      will-change: transform, opacity;
+    }
+    .card-entry.revealed {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    /* ===== MULTI FILTER & REKAP CLICKABLE STYLES ===== */
+    @media(max-width:1050px) {
+      .grid-filter { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media(max-width:560px) {
+      .grid-filter { grid-template-columns: 1fr !important; }
+    }
+    .rekap li.rk-item-clickable {
+      cursor: pointer;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin: 2px -8px;
+      transition: background-color 0.2s ease, transform 0.15s ease;
+      user-select: none;
+    }
+    .rekap li.rk-item-clickable:hover {
+      background: var(--soft);
+      transform: translateX(4px);
+    }
+    .rekap li.rk-item-clickable.active-filter {
+      background: var(--soft);
+      border: 1px solid #c7d2fe;
+      font-weight: 700;
+    }
+
+    /* ===== DARK MODE SMOOTH TRANSITION & FILTER CHIPS ===== */
+    body, div, input, select, textarea, button, table, td, th, .card, header {
+      transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 11.5px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    .filter-chip:hover {
+      transform: translateY(-1px);
+      border-color: var(--brand);
+    }
+    .filter-chip.active {
+      background: var(--brand);
+      color: #ffffff;
+      border-color: var(--brand-d);
+      font-weight: 700;
+      box-shadow: 0 2px 8px var(--glow-primary);
+    }
+
+    /* Mobile First Responsive Touch Styling */
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column !important;
+      }
+      .panel-left, .panel-right {
+        width: 100% !important;
+      }
+      .tblwrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+
+    /* Animated Header & Web Icon Styles */
+    .animated-header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s var(--ease-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)), filter 0.3s ease;
+      will-change: transform;
+      flex-shrink: 0;
+    }
+    .animated-header-icon:hover {
+      transform: scale(1.12) rotate(4deg);
+      filter: drop-shadow(0 6px 16px rgba(59, 130, 246, 0.6));
+    }
+    @keyframes hdrPulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.98); }
+      50% { opacity: 0.95; transform: scale(1.03); }
+    }
+    @keyframes hdrBarFill {
+      0% { width: 20px; }
+      50%, 100% { width: 150px; }
+    }
+    @keyframes hdrBadgeFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(3deg); }
+    }
+    @keyframes hdrCheckDraw {
+      0% { stroke-dashoffset: 50; opacity: 0.2; }
+      40%, 100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    .hdr-pulse { transform-origin: center; animation: hdrPulse 3s ease-in-out infinite; }
+    .hdr-bar { animation: hdrBarFill 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate; }
+    .hdr-badge { transform-origin: 360px 130px; animation: hdrBadgeFloat 3.2s ease-in-out infinite; }
+    .hdr-check { stroke-dasharray: 50; stroke-dashoffset: 50; animation: hdrCheckDraw 2.8s ease-in-out infinite alternate; }
+
+    /* ===== WORKFLOW UPGRADES CSS ===== */
+    .card-entry.dragging {
+      opacity: 0.45;
+      transform: scale(0.98);
+      border: 2px dashed var(--brand) !important;
+    }
+    .card-entry.drag-over {
+      border-top: 4px solid var(--brand) !important;
+    }
+    .drag-handle {
+      cursor: grab;
+      user-select: none;
+      padding: 2px 6px;
+      font-size: 14px;
+      opacity: 0.65;
+      transition: opacity 0.2s;
+    }
+    .drag-handle:hover {
+      opacity: 1;
+    }
+    tr.kb-selected {
+      outline: 2px solid var(--brand-d) !important;
+      background: var(--soft) !important;
+    }
+    .dirty-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--yellow-b);
+      background: var(--yellow);
+      padding: 2px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--yellow-b);
+      animation: pulseDirty 1.5s infinite alternate;
+    }
+    @keyframes pulseDirty {
+      from { opacity: 0.7; }
+      to { opacity: 1; }
+    }
+    .timeline-item {
+      position: relative;
+      padding-left: 20px;
+      border-left: 2px solid var(--line);
+      padding-bottom: 12px;
+      font-size: 12.5px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--brand);
+    }
+  </style>
 </head>
+
 <body>
-
-<!-- ═══ NAVBAR ═══ -->
-<nav class="navbar" id="navbar">
-  <strong style="font-size:18px;">📋 RekapBA Pro</strong>
-  <div style="display:flex; gap: 8px;">
-    <button id="btnCmdK" class="epic-btn btn-soft" title="Ctrl+K">🔍 Cari (Ctrl+K)</button>
-    <button id="btnSettingsNav" class="epic-btn btn-ghost" title="Setting">⚙️</button>
-    <button id="btnTheme" class="epic-btn btn-ghost">🌙</button>
-  </div>
-  <div class="navbar__progress" id="scrollProgress"></div>
-</nav>
-
-<!-- ═══ COMMAND PALETTE ═══ -->
-<div class="cmd-palette" id="cmdPalette">
-  <div class="cmd-palette__box">
-    <input type="text" class="cmd-palette__input" id="cmdInput" placeholder="Cari mandor, pekerjaan, aksi..." autocomplete="off" />
-    <ul class="cmd-palette__results" id="cmdResults"></ul>
-  </div>
-</div>
-
-<!-- ═══ MAIN BENTO GRID ═══ -->
-<main class="bento-grid" id="app">
-
-  <!-- Grand Total Card -->
-  <section class="card--grand-total" id="grandTotal">
+  <header>
     <div>
-      <h2 style="margin:0; font-size:14px; opacity:0.9;">Grand Total Dicairkan</h2>
-      <span class="odometer" id="odometerValue" style="font-size:36px; font-weight:900;">Rp 0</span>
+      <h1 style="display:flex;align-items:center;gap:12px">
+        <span class="animated-header-icon" title="Pencatat Progres Mandor App Icon">
+          <svg width="42" height="42" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));">
+            <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#hdrBgGrad)"/>
+            <rect x="44" y="44" width="424" height="424" rx="84" stroke="#60a5fa" stroke-width="6" stroke-opacity="0.7" class="hdr-pulse"/>
+            <rect x="116" y="105" width="280" height="335" rx="24" fill="#ffffff"/>
+            <rect x="186" y="80" width="140" height="44" rx="12" fill="url(#hdrGoldGrad)"/>
+            <circle cx="256" cy="102" r="8" fill="#0f172a"/>
+            <rect x="156" y="155" width="130" height="16" rx="8" fill="#1e3a8a"/>
+            <rect x="156" y="190" width="200" height="14" rx="7" fill="#e2e8f0"/>
+            <rect x="156" y="190" width="150" height="14" rx="7" fill="url(#hdrAccentGrad)" class="hdr-bar"/>
+            <circle cx="168" cy="240" r="11" fill="#10b981"/>
+            <path d="M163 240 l4 4 l7 -7" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="192" y="234" width="150" height="12" rx="6" fill="#475569"/>
+            <circle cx="168" cy="280" r="11" fill="#10b981"/>
+            <path d="M163 280 l4 4 l7 -7" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="192" y="274" width="125" height="12" rx="6" fill="#475569"/>
+            <circle cx="168" cy="320" r="11" fill="#3b82f6"/>
+            <path d="M164 320 h8" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+            <rect x="192" y="314" width="160" height="12" rx="6" fill="#94a3b8"/>
+            <g class="hdr-badge">
+              <circle cx="360" cy="130" r="38" fill="url(#hdrGoldGrad)"/>
+              <path d="M345 130 l10 10 l18 -18" stroke="#0f172a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="hdr-check"/>
+            </g>
+            <defs>
+              <linearGradient id="hdrBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1e3a8a"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+              </linearGradient>
+              <linearGradient id="hdrGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fde047"/>
+                <stop offset="100%" stop-color="#eab308"/>
+              </linearGradient>
+              <linearGradient id="hdrAccentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span>Pencatat Progres Mandor (BA)</span>
+      </h1>
+      <p>Kelompokkan per mandor &amp; pekerjaan · akumulasi otomatis · cegah salah hitung adendum</p>
     </div>
-    <div id="grand-dash-metrics" style="display:flex; gap:12px; font-size:13px; font-weight:600; background:rgba(255,255,255,0.2); padding:8px 16px; border-radius:12px;"></div>
-  </section>
+    <button class="gear epic-btn" id="btnSettings" type="button" title="Setting parsing & tema">⚙️ Setting</button>
+  </header>
 
-  <!-- Input Card -->
-  <section class="card--input" id="inputCard">
-    <h3 style="margin-top:0;">➕ Input BA</h3>
-    <div style="margin-bottom:12px;">
-      <textarea id="fPaste" placeholder="Paste baris BA di sini..." style="min-height:50px;"></textarea>
-      <div style="display:flex; justify-content:flex-end; margin-top:4px;">
-        <button id="btnParse" class="epic-btn btn-soft">⚡ Parse</button>
+  <div class="wrap">
+
+    <!-- GRAND TOTAL MINI DASHBOARD -->
+    <div class="grand epic-card" style="flex-direction:column;align-items:stretch;gap:12px;padding:18px 22px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:11.5px;opacity:.9;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">💰 Grand Total Termin Dicairkan</div>
+          <div class="v" id="grand-total-display" style="font-size:30px;font-weight:900;letter-spacing:-0.5px;">Rp 0</div>
+        </div>
+        <div id="grand-dash-metrics" style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;">
+          <!-- Dynamically filled: 👷 X Mandor · 🔧 Y Pekerjaan · 📋 Z Entri -->
+        </div>
+      </div>
+
+      <!-- Overall Contract Progress Bar -->
+      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;">
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;font-weight:600;">
+          <span id="grand-pct-label">Progres Pencairan Uang Mandor</span>
+          <span id="grand-pct-val">0% dari Total Kontrak</span>
+        </div>
+        <div style="height:8px;background:rgba(0,0,0,0.2);border-radius:4px;overflow:hidden;">
+          <div id="grand-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg, #fde047, #10b981);transition:width 0.8s var(--ease-epic);border-radius:4px;"></div>
+        </div>
+      </div>
+
+      <div id="grand-divisi-breakdown"
+        style="display:flex;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.2);font-size:12.5px">
       </div>
     </div>
-    
-    <div class="grid3">
+
+    <!-- MULTI FILTER CARD -->
+    <div class="card epic-card" style="padding:14px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <h2 style="margin:0;font-size:15px;display:flex;align-items:center;gap:6px">
+          <span>🔍 Multi-Filter &amp; Pencarian Data</span>
+        </h2>
+        <div id="filterCountBadge" class="pill green" style="font-size:12px;padding:4px 10px;">
+          Menampilkan semua entri
+        </div>
+      </div>
+      <div class="grid grid-filter" style="grid-template-columns: repeat(4, 1fr); gap:10px;">
         <div>
-            <label>Divisi</label>
-            <input type="text" id="fDivisi" list="dlDivisi" placeholder="Divisi...">
-            <datalist id="dlDivisi"></datalist>
+          <label for="filterDivisi">Divisi</label>
+          <select id="filterDivisi" style="padding:7px 9px;">
+            <option value="">Semua Divisi</option>
+          </select>
         </div>
         <div>
-            <label>Mandor</label>
-            <input type="text" id="fMandor" list="dlMandor" placeholder="Mandor...">
-            <datalist id="dlMandor"></datalist>
+          <label for="filterMandor">Mandor</label>
+          <select id="filterMandor" style="padding:7px 9px;">
+            <option value="">Semua Mandor</option>
+          </select>
         </div>
         <div>
-            <label>Jenis Pekerjaan</label>
-            <input type="text" id="fPekerjaan" list="dlPekerjaan" placeholder="Pekerjaan...">
-            <datalist id="dlPekerjaan"></datalist>
+          <label for="filterTempat">Tempat Proyek</label>
+          <select id="filterTempat" style="padding:7px 9px;">
+            <option value="">Semua Tempat Proyek</option>
+          </select>
         </div>
-    </div>
-    
-    <div class="grid-5" style="margin-top:8px">
-        <div><label>Tanggal</label><input type="date" id="fTgl"></div>
-        <div><label>Progres (%)</label><input type="text" id="fPersen"></div>
-        <div><label>Kontrak (Rp)</label><input type="text" id="fKontrak"></div>
-        <div><label>Kumulatif (Rp)</label><input type="text" id="fKum"></div>
-        <div><label>Sebelumnya (Rp)</label><input type="text" id="fPrev"></div>
-    </div>
-
-    <div id="prevBox" class="prevbox" style="display:none;">
-        <div class="ttl">📌 Progres Sebelumnya</div>
-        <div class="nums" id="prevNums"></div>
-        <div class="acts" style="margin-top:6px">
-            <button class="epic-btn btn-ghost btn-sm" id="copyPrevXY">📋 Copy Rp=</button>
-            <button class="epic-btn btn-soft btn-sm" id="usePrev">⬇ Pakai sbg Sebelumnya</button>
+        <div>
+          <label for="filterSearch">Cari Kata Kunci</label>
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="filterSearch" placeholder="Mandor, pekerjaan, tgl..." style="padding:7px 9px;">
+            <button class="btn-ghost epic-btn btn-sm" id="btnResetFilter" type="button" style="flex:0 0 auto;padding:0 10px;" title="Reset Filter">🧹 Reset</button>
+          </div>
         </div>
+      </div>
+      <!-- Filter Chips Bar -->
+      <div id="filterChipContainer" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:12px;"></div>
     </div>
 
-    <div id="adendumWarn" class="warn" style="display:none;"></div>
-    <div id="inlineValidationWarn" class="warn" style="display:none;"></div>
-    <div id="status" class="status"></div>
-    
-    <div class="row" style="margin-top:16px;">
-        <button class="epic-btn btn" id="btnSave">💾 Simpan Entri</button>
-        <button class="epic-btn btn-ghost" id="btnReset">🧹 Reset Form</button>
+    <!-- LAYOUT 40/60 -->
+    <div class="layout">
+      <aside class="col-left panel-left">
+        <div id="rekapPanel"></div>
+      </aside>
+
+      <section class="col-right panel-right">
+        <!-- FORM INPUT -->
+        <div class="card epic-card" style="padding:14px;">
+          <h2 style="margin-bottom:10px;font-size:15px;display:flex;align-items:center;justify-content:space-between;">
+            <span>➕ Input / Parse Entri BA</span>
+            <span id="dirtyIndicator" class="dirty-badge" style="display:none;">● Unsaved changes</span>
+          </h2>
+          <div class="grid3">
+            <div>
+              <label for="fDivisi">Divisi</label>
+              <input type="text" id="fDivisi" list="dlDivisi" placeholder="Ketik / pilih divisi..." autocomplete="off"
+                style="padding:7px 9px;">
+              <datalist id="dlDivisi"></datalist>
+            </div>
+            <div>
+              <label for="fMandor">Mandor</label>
+              <input type="text" id="fMandor" list="dlMandor" placeholder="Ketik / pilih mandor..." autocomplete="off"
+                style="padding:7px 9px;">
+              <datalist id="dlMandor"></datalist>
+            </div>
+            <div>
+              <label for="fPekerjaan">Jenis Pekerjaan</label>
+              <input type="text" id="fPekerjaan" list="dlPekerjaan" placeholder="Ketik / pilih pekerjaan..."
+                autocomplete="off" style="padding:7px 9px;">
+              <datalist id="dlPekerjaan"></datalist>
+            </div>
+          </div>
+
+          <div style="margin-top:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <label style="margin-bottom:0">Paste baris BA <span class="muted"
+                  style="font-weight:normal">(opsional)</span></label>
+              <button class="btn-soft epic-btn btn-sm" id="btnParse" type="button"
+                style="padding:3px 10px;font-size:11.5px">🔍 Parse Baris</button>
+            </div>
+            <textarea id="fPaste"
+              style="min-height:36px;height:36px;padding:6px 9px;font-size:12px;transition:height 0.2s ease"
+              placeholder="Tohir Pekerjaan Sekatan, Plafon... 67,133% x Rp 47.909.204 = 32.162.886"
+              onfocus="this.style.height='54px'" onblur="if(!this.value)this.style.height='36px'"></textarea>
+          </div>
+
+          <div class="grid-5" style="margin-top:8px">
+            <div>
+              <label>Tanggal</label>
+              <input type="date" id="fTgl" style="padding:6px 8px;font-size:13px">
+            </div>
+            <div>
+              <label>Progres (%)</label>
+              <input type="text" id="fPersen" placeholder="67,133" style="padding:6px 8px;font-size:13px">
+            </div>
+            <div>
+              <label>Kontrak (Rp)</label>
+              <input type="text" id="fKontrak" placeholder="47.909.204" style="padding:6px 8px;font-size:13px">
+            </div>
+            <div>
+              <label>Kumulatif (Rp)</label>
+              <input type="text" id="fKum" placeholder="32.162.886" style="padding:6px 8px;font-size:13px">
+            </div>
+            <div>
+              <label
+                title="Otomatis = kumulatif terakhir (edit hanya bila BA pakai baseline lain setelah adendum)">Sebelumnya
+                (Rp)</label>
+              <input type="text" id="fPrev" placeholder="otomatis" style="padding:6px 8px;font-size:13px">
+            </div>
+          </div>
+
+          <div id="prevBox" class="prevbox" style="display:none;margin-top:8px;padding:8px 10px;">
+            <div class="ttl" style="font-size:12px">📌 Progres Sebelumnya (entri terakhir kelompok ini) — referensi
+            </div>
+            <div class="nums" id="prevNums" style="font-size:12px"></div>
+            <div class="acts" style="margin-top:6px">
+              <button class="btn-ghost btn-sm epic-btn" id="copyPrevXY" type="button">📋 Copy "Rp … = …"</button>
+              <button class="btn-ghost btn-sm epic-btn" id="copyPrevFull" type="button">📋 Copy baris lengkap</button>
+              <button class="btn-soft btn-sm epic-btn" id="usePrev" type="button">⬇ Pakai kumulatif ini sbg
+                "Sebelumnya"</button>
+            </div>
+          </div>
+          <div id="adendumWarn" class="warn" style="display:none;margin-top:6px;padding:6px 9px;"></div>
+          <div id="inlineValidationWarn" class="warn" style="display:none;margin-top:6px;padding:6px 9px;background:#fffbebf0;border:1px solid #fde047;color:#854d0e;border-radius:8px;"></div>
+          <div id="editNotice" class="warn" style="display:none;margin-top:8px;padding:8px 12px;background:var(--soft);border-color:#c7d2fe;color:var(--brand-d);display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <span id="editNoticeText">✏️ <b>Mode Edit Entri</b></span>
+            <button class="btn-ghost btn-sm epic-btn" id="btnCancelEdit" type="button" style="padding:3px 10px;font-size:11.5px;">✖ Batal Edit</button>
+          </div>
+          <div id="status" class="status" style="margin-top:6px;padding:6px 9px;"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn epic-btn" id="btnSave" type="button" style="padding:8px 14px;">💾 Simpan Entri</button>
+            <button class="btn-ghost epic-btn" id="btnReset" type="button" style="padding:8px 14px;">🧹 Reset
+              Form</button>
+            <button class="btn-soft epic-btn" id="btnSample" type="button" style="padding:8px 14px;">🎯 Isi Contoh BA
+              Tohir (8 termin)</button>
+          </div>
+        </div>
+
+        <div id="groups"></div>
+      </section>
     </div>
-  </section>
 
-  <!-- Rekap Panels (Right Side / Flowing) -->
-  <section class="card--rekap" id="rekapDivisi">
-      <h3 style="margin-top:0;font-size:15px;">🏢 Rekap Divisi</h3>
-      <ul class="rekap-panel-list" id="listRekapDivisi"></ul>
-  </section>
-  <section class="card--rekap" id="rekapPekerjaan">
-      <h3 style="margin-top:0;font-size:15px;">🔧 Rekap Pekerjaan</h3>
-      <ul class="rekap-panel-list" id="listRekapPekerjaan"></ul>
-  </section>
-  <section class="card--rekap" id="rekapMandor">
-      <h3 style="margin-top:0;font-size:15px;">👷 Rekap Mandor</h3>
-      <ul class="rekap-panel-list" id="listRekapMandor"></ul>
-  </section>
-
-  <!-- Mandor Cards Container (Full width row) -->
-  <section id="mandorCards" style="grid-column: 1 / -1; margin-top: 24px;">
-    <h3 style="margin-bottom:12px;">📊 Detail Data per Kelompok</h3>
-    <!-- Rendered dynamically via JS -->
-  </section>
-
-  <!-- Data Backup Card -->
-  <section class="card--rekap" style="grid-column: 1 / -1;">
-      <h3 style="margin-top:0;">💾 Data & Backup</h3>
+    <!-- DATA -->
+    <div class="card epic-card">
+      <h2>💾 Data &amp; Backup</h2>
       <div class="acts">
-        <button class="epic-btn btn-soft" id="btnExport">⬇ Export JSON</button>
-        <button class="epic-btn btn-soft" id="btnImport">⬆ Import JSON</button>
+        <button class="btn-soft epic-btn" id="btnExport" type="button">⬇ Export JSON</button>
+        <button class="btn-soft epic-btn" id="btnImport" type="button">⬆ Import JSON</button>
         <input type="file" id="fileImport" accept="application/json" style="display:none">
-        <button class="epic-btn btn" id="btnPushGistMain">☁️ Push ke Gist</button>
-        <button class="epic-btn btn-ghost" id="btnPullGistMain">☁️ Pull dari Gist</button>
-        <button class="epic-btn btn-danger" id="btnClear">🗑 Hapus Semua Data</button>
+        <button class="btn epic-btn" id="btnPushGistMain" type="button" title="Upload data &amp; setting ke GitHub Gist">☁️ Push ke Gist</button>
+        <button class="btn-ghost epic-btn" id="btnPullGistMain" type="button" title="Download data dari GitHub Gist">☁️ Pull dari Gist</button>
+        <button class="btn-danger epic-btn" id="btnClear" type="button">🗑 Hapus Semua Data</button>
       </div>
       <div id="gistStatusBadge" style="margin-top:10px;font-size:12.5px;color:var(--muted)"></div>
-  </section>
-</main>
+      <p class="help" style="margin-top:8px">Data &amp; setting tersimpan otomatis di browser ini (localStorage).
+        Gunakan GitHub Gist untuk sinkronisasi antar perangkat (HP/Laptop) atau Export JSON untuk backup manual.</p>
+    </div>
 
-<!-- ===== MODAL SETTING (tambahan) ===== -->
+    <!-- BANTUAN -->
+    <div class="card epic-card">
+      <h2>❓ Cara Pakai &amp; Arti Kolom</h2>
+      <ul class="help">
+        <li><b>⚙️ Setting</b> (pojok kanan atas): atur <b>tema</b> (terang/gelap/otomatis) &amp; <b>aturan parsing</b>
+          (cara ambil mandor, kata kunci tempat, format angka, regex kustom).</li>
+        <li><b>Mandor &amp; Pekerjaan</b>: pilih dari dropdown, atau <span class="kbd">+ Tambah baru…</span>. Kalau
+          paste baris, keduanya terisi otomatis sesuai aturan di Setting.</li>
+        <li><b>Nilai Kumulatif</b> = persen × kontrak. <b>Termin</b> = Kumulatif − Sebelumnya = uang yg dicairkan di BA
+          ini. <b>Jumlah semua termin = Grand Total</b>.</li>
+        <li><b>Nilai Sebelumnya</b>: otomatis = kumulatif terakhir. <b>WAJIB diedit</b> bila ada adendum &amp; BA
+          menulis baseline berbeda (cth BA‑5 Tohir = 19.080.776).</li>
+        <li><b>Rekap kiri</b>: total termin per <b>Pekerjaan / Mandor / Tempat</b>. Tempat diambil dari kata kunci di
+          Setting (default: Dapur, Gedung, Blok, …).</li>
+        <li>Baris tabel: <span style="background:var(--yellow);padding:1px 6px;border-radius:4px">kuning</span> =
+          override "sebelumnya"; <span style="background:var(--err-bg);padding:1px 6px;border-radius:4px">merah</span> =
+          termin negatif.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== MODAL SETTING (tambahan) ===== -->
   <div class="overlay" id="settingsOverlay">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-head">
@@ -530,11 +1518,71 @@ body {
         </div>
 
       </div>
+      <div class="modal-foot">
+        <button class="btn-ghost epic-btn" id="settingsCancel" type="button">Batal</button>
+        <button class="btn epic-btn" id="settingsSave" type="button">💾 Simpan Setting</button>
+      </div>
+    </div>
+  </div>
 
-<!-- ═══ CONFETTI CANVAS ═══ -->
-<canvas id="confettiCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:9999;"></canvas>
-<script>
+  <!-- ===== BATCH PARSE PREVIEW MODAL ===== -->
+  <div class="overlay" id="batchOverlay">
+    <div class="modal" style="max-width:900px;width:95%" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3>⚡ Preview Batch Parse BA (<span id="batchCount">0</span> Baris Ditemukan)</h3>
+        <button class="x" id="batchClose" type="button" aria-label="Tutup">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--muted);margin-top:0;">Periksa dan sesuaikan hasil parse sebelum disimpan bersamaan ke dalam sistem.</p>
+        <div class="tblwrap" style="max-height:360px;overflow-y:auto;">
+          <table id="batchTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Divisi</th>
+                <th>Mandor</th>
+                <th>Pekerjaan</th>
+                <th>Progres (%)</th>
+                <th>Kontrak (Rp)</th>
+                <th>Kumulatif (Rp)</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="batchTbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-foot" style="justify-content:space-between;">
+        <span id="batchValidSummary" style="font-size:13px;font-weight:600;color:var(--brand-d);"></span>
+        <div>
+          <button class="btn-ghost epic-btn" id="batchCancel" type="button">Batalkan</button>
+          <button class="btn epic-btn" id="batchConfirm" type="button">✅ Simpan Semua Entri Valid</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- ===== HISTORY / AUDIT TRAIL MODAL ===== -->
+  <div class="overlay" id="historyOverlay">
+    <div class="modal" style="max-width:640px;width:95%" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3>📜 Audit Trail / Riwayat Perubahan</h3>
+        <button class="x" id="historyClose" type="button" aria-label="Tutup">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="historyTargetTitle" style="font-weight:700;font-size:14.5px;margin-bottom:12px;color:var(--brand-d);"></div>
+        <div id="historyTimeline" style="display:flex;flex-direction:column;gap:12px;max-height:400px;overflow-y:auto;padding-right:4px;"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn epic-btn" id="historyDone" type="button">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
     // --- EPIC ANIMATION CONTROLLER ---
 
     // 1. Ripple Effect untuk semua tombol dengan class 'epic-btn'
@@ -553,7 +1601,7 @@ body {
     // 2. Epic Number Counter (Odometer Effect)
     let lastGrandTotalValue = 0;
     function animateGrandTotal(elementId, endValue, duration = 1000) {
-      const el = document.getElementById(elementId) || document.getElementById('odometerValue');
+      const el = document.getElementById(elementId) || document.getElementById('grandTotal');
       if (!el) return;
       el.classList.add('updating');
       const startValue = lastGrandTotalValue;
@@ -1524,42 +2572,11 @@ body {
      <div class="rk-total">Total termin: <b>Rp ${fmtMoney(total)}</b></div>
      <ul>${items}</ul></div>`;
     }
-    
-    function getRekapListHtml(list, type, labelFn, valFn) {
-        if(!list.length) return '<li><span class="muted">Belum ada data</span></li>';
-        return list.map(([k, d]) => `
-            <li onclick="openCmdPalette('${type}: ${esc(k)}')">
-                <div style="font-size:13px;">${labelFn([k,d])}</div>
-                <div style="font-weight:700; font-size:13px; color:var(--accent);">Rp ${fmtMoney(valFn(d))}</div>
-            </li>
-        `).join('');
-    }
-
     function renderRekap() {
-      if (!records.length) return;
-      const sourceRecords = getFilteredRecords();
-      const byD = {}, byP = {}, byM = {}, byT = {};
-      sourceRecords.forEach(r => {
-        const dName = norm(r.divisi || 'Umum');
-        const t = Number(r.termin) || 0;
-        (byD[dName] ??= { termin: 0, n: 0, man: new Set() }); byD[dName].termin += t; byD[dName].n++; byD[dName].man.add(r.mandor);
-        (byP[r.pekerjaan] ??= { termin: 0, n: 0 }); byP[r.pekerjaan].termin += t; byP[r.pekerjaan].n++;
-        (byM[r.mandor] ??= { termin: 0, n: 0 }); byM[r.mandor].termin += t; byM[r.mandor].n++;
-      });
+      const panel = document.getElementById('rekapPanel');
+      if (!panel) return;
+      if (!records.length) { panel.innerHTML = '<div class="card rekap"><h2>📊 Rekap</h2><p class="rk-empty">Belum ada data. Rekap per Divisi / Pekerjaan / Mandor / Tempat muncul otomatis setelah ada entri.</p></div>'; return; }
       
-      const sD = Object.entries(byD).sort((a, b) => b[1].termin - a[1].termin);
-      const sP = Object.entries(byP).sort((a, b) => b[1].termin - a[1].termin);
-      const sM = Object.entries(byM).sort((a, b) => b[1].termin - a[1].termin);
-
-      const dEl = document.getElementById('listRekapDivisi');
-      const pEl = document.getElementById('listRekapPekerjaan');
-      const mEl = document.getElementById('listRekapMandor');
-
-      if (dEl) dEl.innerHTML = getRekapListHtml(sD, 'divisi', ([k,d]) => `<b>${esc(k)}</b><br><span class="muted" style="font-size:11px;">${d.n} entri</span>`, d => d.termin);
-      if (pEl) pEl.innerHTML = getRekapListHtml(sP, 'pekerjaan', ([k,d]) => `${esc(k)}`, d => d.termin);
-      if (mEl) mEl.innerHTML = getRekapListHtml(sM, 'mandor', ([k,d]) => `${esc(k)}`, d => d.termin);
-    }
-
       const sourceRecords = getFilteredRecords();
       const byD = {}, byP = {}, byM = {}, byT = {};
       sourceRecords.forEach(r => {
@@ -1652,138 +2669,50 @@ body {
       if (notice) notice.style.display = 'none';
     }
 
-    
     function renderGroups() {
       const filteredRecords = getFilteredRecords();
-      const wrap = document.getElementById('mandorCards');
-      if (!wrap) return;
-      wrap.innerHTML = '<h3 style="margin-bottom:12px;">📊 Detail Data per Kelompok</h3>';
+      const wrap = document.getElementById('groups');
+      
+      // 1. FLIP Animation: Record initial card rects
+      const firstRects = new Map();
+      wrap.querySelectorAll('.card-entry').forEach(c => {
+        const key = c.getAttribute('data-group-key');
+        if (key) firstRects.set(key, c.getBoundingClientRect());
+      });
+
+      wrap.innerHTML = '';
 
       if (!records.length) {
-        wrap.innerHTML += `<div class="card-mandor" style="padding:36px 20px;text-align:center;color:var(--muted);">
-          Belum Ada Data Progres Mandor
+        wrap.innerHTML = `<div class="card epic-card" style="padding:36px 20px;text-align:center;color:var(--muted);margin-top:16px;">
+          <div style="font-size:48px;margin-bottom:12px;filter:drop-shadow(0 4px 12px rgba(37,99,235,0.2));">📋</div>
+          <h3 style="font-size:18px;margin:0 0 8px 0;color:var(--ink);font-weight:700;">Belum Ada Data Progres Mandor</h3>
+          <p style="font-size:13.5px;max-width:440px;margin:0 auto 16px auto;line-height:1.5;color:var(--muted);">
+            Tempel baris teks Berita Acara (BA) di kotak input atas untuk parse otomatis, atau isi formulir secara manual.
+          </p>
+          <button class="btn epic-btn" type="button" onclick="document.getElementById('fPaste').focus();document.getElementById('fPaste').scrollIntoView({behavior:'smooth'})" style="padding:10px 20px;font-weight:600;">
+            ⚡ Mulai Input Data BA
+          </button>
         </div>`;
-        animateGrandTotal('odometerValue', 0);
+        animateGrandTotal('grand-total-display', 0);
+        const divBdEl = document.getElementById('grand-divisi-breakdown');
+        if (divBdEl) divBdEl.style.display = 'none';
         return;
       }
+
       if (!filteredRecords.length) {
-          wrap.innerHTML += `<div class="card-mandor" style="padding:24px;text-align:center;">Tidak ada entri sesuai filter.</div>`;
-          animateGrandTotal('odometerValue', 0);
-          return;
+        wrap.innerHTML = `<div class="card epic-card" style="padding:24px;text-align:center;color:var(--muted)">
+          <div style="font-size:32px;margin-bottom:8px">🔍</div>
+          <div style="font-weight:700;font-size:15px;color:var(--ink)">Tidak ada entri yang cocok dengan filter.</div>
+          <div style="font-size:12.5px;margin-top:4px">Coba ubah atau reset pilihan filter Anda.</div>
+          <button class="btn-soft epic-btn btn-sm" id="btnResetNoData" type="button" style="margin-top:12px">🧹 Reset Semua Filter</button>
+        </div>`;
+        const resetBtn = document.getElementById('btnResetNoData');
+        if (resetBtn) resetBtn.addEventListener('click', resetAllFilters);
+        animateGrandTotal('grand-total-display', 0);
+        const divBdEl = document.getElementById('grand-divisi-breakdown');
+        if (divBdEl) divBdEl.style.display = 'none';
+        return;
       }
-
-      const map = {};
-      const lastIndexMap = {};
-      filteredRecords.forEach((r, idx) => {
-        const k = keyOf(r);
-        if (!map[k]) map[k] = [];
-        map[k].push(r);
-        lastIndexMap[k] = idx;
-      });
-
-      const order = Object.keys(map).sort((a, b) => lastIndexMap[b] - lastIndexMap[a]);
-      let grand = 0;
-      
-      order.forEach(k => {
-        const list = map[k];
-        const last = list[list.length - 1];
-        const totalTermin = list.reduce((a, r) => a + (Number(r.termin) || 0), 0);
-        grand += totalTermin;
-        const isCollapsed = collapsedGroups.has(k);
-
-        let rows = '';
-        list.forEach((r, i) => {
-          rows += `<tr>
-            <td>${i + 1}</td>
-            <td class="l">${esc(r.tanggal || '-')}</td>
-            <td>${fmtPercent(r.persen)}%</td>
-            <td>${fmtMoney(r.kontrak)}</td>
-            <td>${fmtMoney(r.kumulatif)}</td>
-            <td>${fmtMoney(r.prev)}</td>
-            <td><b>${fmtMoney(r.termin)}</b></td>
-            <td>
-              <button class="epic-btn btn-soft btn-sm" data-edit="${r.id}">✏️</button>
-              <button class="epic-btn btn-danger btn-sm" data-del="${r.id}">✕</button>
-            </td>
-          </tr>`;
-        });
-
-        const radius = 18;
-        const circ = 2 * Math.PI * radius;
-        const pctVal = Math.min(100, Math.max(0, Number(last.persen) || 0));
-        const offset = circ - (circ * pctVal) / 100;
-        const ringColor = pctVal >= 100 ? 'var(--success)' : (pctVal >= 50 ? 'var(--accent)' : 'var(--warning)');
-
-        const progressRingHtml = `
-          <div class="progress-ring-box">
-            <svg class="progress-ring" width="42" height="42" viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="18" fill="none" stroke="var(--glass-border)" stroke-width="4" />
-              <circle class="progress-ring-circle" cx="24" cy="24" r="18" fill="none"
-                stroke="${ringColor}" stroke-width="4"
-                stroke-dasharray="${circ.toFixed(2)}"
-                stroke-dashoffset="${offset.toFixed(2)}"
-                stroke-linecap="round"/>
-            </svg>
-            <span class="progress-ring-text">${Math.round(pctVal)}%</span>
-          </div>`;
-
-        const card = document.createElement('article');
-        card.className = 'card-mandor stagger-item';
-        card.innerHTML = `
-          <header data-toggle="${esc(k)}">
-            <div style="display:flex; align-items:center; gap:12px;">
-                ${progressRingHtml}
-                <div>
-                    <h4 style="margin:0;font-size:15px;">👷 ${esc(last.mandor)}</h4>
-                    <div style="font-size:12px;color:var(--muted);">🏢 ${esc(last.divisi || 'Umum')} | 🔧 ${esc(last.pekerjaan)}</div>
-                </div>
-            </div>
-            <div>
-                <span style="font-weight:700; color:var(--accent);">Rp ${fmtMoney(totalTermin)}</span>
-                <span style="margin-left:8px; font-size:12px;">${isCollapsed ? '▼' : '▲'}</span>
-            </div>
-          </header>
-          <div class="card-body" style="display: ${isCollapsed ? 'none' : 'block'};">
-            <div class="tblwrap">
-                <table>
-                    <thead><tr><th>#</th><th class="l">Tgl</th><th>%</th><th>Kontrak</th><th>Kumulatif</th><th>Sblm</th><th>Termin</th><th>Aksi</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>
-          </div>
-        `;
-        wrap.appendChild(card);
-      });
-
-      animateGrandTotal('odometerValue', grand);
-
-      const mCount = new Set(filteredRecords.map(r => r.mandor)).size;
-      const pCount = new Set(filteredRecords.map(r => r.pekerjaan)).size;
-      const dashEl = document.getElementById('grand-dash-metrics');
-      if (dashEl) dashEl.innerHTML = `<span>👷 ${mCount} Mandor</span><span>🔧 ${pCount} Pkrj</span><span>📋 ${filteredRecords.length} Entri</span>`;
-
-      wrap.querySelectorAll('[data-toggle]').forEach(el => {
-        el.addEventListener('click', (e) => {
-          if (e.target.closest('button')) return;
-          const key = el.getAttribute('data-toggle');
-          if (collapsedGroups.has(key)) collapsedGroups.delete(key); else collapsedGroups.add(key);
-          renderGroups();
-        });
-      });
-      wrap.querySelectorAll('[data-edit]').forEach(b => {
-        b.onclick = (e) => { e.stopPropagation(); startEditEntry(records.find(x => x.id === b.getAttribute('data-edit'))); };
-      });
-      wrap.querySelectorAll('[data-del]').forEach(b => {
-        b.onclick = (e) => { 
-            e.stopPropagation(); 
-            const delId = b.getAttribute('data-del');
-            if (confirm('Hapus entri?')) {
-                records = records.filter(r => r.id !== delId);
-                save(); renderGroups(); renderRekap();
-            }
-        };
-      });
-    }
 
       const map = {};
       const lastIndexMap = {};
@@ -1941,7 +2870,7 @@ body {
 
       observeCardReveals();
 
-      animateGrandTotal('odometerValue', grand);
+      animateGrandTotal('grand-total-display', grand);
 
       // Update Grand Total Mini Dashboard Metrics & Progress Bar
       const totalContractSum = Object.values(map).reduce((sum, list) => sum + (Number(list[list.length - 1].kontrak) || 0), 0);
@@ -2690,75 +3619,7 @@ body {
         }
       }
     }
-  
-    // Command Palette Logic
-    const cmdPalette = document.getElementById('cmdPalette');
-    const cmdInput = document.getElementById('cmdInput');
-    const cmdResults = document.getElementById('cmdResults');
+  </script>
+</body>
 
-    function openCmdPalette(initialVal = '') {
-        if (!cmdPalette) return;
-        cmdPalette.classList.add('active');
-        if (cmdInput) { cmdInput.value = initialVal; cmdInput.focus(); updateCmdResults(); }
-    }
-    
-    function closeCmdPalette() {
-        if (cmdPalette) cmdPalette.classList.remove('active');
-    }
-
-    if (document.getElementById('btnCmdK')) {
-        document.getElementById('btnCmdK').addEventListener('click', () => openCmdPalette());
-    }
-
-    document.addEventListener('keydown', e => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-            e.preventDefault();
-            openCmdPalette();
-        }
-        if (e.key === 'Escape') closeCmdPalette();
-    });
-
-    if (cmdInput) cmdInput.addEventListener('input', updateCmdResults);
-    
-    function updateCmdResults() {
-        const q = cmdInput.value.toLowerCase();
-        let res = [];
-        
-        // Commands
-        if ('setting'.includes(q) || 'pengaturan'.includes(q)) res.push({ label: '⚙️ Buka Setting', action: openSettings });
-        if ('export'.includes(q)) res.push({ label: '⬇️ Export JSON', action: doExport });
-        if ('gist'.includes(q)) res.push({ label: '☁️ Push ke Gist', action: pushToGist });
-
-        // Search records
-        if (q.trim()) {
-            const matches = records.filter(r => (r.mandor + ' ' + r.pekerjaan + ' ' + (r.divisi||'')).toLowerCase().includes(q)).slice(0, 5);
-            matches.forEach(m => {
-                res.push({ label: `🔍 Edit Entri: ${m.mandor} - ${m.pekerjaan}`, action: () => { closeCmdPalette(); startEditEntry(m); }});
-            });
-        }
-        
-        if (cmdResults) {
-            cmdResults.innerHTML = res.map((r, i) => `<li data-idx="${i}">${esc(r.label)}</li>`).join('');
-            cmdResults.querySelectorAll('li').forEach(li => {
-                li.addEventListener('click', () => {
-                    const idx = parseInt(li.getAttribute('data-idx'));
-                    if (res[idx] && res[idx].action) res[idx].action();
-                    closeCmdPalette();
-                });
-            });
-        }
-    }
-
-    // Connect theme button
-    if (document.getElementById('btnTheme')) {
-        document.getElementById('btnTheme').addEventListener('click', () => {
-            settings.theme = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
-            applyTheme();
-            saveSettings();
-            setThemeSeg(settings.theme);
-        });
-    }
-    
-    // Connect old buttons to new IDs
-    if(document.getElementById('btnSettingsNav')) document.getElementById('btnSettingsNav').addEventListener('click', openSettings);
-\n</script>\n</body>\n</html>
+</html>
